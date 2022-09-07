@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.util.IdGenerator;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -23,7 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(FilmController.class)
+@WebMvcTest({FilmController.class, IdGenerator.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 public class FilmControllerTest {
@@ -63,7 +64,7 @@ public class FilmControllerTest {
 
     @Test
     void getAllFilmsAndThenStatus200AndFilmsCollectionReturn() throws Exception {
-        Film film = new Film(NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
+        Film film = new Film(0, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
         mockMvcPerformPost(film);
         film.setId(1);
         mockMvcPerformGet()
@@ -73,9 +74,8 @@ public class FilmControllerTest {
 
     @Test
     void addFilmAndThenStatus200AndFilmReturn() throws Exception {
-        Film film = new Film(NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
-        Film expected = new Film(NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
-        expected.setId(1);
+        Film film = new Film(0, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
+        Film expected = new Film(1, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
         mockMvcPerformPost(film)
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expected)));
@@ -89,27 +89,26 @@ public class FilmControllerTest {
 
     @Test
     void addFilmFailNullNameAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new Film(null, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT))
+        mockMvcPerformPost(new Film(0,null, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addFilmFailEmptyNameAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new Film("", DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT))
+        mockMvcPerformPost(new Film(0,"", DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addFilmFailBlankNameAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new Film("      ", DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT))
+        mockMvcPerformPost(new Film(0,"      ", DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addFilmNullDescriptionAndThenStatus200AndFilmReturn() throws Exception {
-        Film film = new Film(NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
-        Film expected = new Film(NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
-        expected.setId(1);
+        Film film = new Film(0, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
+        Film expected = new Film(1, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
         mockMvcPerformPost(film)
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expected)));
@@ -120,9 +119,8 @@ public class FilmControllerTest {
         String description = Stream.generate(() -> "a")
                 .limit(MAX_FILM_DESCRIPTION_LENGTH)
                 .collect(Collectors.joining());
-        Film film = new Film(NAME_CORRECT, description, RELEASE_DATE_CORRECT, DURATION_CORRECT);
-        Film expected = new Film(NAME_CORRECT, description, RELEASE_DATE_CORRECT, DURATION_CORRECT);
-        expected.setId(1);
+        Film film = new Film(0, NAME_CORRECT, description, RELEASE_DATE_CORRECT, DURATION_CORRECT);
+        Film expected = new Film(1, NAME_CORRECT, description, RELEASE_DATE_CORRECT, DURATION_CORRECT);
         mockMvcPerformPost(film)
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expected)));
@@ -133,15 +131,14 @@ public class FilmControllerTest {
         String description = Stream.generate(() -> "a")
                 .limit(MAX_FILM_DESCRIPTION_LENGTH + 1)
                 .collect(Collectors.joining());
-        mockMvcPerformPost(new Film(NAME_CORRECT, description, RELEASE_DATE_CORRECT, DURATION_CORRECT))
+        mockMvcPerformPost(new Film(0, NAME_CORRECT, description, RELEASE_DATE_CORRECT, DURATION_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addFilmLimitReleaseDateAndThenStatus200AndFilmReturn() throws Exception {
-        Film film = new Film(NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_MIN, DURATION_CORRECT);
-        Film expected = new Film(NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_MIN, DURATION_CORRECT);
-        expected.setId(1);
+        Film film = new Film(0, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_MIN, DURATION_CORRECT);
+        Film expected = new Film(1, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_MIN, DURATION_CORRECT);
         mockMvcPerformPost(film)
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expected)));
@@ -150,15 +147,14 @@ public class FilmControllerTest {
     @Test
     void addFilmFailTooOldReleaseDateAndThenStatus400() throws Exception {
         mockMvcPerformPost(
-                new Film(NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_MIN.minusDays(1), DURATION_CORRECT))
+                new Film(0, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_MIN.minusDays(1), DURATION_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addFilmNullReleaseDateAndThenStatus200AndFilmReturn() throws Exception {
-        Film film = new Film(NAME_CORRECT, DESCRIPTION_CORRECT, null, DURATION_CORRECT);
-        Film expected = new Film(NAME_CORRECT, DESCRIPTION_CORRECT, null, DURATION_CORRECT);
-        expected.setId(1);
+        Film film = new Film(0, NAME_CORRECT, DESCRIPTION_CORRECT, null, DURATION_CORRECT);
+        Film expected = new Film(1, NAME_CORRECT, DESCRIPTION_CORRECT, null, DURATION_CORRECT);
         mockMvcPerformPost(film)
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expected)));
@@ -166,9 +162,8 @@ public class FilmControllerTest {
 
     @Test
     void addFilmPositiveDurationAndThenStatus200AndFilmReturn() throws Exception {
-        Film film = new Film(NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, 1);
-        Film expected = new Film(NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, 1);
-        expected.setId(1);
+        Film film = new Film(0, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, 1);
+        Film expected = new Film(1, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, 1);
         mockMvcPerformPost(film)
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expected)));
@@ -176,23 +171,22 @@ public class FilmControllerTest {
 
     @Test
     void addFilmZeroDurationAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new Film(NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, 0))
+        mockMvcPerformPost(new Film(0, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, 0))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addFilmNegativeDurationAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new Film(NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, -1))
+        mockMvcPerformPost(new Film(0, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, -1))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void updateFilmAndThenStatus200AndUserReturn() throws Exception {
-        Film film = new Film(NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
+        Film film = new Film(0, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
         mockMvcPerformPost(film);
-        film = new Film(NAME_CORRECT + " updated", DESCRIPTION_CORRECT + " updated",
+        film = new Film(1, NAME_CORRECT + " updated", DESCRIPTION_CORRECT + " updated",
                 RELEASE_DATE_CORRECT, DURATION_CORRECT);
-        film.setId(1);
         mockMvcPerformPut(film)
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(film)));
@@ -202,7 +196,7 @@ public class FilmControllerTest {
 
     @Test
     void updateUserFailIncorrectIdAndThenStatus404() throws Exception {
-        Film film = new Film(NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
+        Film film = new Film(0, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
         mockMvcPerformPost(film);
         film.setId(-1);
         mockMvcPerformPut(film)

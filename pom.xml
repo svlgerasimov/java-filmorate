@@ -14,7 +14,7 @@
 	<artifactId>filmorate</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>filmorate</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Filmorate application</description>
 
 	<properties>
 		<java.version>11</java.version>

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -18,7 +19,12 @@ import java.util.Objects;
 public class UserController {
 
     private final Map<Integer, User> users = new HashMap<>();
-    private final IdGenerator idGenerator = new IdGenerator();
+    private final IdGenerator idGenerator;
+
+    @Autowired
+    public UserController(final IdGenerator idGenerator) {
+        this.idGenerator = idGenerator;
+    }
 
     @GetMapping
     public Collection<User> getAllUsers() {
