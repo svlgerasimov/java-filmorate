@@ -3,8 +3,9 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.util.IdGenerator;
 
 import javax.validation.Valid;
@@ -14,41 +15,27 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
-@Slf4j
 public class FilmController {
 
-    private final Map<Integer, Film> films = new HashMap<>();
-    private final IdGenerator idGenerator;
+    private final FilmService filmService;
 
     @Autowired
-    public FilmController(final IdGenerator idGenerator) {
-        this.idGenerator = idGenerator;
+    public FilmController(final FilmService filmService) {
+        this.filmService = filmService;
     }
 
     @GetMapping
     public Collection<Film> getAllFilms() {
-        return films.values();
+        return filmService.getAllFilms();
     }
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-        int id = idGenerator.getNextId();
-        film.setId(id);
-        films.put(id, film);
-        log.debug("Add film {}", film);
-        return film;
+        return filmService.addFilm(film);
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
-        int id = film.getId();
-        if (!films.containsKey(id)) {
-            String message = String.format("Film id=%s not found", id);
-            log.warn(message);
-            throw new NotFoundException(message);
-        }
-        films.put(id, film);
-        log.debug("Update film {}", film);
-        return film;
+        return filmService.updateFilm(film);
     }
 }
