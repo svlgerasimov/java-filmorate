@@ -27,19 +27,20 @@ public class UserService {
     }
 
     public User addUser(User user) {
-        preprocess(user);
+        user = preprocess(user);
         return userStorage.addUser(user);
     }
 
     public User updateUser(User user) {
-        preprocess(user);
+        user = preprocess(user);
         return userStorage.updateUser(user);
     }
 
-    private void preprocess(User user) {
+    private User preprocess(User user) {
         String name = user.getName();
         if (Objects.isNull(name) || name.isBlank()) {
-            user.setName(user.getLogin());
+            return user.withName(user.getLogin());
         }
+        return user;
     }
 }

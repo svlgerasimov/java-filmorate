@@ -72,7 +72,7 @@ class UserControllerTest {
     void getAllUsersAndThenStatus200AndUsersCollectionReturn() throws Exception {
         User user = new User(0, EMAIL_CORRECT, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT);
         mockMvcPerformPost(user);
-        user.setId(1);
+        user = user.withId(1);
         mockMvcPerformGet()
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(List.of(user))));

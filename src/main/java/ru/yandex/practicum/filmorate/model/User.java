@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Setter;
 import lombok.Value;
+import lombok.With;
 import lombok.experimental.NonFinal;
 
 import javax.validation.constraints.*;
@@ -10,7 +11,7 @@ import java.time.LocalDate;
 @Value
 public class User {
 
-    @NonFinal @Setter
+    @NonFinal @With
     int id;                       // идентификатор
 
     @NotBlank(message = "User email is blank")
@@ -21,7 +22,7 @@ public class User {
     @Pattern(regexp = "[^ ]+", message = "User login contains a whitespace")
     String login;           // логин пользователя
 
-    @NonFinal @Setter
+    @NonFinal @With
     String name;                  // имя для отображения
 
     @PastOrPresent(message = "User birthday is in future")

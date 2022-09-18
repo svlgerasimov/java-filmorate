@@ -68,7 +68,7 @@ public class FilmControllerTest {
     void getAllFilmsAndThenStatus200AndFilmsCollectionReturn() throws Exception {
         Film film = new Film(0, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
         mockMvcPerformPost(film);
-        film.setId(1);
+        film = film.withId(1);
         mockMvcPerformGet()
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(List.of(film))));
@@ -200,7 +200,7 @@ public class FilmControllerTest {
     void updateUserFailIncorrectIdAndThenStatus404() throws Exception {
         Film film = new Film(0, NAME_CORRECT, DESCRIPTION_CORRECT, RELEASE_DATE_CORRECT, DURATION_CORRECT);
         mockMvcPerformPost(film);
-        film.setId(-1);
+        film = film.withId(-1);
         mockMvcPerformPut(film)
                 .andExpect(status().isNotFound())
                 .andExpect(result ->

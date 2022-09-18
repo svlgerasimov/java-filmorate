@@ -32,7 +32,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User addUser(User user) {
         int id = idGenerator.getNextId();
-        user.setId(id);
+        user = user.withId(id);
         users.put(id, user);
         log.debug("Add user {}", user);
         return user;
