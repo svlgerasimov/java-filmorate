@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public class User {
 
     @NonFinal @With
-    int id;                       // идентификатор
+    long id;                       // идентификатор
 
     @NotBlank(message = "User email is blank")
     @Email(message = "Invalid user email format")
@@ -28,3 +28,14 @@ public class User {
     @PastOrPresent(message = "User birthday is in future")
     LocalDate birthday;     // дата рождения
 }
+
+
+
+
+
+
+
+
+
+
+

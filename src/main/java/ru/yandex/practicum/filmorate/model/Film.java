@@ -17,7 +17,7 @@ public class Film {
     private final static String MIN_FILM_RELEASE_DATE = "1895-12-28";
 
     @NonFinal @With
-    int id;                   // идентификатор
+    long id;                   // идентификатор
 
     @NotBlank(message = "Film name is blank")
     String name;            // название

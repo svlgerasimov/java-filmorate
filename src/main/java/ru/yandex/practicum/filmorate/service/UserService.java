@@ -1,18 +1,17 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.inmemory.InMemoryUserStorage;
 
-import javax.validation.Valid;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class UserService {
 
     private final UserStorage userStorage;
@@ -32,6 +31,7 @@ public class UserService {
     }
 
     public User updateUser(User user) {
+        userStorage.checkUserExists(user.getId());
         user = preprocess(user);
         return userStorage.updateUser(user);
     }
@@ -42,5 +42,44 @@ public class UserService {
             return user.withName(user.getLogin());
         }
         return user;
+    }
+
+    public User getUserById(long id) {
+        userStorage.checkUserExists(id);
+        return userStorage.getById(id);
+    }
+
+    public void addToFriends(long userId, long friendId) {
+        userStorage.checkUserExists(userId);
+        userStorage.checkUserExists(friendId);
+        userStorage.addFriend(userId, friendId);
+        userStorage.addFriend(friendId, userId);
+    }
+
+    public void removeFromFriends(long userId, long friendId) {
+        userStorage.checkUserExists(userId);
+        userStorage.checkUserExists(friendId);
+        userStorage.removeFriend(userId, friendId);
+        userStorage.removeFriend(friendId, userId);
+    }
+
+    public Collection<User> getFriends(long userId) {
+        userStorage.checkUserExists(userId);
+        return userStorage.getFriends(userId)
+                .map(userStorage::getById)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    public Collection<User> getCommonFriends(long userId, long otherId) {
+        userStorage.checkUserExists(userId);
+        userStorage.checkUserExists(otherId);
+        HashSet<Long> other = userStorage.getFriends(otherId)
+                .collect(Collectors.toCollection(HashSet::new));
+        return userStorage.getFriends(userId)
+                .filter(other::contains)
+                .map(userStorage::getById)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }
