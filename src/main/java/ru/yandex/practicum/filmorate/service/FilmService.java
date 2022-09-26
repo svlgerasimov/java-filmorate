@@ -11,11 +11,10 @@ import ru.yandex.practicum.filmorate.storage.inmemory.InMemoryUserStorage;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
-@Service
 @Slf4j
+@Service
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
@@ -31,12 +30,16 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
-        return filmStorage.addFilm(film);
+        film = filmStorage.addFilm(film);
+        log.debug("Add film: {}", film);
+        return film;
     }
 
     public Film updateFilm(Film film) {
         filmStorage.checkFilmExists(film.getId());
-        return filmStorage.updateFilm(film);
+        film = filmStorage.updateFilm(film);
+        log.debug("Update film {}", film);
+        return film;
     }
 
     public Film getFilmById(long id) {
@@ -48,12 +51,14 @@ public class FilmService {
         filmStorage.checkFilmExists(filmId);
         userStorage.checkUserExists(userId);
         filmStorage.addLike(filmId, userId);
+        log.debug("Add like to film id={} by user id={}", filmId, userId);
     }
 
     public void removeLike(long filmId, long userId) {
         filmStorage.checkFilmExists(filmId);
         userStorage.checkUserExists(userId);
         filmStorage.removeLike(filmId, userId);
+        log.debug("Remove like from film id={} by user id={}", filmId, userId);
     }
 
     public Collection<Film> getMostPopularFilms(int count) {
@@ -63,6 +68,4 @@ public class FilmService {
                 .limit(count)
                 .collect(Collectors.toList());
     }
-
-
 }

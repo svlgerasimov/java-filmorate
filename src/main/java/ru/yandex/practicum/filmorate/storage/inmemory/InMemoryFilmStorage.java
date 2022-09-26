@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.inmemory;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -11,7 +10,6 @@ import ru.yandex.practicum.filmorate.util.IdGenerator;
 import java.util.*;
 
 @Component
-@Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Long, Film> films = new HashMap<>();
@@ -37,7 +35,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void checkFilmExists(long id) {
         if (!films.containsKey(id)) {
             String message = String.format("Film id=%s not found", id);
-            log.warn(message);
             throw new NotFoundException(message);
         }
     }
@@ -47,7 +44,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         long id = idGenerator.getNextId();
         film = film.withId(id);
         films.put(id, film);
-        log.debug("Add film: {}", film);
         return film;
     }
 
@@ -55,7 +51,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film updateFilm(Film film) {
         long id = film.getId();
         films.put(id, film);
-        log.debug("Update film {}", film);
         return film;
     }
 
@@ -87,13 +82,4 @@ public class InMemoryFilmStorage implements FilmStorage {
         Set<Long> filmLikes = likes.get(filmId);
         return Objects.isNull(filmLikes) ? 0 : filmLikes.size();
     }
-
-//    @Override
-//    public Stream<Long> getLikes(long filmId) {
-//        Set<Long> filmLikes = likes.get(filmId);
-//        if (Objects.isNull(filmLikes)) {
-//            return Stream.empty();
-//        }
-//        return filmLikes.stream();
-//    }
 }

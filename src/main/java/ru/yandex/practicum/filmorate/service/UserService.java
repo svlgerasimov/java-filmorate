@@ -10,8 +10,8 @@ import ru.yandex.practicum.filmorate.storage.inmemory.InMemoryUserStorage;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
 @Slf4j
+@Service
 public class UserService {
 
     private final UserStorage userStorage;
@@ -27,13 +27,17 @@ public class UserService {
 
     public User addUser(User user) {
         user = preprocess(user);
-        return userStorage.addUser(user);
+        user = userStorage.addUser(user);
+        log.debug("Add user {}", user);
+        return user;
     }
 
     public User updateUser(User user) {
         userStorage.checkUserExists(user.getId());
         user = preprocess(user);
-        return userStorage.updateUser(user);
+        user = userStorage.updateUser(user);
+        log.debug("Update user {}", user);
+        return user;
     }
 
     private User preprocess(User user) {
@@ -54,6 +58,7 @@ public class UserService {
         userStorage.checkUserExists(friendId);
         userStorage.addFriend(userId, friendId);
         userStorage.addFriend(friendId, userId);
+        log.debug("Add friends id={} and id={}", userId, friendId);
     }
 
     public void removeFromFriends(long userId, long friendId) {
@@ -61,6 +66,7 @@ public class UserService {
         userStorage.checkUserExists(friendId);
         userStorage.removeFriend(userId, friendId);
         userStorage.removeFriend(friendId, userId);
+        log.debug("Remove friends id={} and id={}", userId, friendId);
     }
 
     public Collection<User> getFriends(long userId) {

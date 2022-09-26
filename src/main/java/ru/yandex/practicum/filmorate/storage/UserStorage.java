@@ -12,8 +12,6 @@ public interface UserStorage {
 
     User getById(long id);
 
-//    boolean containsUserId(long id);
-
     void checkUserExists(long id);
 
     User addUser(@Valid @RequestBody User user);

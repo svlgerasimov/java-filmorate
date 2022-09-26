@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Setter;
 import lombok.Value;
 import lombok.With;
 import lombok.experimental.NonFinal;

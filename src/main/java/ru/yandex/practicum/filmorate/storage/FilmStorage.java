@@ -5,7 +5,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.stream.Stream;
 
 public interface FilmStorage {
     Collection<Film> getAllFilms();

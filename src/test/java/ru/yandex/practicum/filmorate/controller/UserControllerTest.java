@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
@@ -13,7 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.util.IdGenerator;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -25,7 +23,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @SpringBootTest
-//@WebMvcTest({UserController.class, IdGenerator.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 class UserControllerTest {
@@ -50,18 +47,22 @@ class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private ResultActions mockMvcPerformGet() throws Exception {
+    private ResultActions mockMvcPerformGetAllUsers() throws Exception {
         return mockMvc.perform(get(URL_USERS));
     }
 
-    private ResultActions mockMvcPerformPost(User user) throws Exception {
+    private ResultActions mockMvcPerformGetUser(long id) throws Exception {
+        return mockMvc.perform(get(URL_USERS + "/" + id));
+    }
+
+    private ResultActions mockMvcPerformPostUser(User user) throws Exception {
         return mockMvc.perform(
                 post(URL_USERS)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON));
     }
 
-    private ResultActions mockMvcPerformPut(User user) throws Exception {
+    private ResultActions mockMvcPerformPutUser(User user) throws Exception {
         return mockMvc.perform(
                 put(URL_USERS)
                         .content(objectMapper.writeValueAsString(user))
@@ -71,91 +72,108 @@ class UserControllerTest {
     @Test
     void getAllUsersAndThenStatus200AndUsersCollectionReturn() throws Exception {
         User user = new User(0, EMAIL_CORRECT, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT);
-        mockMvcPerformPost(user);
+        mockMvcPerformPostUser(user);
         user = user.withId(1);
-        mockMvcPerformGet()
+        mockMvcPerformGetAllUsers()
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(List.of(user))));
+    }
+
+    @Test
+    void getUserByIdAndThenStatus200AndUserReturn() throws Exception {
+        User user = new User(0, EMAIL_CORRECT, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT);
+        mockMvcPerformPostUser(user);
+        user = user.withId(1);
+        mockMvcPerformGetUser(1)
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(user)));
+    }
+
+    @Test
+    void getUserFailIncorrectIdAndThenStatus404() throws Exception {
+        mockMvcPerformPostUser(new User(0, EMAIL_CORRECT, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT));
+        mockMvcPerformGetUser(-1)
+                .andExpect(status().isNotFound());
     }
 
     @Test
     void addUserAndThenStatus200AndUserReturn() throws Exception {
         User user = new User(0, EMAIL_CORRECT, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT);
         User expected = new User(1, EMAIL_CORRECT, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT);
-        mockMvcPerformPost(user)
+        mockMvcPerformPostUser(user)
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expected)));
     }
 
     @Test
     void addNullUserAndThenStatus400() throws Exception {
-        mockMvcPerformPost(null)
+        mockMvcPerformPostUser(null)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addUserFailLoginWithWhitespaceAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new User(0, EMAIL_CORRECT, LOGIN_WITH_WHITESPACE, NAME_CORRECT, BIRTHDAY_CORRECT))
+        mockMvcPerformPostUser(new User(0, EMAIL_CORRECT, LOGIN_WITH_WHITESPACE, NAME_CORRECT, BIRTHDAY_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addUserFailNullLoginAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new User(0, EMAIL_CORRECT, null, NAME_CORRECT, BIRTHDAY_CORRECT))
+        mockMvcPerformPostUser(new User(0, EMAIL_CORRECT, null, NAME_CORRECT, BIRTHDAY_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addUserFailEmptyLoginAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new User(0, EMAIL_CORRECT, "", NAME_CORRECT, BIRTHDAY_CORRECT))
+        mockMvcPerformPostUser(new User(0, EMAIL_CORRECT, "", NAME_CORRECT, BIRTHDAY_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addUserFailBlankLoginAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new User(0, EMAIL_CORRECT, "    ", NAME_CORRECT, BIRTHDAY_CORRECT))
+        mockMvcPerformPostUser(new User(0, EMAIL_CORRECT, "    ", NAME_CORRECT, BIRTHDAY_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addUserFailNullEmailAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new User(0, null, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT))
+        mockMvcPerformPostUser(new User(0, null, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addUserFailEmptyEmailAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new User(0, "", LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT))
+        mockMvcPerformPostUser(new User(0, "", LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addUserFailIncorrect1EmailAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new User(0, EMAIL_INCORRECT_1, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT))
+        mockMvcPerformPostUser(new User(0, EMAIL_INCORRECT_1, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addUserFailIncorrect2EmailAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new User(0, EMAIL_INCORRECT_2, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT))
+        mockMvcPerformPostUser(new User(0, EMAIL_INCORRECT_2, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addUserFailIncorrect3EmailAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new User(0, EMAIL_INCORRECT_3, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT))
+        mockMvcPerformPostUser(new User(0, EMAIL_INCORRECT_3, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addUserFailIncorrect4EmailAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new User(0, EMAIL_INCORRECT_4, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT))
+        mockMvcPerformPostUser(new User(0, EMAIL_INCORRECT_4, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void addUserFailIncorrect5EmailAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new User(0, EMAIL_INCORRECT_5, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT))
+        mockMvcPerformPostUser(new User(0, EMAIL_INCORRECT_5, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT))
                 .andExpect(status().isBadRequest());
     }
 
@@ -163,14 +181,14 @@ class UserControllerTest {
     void addUserNullBirthdayAndThenStatus200AndUserReturn() throws Exception {
         User user = new User(0, EMAIL_CORRECT, LOGIN_CORRECT, NAME_CORRECT, null);
         User expected = new User(1, EMAIL_CORRECT, LOGIN_CORRECT, NAME_CORRECT, null);
-        mockMvcPerformPost(user)
+        mockMvcPerformPostUser(user)
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expected)));
     }
 
     @Test
     void addUserFailIncorrectBirthdayAndThenStatus400() throws Exception {
-        mockMvcPerformPost(new User(0, EMAIL_CORRECT, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_IN_FUTURE))
+        mockMvcPerformPostUser(new User(0, EMAIL_CORRECT, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_IN_FUTURE))
                 .andExpect(status().isBadRequest());
     }
 
@@ -178,7 +196,7 @@ class UserControllerTest {
     void addUserNullNameAndThenStatus200AndUserReturn() throws Exception {
         User user = new User(0, EMAIL_CORRECT, LOGIN_CORRECT, null, BIRTHDAY_CORRECT);
         User expected = new User(1, EMAIL_CORRECT, LOGIN_CORRECT, LOGIN_CORRECT, BIRTHDAY_CORRECT);
-        mockMvcPerformPost(user)
+        mockMvcPerformPostUser(user)
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expected)));
     }
@@ -187,7 +205,7 @@ class UserControllerTest {
     void addUserEmptyNameAndThenStatus200AndUserReturn() throws Exception {
         User user = new User(0, EMAIL_CORRECT, LOGIN_CORRECT, "", BIRTHDAY_CORRECT);
         User expected = new User(1, EMAIL_CORRECT, LOGIN_CORRECT, LOGIN_CORRECT, BIRTHDAY_CORRECT);
-        mockMvcPerformPost(user)
+        mockMvcPerformPostUser(user)
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expected)));
     }
@@ -196,7 +214,7 @@ class UserControllerTest {
     void addUserBlankNameAndThenStatus200AndUserReturn() throws Exception {
         User user = new User(0, EMAIL_CORRECT, LOGIN_CORRECT, "         ", BIRTHDAY_CORRECT);
         User expected = new User(1, EMAIL_CORRECT, LOGIN_CORRECT, LOGIN_CORRECT, BIRTHDAY_CORRECT);
-        mockMvcPerformPost(user)
+        mockMvcPerformPostUser(user)
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expected)));
     }
@@ -204,23 +222,23 @@ class UserControllerTest {
     @Test
     void updateUserAndThenStatus200AndUserReturn() throws Exception {
         User user = new User(0, EMAIL_CORRECT, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT);
-        mockMvcPerformPost(user);
+        mockMvcPerformPostUser(user);
         User updated = new User(1, EMAIL_CORRECT, LOGIN_CORRECT + "_updated",
                 NAME_CORRECT + " updated", BIRTHDAY_CORRECT.minusYears(3));
-        mockMvcPerformPut(updated)
+        mockMvcPerformPutUser(updated)
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(updated)));
-        mockMvcPerformGet()
+        mockMvcPerformGetAllUsers()
                 .andExpect(content().json(objectMapper.writeValueAsString(List.of(updated))));
     }
 
     @Test
     void updateUserFailIncorrectIdAndThenStatus404() throws Exception {
         User user = new User(0, EMAIL_CORRECT, LOGIN_CORRECT, NAME_CORRECT, BIRTHDAY_CORRECT);
-        mockMvcPerformPost(user);
+        mockMvcPerformPostUser(user);
         User updated = new User(-1, EMAIL_CORRECT, LOGIN_CORRECT + "_updated",
                 NAME_CORRECT + " updated", BIRTHDAY_CORRECT.minusYears(3));
-        mockMvcPerformPut(updated)
+        mockMvcPerformPutUser(updated)
                 .andExpect(status().isNotFound())
                 .andExpect(result ->
                         Assertions.assertTrue(result.getResolvedException() instanceof NotFoundException));
