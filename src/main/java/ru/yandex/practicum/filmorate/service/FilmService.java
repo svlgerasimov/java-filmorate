@@ -1,13 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.inmemory.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.inmemory.InMemoryUserStorage;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -15,15 +14,10 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-
-    @Autowired
-    public FilmService(final InMemoryFilmStorage filmStorage, final InMemoryUserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
-    }
 
     public Collection<Film> getAllFilms() {
         return filmStorage.getAllFilms();
@@ -43,8 +37,8 @@ public class FilmService {
     }
 
     public Film getFilmById(long id) {
-        filmStorage.checkFilmExists(id);
-        return filmStorage.getById(id);
+        return filmStorage.getById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Film id=%s not found", id)));
     }
 
     public void addLike(long filmId, long userId) {

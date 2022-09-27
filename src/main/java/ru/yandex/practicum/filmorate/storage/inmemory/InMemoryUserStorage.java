@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.inmemory;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 @Component
+@RequiredArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
@@ -18,19 +19,14 @@ public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, Set<Long>> friends = new HashMap<>();
     private final IdGenerator idGenerator;
 
-    @Autowired
-    public InMemoryUserStorage(IdGenerator idGenerator) {
-        this.idGenerator = idGenerator;
-    }
-
     @Override
     public Collection<User> getAllUsers() {
         return users.values();
     }
 
     @Override
-    public User getById(long id) {
-        return users.get(id);
+    public Optional<User> getById(long id) {
+        return Optional.ofNullable(users.get(id));
     }
 
     @Override

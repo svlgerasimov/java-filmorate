@@ -1,25 +1,21 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.inmemory.InMemoryUserStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserStorage userStorage;
-
-    @Autowired
-    public UserService(InMemoryUserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
 
     public Collection<User> getAllUsers() {
         return userStorage.getAllUsers();
@@ -50,7 +46,8 @@ public class UserService {
 
     public User getUserById(long id) {
         userStorage.checkUserExists(id);
-        return userStorage.getById(id);
+        return userStorage.getById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("User id=%s not found", id)));
     }
 
     public void addToFriends(long userId, long friendId) {
@@ -73,7 +70,8 @@ public class UserService {
         userStorage.checkUserExists(userId);
         return userStorage.getFriends(userId)
                 .map(userStorage::getById)
-                .filter(Objects::nonNull)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
@@ -85,7 +83,8 @@ public class UserService {
         return userStorage.getFriends(userId)
                 .filter(other::contains)
                 .map(userStorage::getById)
-                .filter(Objects::nonNull)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 }

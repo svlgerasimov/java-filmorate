@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.inmemory;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,16 +10,12 @@ import ru.yandex.practicum.filmorate.util.IdGenerator;
 import java.util.*;
 
 @Component
+@RequiredArgsConstructor
 public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Long, Film> films = new HashMap<>();
     private final Map<Long, Set<Long>> likes = new HashMap<>();
     private final IdGenerator idGenerator;
-
-    @Autowired
-    public InMemoryFilmStorage(IdGenerator idGenerator) {
-        this.idGenerator = idGenerator;
-    }
 
     @Override
     public Collection<Film> getAllFilms() {
@@ -27,8 +23,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getById(long id) {
-        return films.get(id);
+    public Optional<Film> getById(long id) {
+        return Optional.ofNullable(films.get(id));
     }
 
     @Override

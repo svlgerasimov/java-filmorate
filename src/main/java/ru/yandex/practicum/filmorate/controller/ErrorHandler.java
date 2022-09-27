@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
+import javax.validation.ConstraintViolationException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ public class ErrorHandler {
         return result;
     }
 
+    // Ошибка валидации полей десериализируемого объекта
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
@@ -34,6 +36,15 @@ public class ErrorHandler {
                                 String.format("Validation Error in field '%s' with value = '%s'",
                                         fieldError.getField(), fieldError.getRejectedValue()),
                         fieldError -> Objects.requireNonNullElse(fieldError.getDefaultMessage(), "")));
+        log.warn(String.valueOf(result), exception);
+        return result;
+    }
+
+    // Ошибка валидации параметра запроса
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleConstraintViolationException(ConstraintViolationException exception) {
+        Map<String, String> result = Map.of("Bad Request", exception.getMessage());
         log.warn(String.valueOf(result), exception);
         return result;
     }

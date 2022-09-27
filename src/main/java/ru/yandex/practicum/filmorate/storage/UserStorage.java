@@ -1,20 +1,19 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.model.User;
 
-import javax.validation.Valid;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface UserStorage {
     Collection<User> getAllUsers();
 
-    User getById(long id);
+    Optional<User> getById(long id);
 
     void checkUserExists(long id);
 
-    User addUser(@Valid @RequestBody User user);
+    User addUser(User user);
 
     User updateUser(User user);
 

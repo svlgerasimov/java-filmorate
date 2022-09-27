@@ -24,6 +24,7 @@ public class User {
     @NonFinal @With
     String name;                  // имя для отображения
 
+    @NotNull
     @PastOrPresent(message = "User birthday is in future")
     LocalDate birthday;     // дата рождения
 }
