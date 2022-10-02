@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Setter;
 import lombok.Value;
+import lombok.With;
 import lombok.experimental.NonFinal;
 
 import javax.validation.constraints.NotBlank;
@@ -15,8 +15,8 @@ public class Film {
     private static final int MAX_FILM_DESCRIPTION_LENGTH = 200;
     private final static String MIN_FILM_RELEASE_DATE = "1895-12-28";
 
-    @NonFinal @Setter
-    int id;                   // идентификатор
+    @NonFinal @With
+    long id;                   // идентификатор
 
     @NotBlank(message = "Film name is blank")
     String name;            // название

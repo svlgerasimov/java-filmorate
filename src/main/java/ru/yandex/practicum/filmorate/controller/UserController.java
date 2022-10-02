@@ -3,62 +3,61 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.util.IdGenerator;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
 
-    private final Map<Integer, User> users = new HashMap<>();
-    private final IdGenerator idGenerator;
+    private final UserService userService;
 
     @Autowired
-    public UserController(final IdGenerator idGenerator) {
-        this.idGenerator = idGenerator;
+    public UserController(final UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping
     public Collection<User> getAllUsers() {
-        return users.values();
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable long id) {
+        return userService.getUserById(id);
     }
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
-        preprocess(user);
-        int id = idGenerator.getNextId();
-        user.setId(id);
-        users.put(id, user);
-        log.debug("Add user {}", user);
-        return user;
+        return userService.addUser(user);
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
-        preprocess(user);
-        int id = user.getId();
-        if (!users.containsKey(id)) {
-            String message = String.format("User id=%s not found", id);
-            log.warn(message);
-            throw new NotFoundException(message);
-        }
-        users.put(id, user);
-        log.debug("Update user {}", user);
-        return user;
+        return userService.updateUser(user);
     }
 
-    private void preprocess(User user) {
-        String name = user.getName();
-        if (Objects.isNull(name) || name.isBlank()) {
-            user.setName(user.getLogin());
-        }
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addToFriends(@PathVariable long id, @PathVariable long friendId) {
+        userService.addToFriends(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void removeFromFriends(@PathVariable long id, @PathVariable long friendId) {
+        userService.removeFromFriends(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public Collection<User> getFriends(@PathVariable long id) {
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Collection<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
+        return userService.getCommonFriends(id, otherId);
     }
 }

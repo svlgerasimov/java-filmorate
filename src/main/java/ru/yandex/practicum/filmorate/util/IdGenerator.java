@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("prototype")
 public class IdGenerator {
-    private int id;
+    private long id;
 
-    public int getNextId() {
+    public long getNextId() {
         return ++id;
     }
 }
