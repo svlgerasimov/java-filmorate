@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Value
 public class User {
 
-    @NonFinal @With
+    @With
     long id;                       // идентификатор
 
     @NotBlank(message = "User email is blank")
