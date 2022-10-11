@@ -11,7 +11,7 @@ public interface UserStorage {
 
     Optional<User> getById(long id);
 
-    void checkUserExists(long id);
+//    void checkUserExists(long id);
 
     User addUser(User user);
 
@@ -21,5 +21,7 @@ public interface UserStorage {
 
     boolean removeFriend(long userId, long friendId);
 
-    Stream<Long> getFriends(long userId);
+    Collection<User> getFriends(long userId);
+
+    Collection<User> getCommonFriends(long userId, long otherId);
 }

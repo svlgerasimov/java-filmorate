@@ -4,6 +4,6 @@ import lombok.Value;
 
 @Value
 public class Mpa {
-    long id;
+    int id;
     String name;
 }

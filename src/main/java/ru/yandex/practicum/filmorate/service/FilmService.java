@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -15,10 +16,15 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+//@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+
+    public FilmService(FilmStorage filmStorage, @Qualifier("UserDbStorage") UserStorage userStorage) {
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+    }
 
     public Collection<Film> getAllFilms() {
         return filmStorage.getAllFilms();
@@ -44,14 +50,14 @@ public class FilmService {
 
     public void addLike(long filmId, long userId) {
         filmStorage.checkFilmExists(filmId);
-        userStorage.checkUserExists(userId);
+        checkUserExists(userId);
         filmStorage.addLike(filmId, userId);
         log.debug("Add like to film id={} by user id={}", filmId, userId);
     }
 
     public void removeLike(long filmId, long userId) {
         filmStorage.checkFilmExists(filmId);
-        userStorage.checkUserExists(userId);
+        checkUserExists(userId);
         filmStorage.removeLike(filmId, userId);
         log.debug("Remove like from film id={} by user id={}", filmId, userId);
     }
@@ -62,5 +68,11 @@ public class FilmService {
                 .sorted(comparator.reversed())
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    private void checkUserExists(long id) {
+        userStorage.getById(id)
+                .orElseThrow(() ->
+                        new NotFoundException(String.format("User id=%s not found", id)));
     }
 }

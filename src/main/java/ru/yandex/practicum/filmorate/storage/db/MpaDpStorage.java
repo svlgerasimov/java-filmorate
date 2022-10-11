@@ -15,26 +15,27 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MpaDpStorage implements MpaStorage {
-    private static final String fieldId = "id";
-    private static final String fieldName = "name";
+    private static final String TABLE_MPA = "mpa";
+    private static final String FIELD_ID = "id";
+    private static final String FIELD_NAME = "name";
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public Collection<Mpa> getAllMpa() {
-        String sql = "SELECT id, name FROM mpa;";
+        String sql = String.format("SELECT %s, %s FROM %s;", FIELD_ID, FIELD_NAME, TABLE_MPA);
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs));
     }
 
     @Override
     public Optional<Mpa> getMpaById(long id) {
-        String sql = "SELECT id, name FROM mpa WHERE id = ?;";
+        String sql = String.format("SELECT %s, %s FROM %s WHERE %s = ?;", FIELD_ID, FIELD_NAME, TABLE_MPA, FIELD_ID);
         return jdbcTemplate
                 .queryForStream(sql, (rs, rowNum) -> makeMpa(rs), id)
                 .findFirst();
     }
 
     private static Mpa makeMpa(ResultSet resultSet) throws SQLException {
-        return new Mpa(resultSet.getLong(fieldId), resultSet.getString(fieldName));
+        return new Mpa(resultSet.getInt(FIELD_ID), resultSet.getString(FIELD_NAME));
     }
 }
