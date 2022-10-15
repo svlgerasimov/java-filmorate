@@ -10,7 +10,7 @@ public interface FilmStorage {
 
     Optional<Film> getById(long id);
 
-    void checkFilmExists(long id);
+//    void checkFilmExists(long id);
 
     Film addFilm(Film film);
 

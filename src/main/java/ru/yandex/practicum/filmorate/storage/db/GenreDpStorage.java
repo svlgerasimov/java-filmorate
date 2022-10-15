@@ -15,9 +15,9 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class GenreDpStorage implements GenreStorage {
-    private static final String TABLE_GENRE = "genre";
-    private static final String FIELD_ID = "id";
-    private static final String FIELD_NAME = "name";
+    public static final String TABLE_GENRE = "genre";
+    public static final String FIELD_ID = "id";
+    public static final String FIELD_NAME = "name";
 
     private final JdbcTemplate jdbcTemplate;
 

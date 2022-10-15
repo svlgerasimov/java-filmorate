@@ -60,7 +60,7 @@ public class UserService {
         checkUserExists(userId);
         checkUserExists(friendId);
         userStorage.addFriend(userId, friendId);
-        userStorage.addFriend(friendId, userId);
+//        userStorage.addFriend(friendId, userId);
         log.debug("Add friends id={} and id={}", userId, friendId);
     }
 
@@ -68,7 +68,7 @@ public class UserService {
         checkUserExists(userId);
         checkUserExists(friendId);
         userStorage.removeFriend(userId, friendId);
-        userStorage.removeFriend(friendId, userId);
+//        userStorage.removeFriend(friendId, userId);
         log.debug("Remove friends id={} and id={}", userId, friendId);
     }
 

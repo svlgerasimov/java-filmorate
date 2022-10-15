@@ -21,18 +21,18 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserDbStorage implements UserStorage {
 
-    private static final String TABLE_USER = "users";
-    private static final String USER_FIELD_ID = "id";
-    private static final String USER_FIELD_EMAIL = "email";
-    private static final String USER_FIELD_LOGIN = "login";
-    private static final String USER_FIELD_NAME = "name";
-    private static final String USER_FIELD_BIRTHDAY = "birthday";
+    public static final String TABLE_USER = "users";
+    public static final String USER_FIELD_ID = "id";
+    public static final String USER_FIELD_EMAIL = "email";
+    public static final String USER_FIELD_LOGIN = "login";
+    public static final String USER_FIELD_NAME = "name";
+    public static final String USER_FIELD_BIRTHDAY = "birthday";
 
-    private static final String TABLE_FRIENDS = "friends";
-    private static final String FRIENDS_FIELD_ID = "id";
-    private static final String FRIENDS_FIELD_USER_ID = "user_id";
-    private static final String FRIENDS_FIELD_FRIEND_ID = "friend_id";
-    private static final String FRIENDS_FIELD_IS_MUTUAL = "is_mutual";
+    public static final String TABLE_FRIENDS = "friends";
+    public static final String FRIENDS_FIELD_ID = "id";
+    public static final String FRIENDS_FIELD_USER_ID = "user_id";
+    public static final String FRIENDS_FIELD_FRIEND_ID = "friend_id";
+    public static final String FRIENDS_FIELD_IS_MUTUAL = "is_mutual";
 
     private final JdbcTemplate jdbcTemplate;
 

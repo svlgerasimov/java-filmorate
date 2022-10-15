@@ -21,7 +21,8 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
-    public FilmService(FilmStorage filmStorage, @Qualifier("UserDbStorage") UserStorage userStorage) {
+    public FilmService(@Qualifier("FilmDbStorage") FilmStorage filmStorage,
+                       @Qualifier("UserDbStorage") UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
@@ -37,7 +38,7 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
-        filmStorage.checkFilmExists(film.getId());
+        checkFilmExists(film.getId());
         film = filmStorage.updateFilm(film);
         log.debug("Update film {}", film);
         return film;
@@ -49,14 +50,14 @@ public class FilmService {
     }
 
     public void addLike(long filmId, long userId) {
-        filmStorage.checkFilmExists(filmId);
+        checkFilmExists(filmId);
         checkUserExists(userId);
         filmStorage.addLike(filmId, userId);
         log.debug("Add like to film id={} by user id={}", filmId, userId);
     }
 
     public void removeLike(long filmId, long userId) {
-        filmStorage.checkFilmExists(filmId);
+        checkFilmExists(filmId);
         checkUserExists(userId);
         filmStorage.removeLike(filmId, userId);
         log.debug("Remove like from film id={} by user id={}", filmId, userId);
@@ -68,6 +69,12 @@ public class FilmService {
                 .sorted(comparator.reversed())
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    private void checkFilmExists(long id) {
+        filmStorage.getById(id)
+                .orElseThrow(() ->
+                        new NotFoundException(String.format("Film id=%s not found", id)));
     }
 
     private void checkUserExists(long id) {
