@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.db;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
@@ -14,7 +13,6 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Stream;
 
 @Component
 @Qualifier("UserDbStorage")
@@ -29,7 +27,6 @@ public class UserDbStorage implements UserStorage {
     public static final String USER_FIELD_BIRTHDAY = "birthday";
 
     public static final String TABLE_FRIENDS = "friends";
-    public static final String FRIENDS_FIELD_ID = "id";
     public static final String FRIENDS_FIELD_USER_ID = "user_id";
     public static final String FRIENDS_FIELD_FRIEND_ID = "friend_id";
     public static final String FRIENDS_FIELD_IS_MUTUAL = "is_mutual";
@@ -58,51 +55,25 @@ public class UserDbStorage implements UserStorage {
                 USER_FIELD_BIRTHDAY,
                 TABLE_USER,
                 USER_FIELD_ID);
-//        return jdbcTemplate
-//                .queryForStream(sql, (rs, rowNum) -> makeUser(rs), id)
-//                .findFirst();
         List<User> users = jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id);
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 
-//    @Override
-//    public void checkUserExists(long id) {
-//
-//    }
-
     @Override
-    public User addUser(User user) {
-//        String sqlQuery = String.format("INSERT INTO %s (%s, %s, %s, %s) values (?, ?, ?, ?);",
-//                TABLE_USER,
-//                USER_FIELD_EMAIL,
-//                USER_FIELD_LOGIN,
-//                USER_FIELD_NAME,
-//                USER_FIELD_BIRTHDAY);
-//        KeyHolder keyHolder = new GeneratedKeyHolder();
-//        jdbcTemplate.update(connection -> {
-//            PreparedStatement statement = connection.prepareStatement(sqlQuery, new String[]{"id"});
-//            statement.setString(1, user.getEmail());
-//            statement.setString(2, user.getLogin());
-//            statement.setString(3, user.getName());
-//            statement.setDate(4, Date.valueOf(user.getBirthday()));
-//            return statement;
-//        }, keyHolder);
-//        return user.withId(Objects.requireNonNull(keyHolder.getKey()).longValue());
-
+    public long addUser(User user) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName(TABLE_USER)
                 .usingGeneratedKeyColumns(USER_FIELD_ID);
-        return user.withId(
-                simpleJdbcInsert.executeAndReturnKey(
-                        Map.of(USER_FIELD_EMAIL, user.getEmail(),
-                                USER_FIELD_LOGIN, user.getLogin(),
-                                USER_FIELD_NAME, user.getName(),
-                                USER_FIELD_BIRTHDAY, Date.valueOf(user.getBirthday())))
-                .longValue());
+        return simpleJdbcInsert.executeAndReturnKey(
+                Map.of(USER_FIELD_EMAIL, user.getEmail(),
+                        USER_FIELD_LOGIN, user.getLogin(),
+                        USER_FIELD_NAME, user.getName(),
+                        USER_FIELD_BIRTHDAY, Date.valueOf(user.getBirthday())))
+                .longValue();
     }
 
     @Override
-    public User updateUser(User user) {
+    public boolean updateUser(User user) {
         String sql = String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=? WHERE %s=?;",
                 TABLE_USER,
                 USER_FIELD_EMAIL,
@@ -110,9 +81,8 @@ public class UserDbStorage implements UserStorage {
                 USER_FIELD_NAME,
                 USER_FIELD_BIRTHDAY,
                 USER_FIELD_ID);
-        jdbcTemplate.update(sql,
-                user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
-        return user;
+        return jdbcTemplate.update(sql,
+                user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId()) > 0;
     }
 
     @Override
@@ -130,13 +100,7 @@ public class UserDbStorage implements UserStorage {
                 FRIENDS_FIELD_USER_ID,
                 FRIENDS_FIELD_FRIEND_ID,
                 FRIENDS_FIELD_IS_MUTUAL);
-        try {
-            jdbcTemplate.update(sql, userId, friendId, isMutual);
-        } catch (DataIntegrityViolationException exception) {
-            // Нарушение ограничений в БД
-//            throw new NotFoundException("Data integrity violation");
-        }
-        return true;
+        return jdbcTemplate.update(sql, userId, friendId, isMutual) > 0;
     }
 
     @Override

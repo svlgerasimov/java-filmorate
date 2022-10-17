@@ -10,11 +10,9 @@ public interface FilmStorage {
 
     Optional<Film> getById(long id);
 
-//    void checkFilmExists(long id);
+    long addFilm(Film film);
 
-    Film addFilm(Film film);
-
-    Film updateFilm(Film film);
+    boolean updateFilm(Film film);
 
     boolean addLike(long filmId, long userId);
 

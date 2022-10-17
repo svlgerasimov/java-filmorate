@@ -27,27 +27,22 @@ public class InMemoryFilmStorage implements FilmStorage {
         return Optional.ofNullable(films.get(id));
     }
 
-//    @Override
-//    public void checkFilmExists(long id) {
-//        if (!films.containsKey(id)) {
-//            String message = String.format("Film id=%s not found", id);
-//            throw new NotFoundException(message);
-//        }
-//    }
-
     @Override
-    public Film addFilm(Film film) {
+    public long addFilm(Film film) {
         long id = idGenerator.getNextId();
         film = film.withId(id);
         films.put(id, film);
-        return film;
+        return id;
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public boolean updateFilm(Film film) {
         long id = film.getId();
+        if (!films.containsKey(id)) {
+            return false;
+        }
         films.put(id, film);
-        return film;
+        return true;
     }
 
     @Override

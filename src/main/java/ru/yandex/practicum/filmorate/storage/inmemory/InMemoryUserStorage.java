@@ -32,26 +32,21 @@ public class InMemoryUserStorage implements UserStorage {
         return Optional.ofNullable(users.get(id));
     }
 
-//    @Override
-//    public void checkUserExists(long id) {
-//        if (!users.containsKey(id)) {
-//            String message = String.format("User id=%s not found", id);
-//            throw new NotFoundException(message);
-//        }
-//    }
-
     @Override
-    public User addUser(User user) {
+    public long addUser(User user) {
         long id = idGenerator.getNextId();
         user = user.withId(id);
         users.put(id, user);
-        return user;
+        return id;
     }
 
     @Override
-    public User updateUser(User user) {
+    public boolean updateUser(User user) {
+        if (!users.containsKey(user.getId())) {
+            return false;
+        }
         users.put(user.getId(), user);
-        return user;
+        return true;
     }
 
     @Override
@@ -85,15 +80,10 @@ public class InMemoryUserStorage implements UserStorage {
                         .map(users::get)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
-//                .map(this::getById)
-//                .filter(Optional::isPresent)
-//                .map(Optional::get);
     }
 
     @Override
     public Collection<User> getCommonFriends(long userId, long otherId) {
-//        HashSet<Long> other = userStorage.getFriends(otherId)
-//                .collect(Collectors.toCollection(HashSet::new));
         Set<Long> other = friends.get(otherId);
         return Objects.isNull(other) ? List.of() :
                 friends.get(userId).stream()
@@ -101,11 +91,5 @@ public class InMemoryUserStorage implements UserStorage {
                         .map(users::get)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
-
-        //                userStorage.getFriends(userId)
-//                .map(this::getById)
-//                .filter(Optional::isPresent)
-//                .map(Optional::get)
-//                .collect(Collectors.toList());
     }
 }

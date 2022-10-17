@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class MpaDpStorage implements MpaStorage {
+public class MpaDbStorage implements MpaStorage {
     public static final String TABLE_MPA = "mpa";
     public static final String FIELD_ID = "id";
     public static final String FIELD_NAME = "name";
