@@ -10,32 +10,29 @@ import ru.yandex.practicum.filmorate.storage.MpaStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MpaDbStorage implements MpaStorage {
-    public static final String TABLE_MPA = "mpa";
-    public static final String FIELD_ID = "id";
-    public static final String FIELD_NAME = "name";
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public Collection<Mpa> getAllMpa() {
-        String sql = String.format("SELECT %s, %s FROM %s;", FIELD_ID, FIELD_NAME, TABLE_MPA);
+        String sql = "SELECT id, name FROM mpa;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs));
     }
 
     @Override
     public Optional<Mpa> getMpaById(long id) {
-        String sql = String.format("SELECT %s, %s FROM %s WHERE %s = ?;", FIELD_ID, FIELD_NAME, TABLE_MPA, FIELD_ID);
-        return jdbcTemplate
-                .queryForStream(sql, (rs, rowNum) -> makeMpa(rs), id)
-                .findFirst();
+        String sql = "SELECT id, name FROM mpa WHERE id=?;";
+        List<Mpa> mpas = jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs), id);
+        return mpas.isEmpty() ? Optional.empty() : Optional.of(mpas.get(0));
     }
 
     private static Mpa makeMpa(ResultSet resultSet) throws SQLException {
-        return new Mpa(resultSet.getInt(FIELD_ID), resultSet.getString(FIELD_NAME));
+        return new Mpa(resultSet.getInt("id"), resultSet.getString("name"));
     }
 }

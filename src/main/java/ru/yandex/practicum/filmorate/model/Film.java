@@ -36,5 +36,6 @@ public class Film {
 
     Mpa mpa;
 
+    @With
     Collection<Genre> genres;
 }

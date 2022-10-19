@@ -4,7 +4,6 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public interface UserStorage {
     Collection<User> getAllUsers();

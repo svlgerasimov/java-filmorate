@@ -2,12 +2,12 @@ package ru.yandex.practicum.filmorate.storage.inmemory;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.util.IdGenerator;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -68,9 +68,17 @@ public class InMemoryFilmStorage implements FilmStorage {
         return result;
     }
 
-    @Override
     public int getLikesCount(long filmId) {
         Set<Long> filmLikes = likes.get(filmId);
         return Objects.isNull(filmLikes) ? 0 : filmLikes.size();
+    }
+
+    @Override
+    public Collection<Film> getMostPopularFilms(int count) {
+        Comparator<Film> comparator = Comparator.comparingInt(film -> getLikesCount(film.getId()));
+        return getAllFilms().stream()
+                .sorted(comparator.reversed())
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }
