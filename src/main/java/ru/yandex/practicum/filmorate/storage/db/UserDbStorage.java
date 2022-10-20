@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
@@ -39,10 +41,11 @@ public class UserDbStorage implements UserStorage {
                 .withTableName("users")
                 .usingGeneratedKeyColumns("id");
         return simpleJdbcInsert.executeAndReturnKey(
-                Map.of("email", user.getEmail(),
-                        "login", user.getLogin(),
-                        "name", user.getName(),
-                        "birthday", Date.valueOf(user.getBirthday())))
+                new MapSqlParameterSource()
+                        .addValue("email", user.getEmail())
+                        .addValue("login", user.getLogin())
+                        .addValue("name", user.getName())
+                        .addValue("birthday", Date.valueOf(user.getBirthday())))
                 .longValue();
     }
 
