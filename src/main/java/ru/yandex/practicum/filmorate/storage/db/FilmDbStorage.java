@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -27,16 +28,20 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Collection<Film> getAllFilms() {
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
-                "m.id AS mpa_id, m.name AS mpa_name " +
+                "m.id AS mpa_id, m.name AS mpa_name, " +
+                "COUNT(DISTINCT l.user_id) AS rate " +
                 "FROM film AS f " +
-                "LEFT JOIN mpa AS m ON m.id=f.mpa_id;";
+                "LEFT JOIN mpa AS m ON m.id=f.mpa_id " +
+                "LEFT JOIN likes AS l ON l.film_id=f.id " +
+                "GROUP BY f.id;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
     }
 
     @Override
     public Collection<Film> getMostPopularFilms(int count) {
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
-                "m.id AS mpa_id, m.name AS mpa_name " +
+                "m.id AS mpa_id, m.name AS mpa_name, " +
+                "COUNT(DISTINCT l.user_id) AS rate " +
                 "FROM film AS f " +
                 "LEFT JOIN mpa AS m ON m.id=f.mpa_id " +
                 "LEFT JOIN likes AS l ON l.film_id=f.id " +
@@ -49,10 +54,13 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Optional<Film> getById(long id) {
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
-                "m.id AS mpa_id, m.name AS mpa_name " +
+                "m.id AS mpa_id, m.name AS mpa_name, " +
+                "COUNT(DISTINCT l.user_id) AS rate " +
                 "FROM film AS f " +
                 "LEFT JOIN mpa AS m ON m.id=f.mpa_id " +
-                "WHERE f.id=?;";
+                "LEFT JOIN likes AS l ON l.film_id=f.id " +
+                "WHERE f.id=? " +
+                "GROUP BY f.id;";
         List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), id);
         return films.isEmpty() ? Optional.empty() : Optional.of(films.get(0));
     }
@@ -63,11 +71,12 @@ public class FilmDbStorage implements FilmStorage {
                 .withTableName("film")
                 .usingGeneratedKeyColumns("id");
         return simpleJdbcInsert.executeAndReturnKey(
-                Map.of("name", film.getName(),
-                        "description", film.getDescription(),
-                        "release_date", Date.valueOf(film.getReleaseDate()),
-                        "duration", film.getDuration(),
-                        "mpa_id", film.getMpa().getId()))
+                new MapSqlParameterSource()
+                        .addValue("name", film.getName())
+                        .addValue("description", film.getDescription())
+                        .addValue("release_date", Date.valueOf(film.getReleaseDate()))
+                        .addValue("duration", film.getDuration())
+                        .addValue("mpa_id", film.getMpa().getId()))
                 .longValue();
     }
 
@@ -105,6 +114,7 @@ public class FilmDbStorage implements FilmStorage {
                 Objects.isNull(releaseDate) ? null : releaseDate.toLocalDate(),
                 resultSet.getInt("duration"),
                 mpaId == 0 ? null : new Mpa(mpaId, mpaName),
-                null);
+                null,
+                resultSet.getInt("rate"));
     }
 }

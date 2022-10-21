@@ -24,6 +24,26 @@ import static org.assertj.core.api.Assertions.*;
 public class UserDbStorageTest {
     private final UserDbStorage userStorage;
 
+    private final User defaultUser = TestUserBuilder.defaultBuilder().build();
+    private final User userPrototype1 = TestUserBuilder.defaultBuilder()
+            .email("email1")
+            .login("login1")
+            .name("name1")
+            .birthday(LocalDate.of(2000, Month.JANUARY, 1))
+            .build();
+    private final User userPrototype2 = TestUserBuilder.defaultBuilder()
+            .email("email2")
+            .login("login2")
+            .name("name2")
+            .birthday(LocalDate.of(2000, Month.JANUARY, 2))
+            .build();
+    private final User userPrototype3 = TestUserBuilder.defaultBuilder()
+            .email("email3")
+            .login("login3")
+            .name("name3")
+            .birthday(LocalDate.of(2000, Month.JANUARY, 3))
+            .build();
+
     @Test
     public void getAllUsersWithNoUsersPresent() {
         Collection<User> users = userStorage.getAllUsers();
@@ -32,17 +52,14 @@ public class UserDbStorageTest {
 
     @Test
     public void getUserByIncorrectId() {
-        User user = new User(0, "email", "login", "name",
-                LocalDate.of(1999, Month.JANUARY, 1));
-        long id = userStorage.addUser(user);
+        long id = userStorage.addUser(defaultUser);
         Optional<User> userOptional = userStorage.getById(id + 1);
         assertThat(userOptional).isEmpty();
     }
 
     @Test
     public void addAndGetValidUser() {
-        User user = new User(0, "email", "login", "name",
-                LocalDate.of(1999, Month.JANUARY, 1));
+        User user = defaultUser;
         long id = userStorage.addUser(user);
 
         User userExpected = user.withId(id);
@@ -60,54 +77,46 @@ public class UserDbStorageTest {
 
     @Test
     public void addUserWithNullEmailAndThenThrowException() {
-        User user = new User(0, null, "login", "name",
-                LocalDate.of(1999, Month.JANUARY, 1));
+        User user = TestUserBuilder.defaultBuilder().email(null).build();
         assertThatThrownBy(() -> userStorage.addUser(user))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
     public void addUserWithNullLoginAndThenThrowException() {
-        User user = new User(0, "email", null, "name",
-                LocalDate.of(1999, Month.JANUARY, 1));
+        User user = TestUserBuilder.defaultBuilder().login(null).build();
         assertThatThrownBy(() -> userStorage.addUser(user))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
     public void addUserWithNullNameAndThenThrowException() {
-        User user = new User(0, "email", "login", null,
-                LocalDate.of(1999, Month.JANUARY, 1));
+        User user = TestUserBuilder.defaultBuilder().name(null).build();
         assertThatThrownBy(() -> userStorage.addUser(user))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
     
     @Test
     public void updateUserWithCorrectId() {
-        User user1 = new User(0, "email1", "login1", "name1",
-                LocalDate.of(1999, Month.JANUARY, 1));
-        long id1 = userStorage.addUser(user1);
-        User user2 = new User(0, "email2", "login2", "name2",
-                LocalDate.of(1998, Month.FEBRUARY, 3));
-        long id2 = userStorage.addUser(user2);
-        user2 = user2.withId(id2);
-        user1 = new User(id1, "updated email1", "updated login1", "updated name1",
-                LocalDate.of(2000, Month.DECEMBER, 2));
-        assertThat(userStorage.updateUser(user1)).isEqualTo(true);
+        long id1 = userStorage.addUser(userPrototype1);
+        long id2 = userStorage.addUser(userPrototype2);
+        User user2 = userPrototype2.withId(id2);
+        User user3 = userPrototype3.withId(id1);
+        assertThat(userStorage.updateUser(user3)).isEqualTo(true);
+        assertThat(userStorage.getById(id1))
+                .isPresent()
+                .hasValue(user3);
         assertThat(userStorage.getAllUsers())
                 .isNotEmpty()
                 .hasSize(2)
-                .containsAll(List.of(user1, user2));
+                .containsAll(List.of(user3, user2));
     }
 
     @Test
     public void updateUserWithAbsentId() {
-        User user = new User(0, "email", "login", "name",
-                LocalDate.of(1999, Month.JANUARY, 1));
-        long id = userStorage.addUser(user);
-        user = user.withId(id);
-        User updatedUser = new User(id + 1, "updated email", "updated login", "updated name",
-                LocalDate.of(1998, Month.FEBRUARY, 2));
+        long id = userStorage.addUser(userPrototype1);
+        User user = userPrototype1.withId(id);
+        User updatedUser = userPrototype2.withId(id + 1);
         assertThat(userStorage.updateUser(updatedUser)).isEqualTo(false);
         assertThat(userStorage.getAllUsers())
                 .hasSize(1)
@@ -116,15 +125,9 @@ public class UserDbStorageTest {
 
     @Test
     public void addFriend() {
-        User user1 = new User(0, "email1", "login1", "name1",
-                LocalDate.of(2001, Month.JANUARY, 1));
-        User user2 = new User(0, "email2", "login2", "name2",
-                LocalDate.of(2002, Month.FEBRUARY, 2));
-        User user3 = new User(0, "email3", "login3", "name3",
-                LocalDate.of(2003, Month.MARCH, 3));
-        user1 = user1.withId(userStorage.addUser(user1));
-        user2 = user2.withId(userStorage.addUser(user2));
-        user3 = user3.withId(userStorage.addUser(user3));
+        User user1 = userPrototype1.withId(userStorage.addUser(userPrototype1));
+        User user2 = userPrototype2.withId(userStorage.addUser(userPrototype2));
+        User user3 = userPrototype3.withId(userStorage.addUser(userPrototype3));
 
         assertThat(userStorage.addFriend(user1.getId(), user2.getId())).isEqualTo(true);
         assertThat(userStorage.addFriend(user1.getId(), user3.getId())).isEqualTo(true);
@@ -145,9 +148,7 @@ public class UserDbStorageTest {
 
     @Test
     public void addFriendWithAbsentIdAndThenThrowException() {
-        User user = new User(0, "email", "login", "name",
-                LocalDate.of(2000, Month.JANUARY, 1));
-        long id = userStorage.addUser(user);
+        long id = userStorage.addUser(defaultUser);
 
         assertThatThrownBy(() -> userStorage.addFriend(id, id + 1))
                 .isInstanceOf(DataIntegrityViolationException.class);
@@ -157,24 +158,19 @@ public class UserDbStorageTest {
 
     @Test
     public void addFriendTwice() {
-        User user1 = new User(0, "email1", "login1", "name1",
-                LocalDate.of(2001, Month.JANUARY, 1));
-        User user2 = new User(0, "email2", "login2", "name2",
-                LocalDate.of(2002, Month.FEBRUARY, 2));
-        long id1 = userStorage.addUser(user1);
-        long id2 = userStorage.addUser(user2);
+        long id1 = userStorage.addUser(userPrototype1);
+        long id2 = userStorage.addUser(userPrototype2);
 
         userStorage.addFriend(id1, id2);
-        assertThatNoException().isThrownBy(() -> userStorage.addFriend(id1, id2));
+        assertThatNoException().isThrownBy(() ->
+                assertThat(userStorage.addFriend(id1, id2)).isEqualTo(true));
         assertThat(userStorage.getFriends(id1)).hasSize(1);
         assertThat(userStorage.getFriends(id2)).isEmpty();
     }
 
     @Test
     public void addFriendWithSameIdAndThenThrowException() {
-        User user = new User(0, "email", "login", "name",
-                LocalDate.of(2000, Month.JANUARY, 1));
-        long id = userStorage.addUser(user);
+        long id = userStorage.addUser(defaultUser);
         assertThatThrownBy(() -> userStorage.addFriend(id, id))
                 .isInstanceOf(DataIntegrityViolationException.class);
 
@@ -182,15 +178,9 @@ public class UserDbStorageTest {
 
     @Test
     public void getCommonFriends() {
-        User user1 = new User(0, "email1", "login1", "name1",
-                LocalDate.of(2001, Month.JANUARY, 1));
-        User user2 = new User(0, "email2", "login2", "name2",
-                LocalDate.of(2002, Month.FEBRUARY, 2));
-        User user3 = new User(0, "email3", "login3", "name3",
-                LocalDate.of(2003, Month.MARCH, 3));
-        user1 = user1.withId(userStorage.addUser(user1));
-        user2 = user2.withId(userStorage.addUser(user2));
-        user3 = user3.withId(userStorage.addUser(user3));
+        User user1 = userPrototype1.withId(userStorage.addUser(userPrototype1));
+        User user2 = userPrototype2.withId(userStorage.addUser(userPrototype2));
+        User user3 = userPrototype3.withId(userStorage.addUser(userPrototype3));
 
         userStorage.addFriend(user1.getId(), user2.getId());
         userStorage.addFriend(user1.getId(), user3.getId());
@@ -205,12 +195,9 @@ public class UserDbStorageTest {
 
     @Test
     public void removeFriend() {
-        User user1 = new User(0, "email1", "login1", "name1",
-                LocalDate.of(2001, Month.JANUARY, 1));
-        User user2 = new User(0, "email2", "login2", "name2",
-                LocalDate.of(2002, Month.FEBRUARY, 2));
+        User user1 = userPrototype1;
         long id1 = userStorage.addUser(user1);
-        long id2 = userStorage.addUser(user2);
+        long id2 = userStorage.addUser(userPrototype2);
         userStorage.addFriend(id1, id2);
         userStorage.addFriend(id2, id1);
         assertThat(userStorage.removeFriend(id1, id2)).isEqualTo(true);
@@ -225,5 +212,4 @@ public class UserDbStorageTest {
     public void removeAbsentFriend() {
         assertThat(userStorage.removeFriend(1, 2)).isEqualTo(false);
     }
-
 }

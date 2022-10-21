@@ -1,4 +1,4 @@
--- DROP TABLE IF EXISTS film, users, film_genre, genre, mpa, likes, friends;
+DROP TABLE IF EXISTS film, users, film_genre, genre, mpa, likes, friends;
 
 CREATE TABLE IF NOT EXISTS mpa
 (
