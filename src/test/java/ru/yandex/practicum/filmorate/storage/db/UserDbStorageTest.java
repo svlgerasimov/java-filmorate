@@ -24,25 +24,15 @@ import static org.assertj.core.api.Assertions.*;
 public class UserDbStorageTest {
     private final UserDbStorage userStorage;
 
-    private final User defaultUser = TestUserBuilder.defaultBuilder().build();
-    private final User userPrototype1 = TestUserBuilder.defaultBuilder()
-            .email("email1")
-            .login("login1")
-            .name("name1")
-            .birthday(LocalDate.of(2000, Month.JANUARY, 1))
-            .build();
-    private final User userPrototype2 = TestUserBuilder.defaultBuilder()
-            .email("email2")
-            .login("login2")
-            .name("name2")
-            .birthday(LocalDate.of(2000, Month.JANUARY, 2))
-            .build();
-    private final User userPrototype3 = TestUserBuilder.defaultBuilder()
-            .email("email3")
-            .login("login3")
-            .name("name3")
-            .birthday(LocalDate.of(2000, Month.JANUARY, 3))
-            .build();
+    private final TestUserBuilder userBuilder1 =
+        TestUserBuilder.of(0, "email1", "login1", "name1",
+                LocalDate.of(2000, Month.JANUARY, 1));
+    private final TestUserBuilder userBuilder2 =
+            TestUserBuilder.of(0, "email2", "login2", "name2",
+                    LocalDate.of(2000, Month.JANUARY, 2));
+    private final TestUserBuilder userBuilder3 =
+            TestUserBuilder.of(0, "email3", "login3", "name3",
+                    LocalDate.of(2000, Month.JANUARY, 3));
 
     @Test
     public void getAllUsersWithNoUsersPresent() {
@@ -52,14 +42,14 @@ public class UserDbStorageTest {
 
     @Test
     public void getUserByIncorrectId() {
-        long id = userStorage.addUser(defaultUser);
+        long id = userStorage.addUser(TestUserBuilder.defaultBuilder().build());
         Optional<User> userOptional = userStorage.getById(id + 1);
         assertThat(userOptional).isEmpty();
     }
 
     @Test
     public void addAndGetValidUser() {
-        User user = defaultUser;
+        User user = TestUserBuilder.defaultBuilder().build();
         long id = userStorage.addUser(user);
 
         User userExpected = user.withId(id);
@@ -77,31 +67,32 @@ public class UserDbStorageTest {
 
     @Test
     public void addUserWithNullEmailAndThenThrowException() {
-        User user = TestUserBuilder.defaultBuilder().email(null).build();
+        User user = TestUserBuilder.defaultBuilder().withEmail(null).build();
         assertThatThrownBy(() -> userStorage.addUser(user))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
     public void addUserWithNullLoginAndThenThrowException() {
-        User user = TestUserBuilder.defaultBuilder().login(null).build();
+        User user = TestUserBuilder.defaultBuilder().withLogin(null).build();
         assertThatThrownBy(() -> userStorage.addUser(user))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
     public void addUserWithNullNameAndThenThrowException() {
-        User user = TestUserBuilder.defaultBuilder().name(null).build();
+        User user = TestUserBuilder.defaultBuilder().withName(null).build();
         assertThatThrownBy(() -> userStorage.addUser(user))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
     
     @Test
     public void updateUserWithCorrectId() {
-        long id1 = userStorage.addUser(userPrototype1);
-        long id2 = userStorage.addUser(userPrototype2);
-        User user2 = userPrototype2.withId(id2);
-        User user3 = userPrototype3.withId(id1);
+        User user1 = userBuilder1.build();
+        long id1 = userStorage.addUser(user1);
+        User user2 = userBuilder2.build();
+        user2 = user2.withId(userStorage.addUser(user2));
+        User user3 = userBuilder3.withId(id1).build();
         assertThat(userStorage.updateUser(user3)).isEqualTo(true);
         assertThat(userStorage.getById(id1))
                 .isPresent()
@@ -114,9 +105,10 @@ public class UserDbStorageTest {
 
     @Test
     public void updateUserWithAbsentId() {
-        long id = userStorage.addUser(userPrototype1);
-        User user = userPrototype1.withId(id);
-        User updatedUser = userPrototype2.withId(id + 1);
+        User user = userBuilder1.build();
+        long id = userStorage.addUser(user);
+        user = user.withId(id);
+        User updatedUser = userBuilder2.withId(id + 1).build();
         assertThat(userStorage.updateUser(updatedUser)).isEqualTo(false);
         assertThat(userStorage.getAllUsers())
                 .hasSize(1)
@@ -125,9 +117,12 @@ public class UserDbStorageTest {
 
     @Test
     public void addFriend() {
-        User user1 = userPrototype1.withId(userStorage.addUser(userPrototype1));
-        User user2 = userPrototype2.withId(userStorage.addUser(userPrototype2));
-        User user3 = userPrototype3.withId(userStorage.addUser(userPrototype3));
+        User user1 = userBuilder1.build();
+        User user2 = userBuilder2.build();
+        User user3 = userBuilder3.build();
+        user1 = user1.withId(userStorage.addUser(user1));
+        user2 = user2.withId(userStorage.addUser(user2));
+        user3 = user3.withId(userStorage.addUser(user3));
 
         assertThat(userStorage.addFriend(user1.getId(), user2.getId())).isEqualTo(true);
         assertThat(userStorage.addFriend(user1.getId(), user3.getId())).isEqualTo(true);
@@ -148,7 +143,7 @@ public class UserDbStorageTest {
 
     @Test
     public void addFriendWithAbsentIdAndThenThrowException() {
-        long id = userStorage.addUser(defaultUser);
+        long id = userStorage.addUser(TestUserBuilder.defaultBuilder().build());
 
         assertThatThrownBy(() -> userStorage.addFriend(id, id + 1))
                 .isInstanceOf(DataIntegrityViolationException.class);
@@ -158,8 +153,8 @@ public class UserDbStorageTest {
 
     @Test
     public void addFriendTwice() {
-        long id1 = userStorage.addUser(userPrototype1);
-        long id2 = userStorage.addUser(userPrototype2);
+        long id1 = userStorage.addUser(userBuilder1.build());
+        long id2 = userStorage.addUser(userBuilder2.build());
 
         userStorage.addFriend(id1, id2);
         assertThatNoException().isThrownBy(() ->
@@ -170,7 +165,7 @@ public class UserDbStorageTest {
 
     @Test
     public void addFriendWithSameIdAndThenThrowException() {
-        long id = userStorage.addUser(defaultUser);
+        long id = userStorage.addUser(TestUserBuilder.defaultBuilder().build());
         assertThatThrownBy(() -> userStorage.addFriend(id, id))
                 .isInstanceOf(DataIntegrityViolationException.class);
 
@@ -178,9 +173,12 @@ public class UserDbStorageTest {
 
     @Test
     public void getCommonFriends() {
-        User user1 = userPrototype1.withId(userStorage.addUser(userPrototype1));
-        User user2 = userPrototype2.withId(userStorage.addUser(userPrototype2));
-        User user3 = userPrototype3.withId(userStorage.addUser(userPrototype3));
+        User user1 = userBuilder2.build();
+        user1 = user1.withId(userStorage.addUser(user1));
+        User user2 = userBuilder2.build();
+        user2 = user2.withId(userStorage.addUser(user2));
+        User user3 = userBuilder3.build();
+        user3= user3.withId(userStorage.addUser(user3));
 
         userStorage.addFriend(user1.getId(), user2.getId());
         userStorage.addFriend(user1.getId(), user3.getId());
@@ -195,9 +193,9 @@ public class UserDbStorageTest {
 
     @Test
     public void removeFriend() {
-        User user1 = userPrototype1;
+        User user1 = userBuilder1.build();
         long id1 = userStorage.addUser(user1);
-        long id2 = userStorage.addUser(userPrototype2);
+        long id2 = userStorage.addUser(userBuilder2.build());
         userStorage.addFriend(id1, id2);
         userStorage.addFriend(id2, id1);
         assertThat(userStorage.removeFriend(id1, id2)).isEqualTo(true);
