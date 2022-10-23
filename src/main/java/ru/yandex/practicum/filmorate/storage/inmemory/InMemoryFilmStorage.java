@@ -1,17 +1,16 @@
 package ru.yandex.practicum.filmorate.storage.inmemory;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.LikesStorage;
 import ru.yandex.practicum.filmorate.util.IdGenerator;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component
 @RequiredArgsConstructor
-public class InMemoryFilmStorage implements FilmStorage {
+public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
 
     private final Map<Long, Film> films = new HashMap<>();
     private final Map<Long, Set<Long>> likes = new HashMap<>();

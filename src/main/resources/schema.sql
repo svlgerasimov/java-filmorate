@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS film
     description VARCHAR(200),
     release_date DATE,
     duration INT,
-    mpa_id BIGINT REFERENCES mpa (id) ON DELETE SET NULL,
+    mpa_id INT REFERENCES mpa (id) NOT NULL,
     CONSTRAINT duration_check CHECK (duration > 0)
 );
 

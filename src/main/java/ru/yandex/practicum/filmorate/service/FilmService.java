@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DbCreateEntityFaultException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -16,25 +16,14 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmService {
     private final FilmStorage filmStorage;
     private final MpaStorage mpaStorage;
     private final GenreStorage genreStorage;
     private final FilmGenreStorage filmGenreStorage;
     private final UserStorage userStorage;
-
-    @Autowired
-    public FilmService(@Qualifier("FilmDbStorage") FilmStorage filmStorage,
-                       MpaStorage mpaStorage,
-                       GenreStorage genreStorage,
-                       FilmGenreStorage filmGenreStorage,
-                       @Qualifier("UserDbStorage") UserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.mpaStorage = mpaStorage;
-        this.genreStorage = genreStorage;
-        this.filmGenreStorage = filmGenreStorage;
-        this.userStorage = userStorage;
-    }
+    private final LikesStorage likesStorage;
 
     public Collection<Film> getAllFilms() {
         Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
@@ -79,14 +68,14 @@ public class FilmService {
     public void addLike(long filmId, long userId) {
         checkFilmExists(filmId);
         checkUserExists(userId);
-        filmStorage.addLike(filmId, userId);
+        likesStorage.addLike(filmId, userId);
         log.debug("Add like to film id={} by user id={}", filmId, userId);
     }
 
     public void removeLike(long filmId, long userId) {
         checkFilmExists(filmId);
         checkUserExists(userId);
-        filmStorage.removeLike(filmId, userId);
+        likesStorage.removeLike(filmId, userId);
         log.debug("Remove like from film id={} by user id={}", filmId, userId);
     }
 

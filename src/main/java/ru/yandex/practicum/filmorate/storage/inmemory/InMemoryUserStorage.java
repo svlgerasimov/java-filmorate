@@ -1,19 +1,16 @@
 package ru.yandex.practicum.filmorate.storage.inmemory;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.util.IdGenerator;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component
-@Qualifier("InMemoryUserStorage")
 @RequiredArgsConstructor
-public class InMemoryUserStorage implements UserStorage {
+public class InMemoryUserStorage implements UserStorage, FriendsStorage {
 
     private final Map<Long, User> users = new HashMap<>();
     // Если хранить список друзей в User, придётся его "перекладывать" в новый экземпляр при обновлении

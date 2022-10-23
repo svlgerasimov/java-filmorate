@@ -15,8 +15,4 @@ public interface FilmStorage {
     long addFilm(Film film);
 
     boolean updateFilm(Film film);
-
-    boolean addLike(long filmId, long userId);
-
-    boolean removeLike(long filmId, long userId);
 }

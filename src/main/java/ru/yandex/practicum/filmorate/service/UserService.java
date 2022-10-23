@@ -1,24 +1,24 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DbCreateEntityFaultException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.*;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserService {
 
     private final UserStorage userStorage;
-
-    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
+    private final FriendsStorage friendsStorage;
 
     public Collection<User> getAllUsers() {
         return userStorage.getAllUsers();
@@ -61,26 +61,26 @@ public class UserService {
     public void addToFriends(long userId, long friendId) {
         checkUserExists(userId);
         checkUserExists(friendId);
-        userStorage.addFriend(userId, friendId);
+        friendsStorage.addFriend(userId, friendId);
         log.debug("Add friends id={} and id={}", userId, friendId);
     }
 
     public void removeFromFriends(long userId, long friendId) {
         checkUserExists(userId);
         checkUserExists(friendId);
-        userStorage.removeFriend(userId, friendId);
+        friendsStorage.removeFriend(userId, friendId);
         log.debug("Remove friends id={} and id={}", userId, friendId);
     }
 
     public Collection<User> getFriends(long userId) {
         checkUserExists(userId);
-        return userStorage.getFriends(userId);
+        return friendsStorage.getFriends(userId);
     }
 
     public Collection<User> getCommonFriends(long userId, long otherId) {
         checkUserExists(userId);
         checkUserExists(otherId);
-        return userStorage.getCommonFriends(userId, otherId);
+        return friendsStorage.getCommonFriends(userId, otherId);
     }
 
     private void checkUserExists(long id) {

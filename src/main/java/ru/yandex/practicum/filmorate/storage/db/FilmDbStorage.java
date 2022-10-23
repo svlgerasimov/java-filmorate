@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,7 +19,6 @@ import java.util.*;
 @Component
 @Qualifier("FilmDbStorage")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Slf4j
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -70,14 +68,15 @@ public class FilmDbStorage implements FilmStorage {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("film")
                 .usingGeneratedKeyColumns("id");
-        return simpleJdbcInsert.executeAndReturnKey(
-                new MapSqlParameterSource()
-                        .addValue("name", film.getName())
-                        .addValue("description", film.getDescription())
-                        .addValue("release_date", Date.valueOf(film.getReleaseDate()))
-                        .addValue("duration", film.getDuration())
-                        .addValue("mpa_id", film.getMpa().getId()))
-                .longValue();
+        MapSqlParameterSource mapSqlParameterSource =  new MapSqlParameterSource()
+                .addValue("name", film.getName())
+                .addValue("description", film.getDescription())
+                .addValue("release_date", Date.valueOf(film.getReleaseDate()))
+                .addValue("duration", film.getDuration());
+        if (Objects.nonNull(film.getMpa())) {
+            mapSqlParameterSource.addValue("mpa_id", film.getMpa().getId());
+        }
+        return simpleJdbcInsert.executeAndReturnKey(mapSqlParameterSource).longValue();
     }
 
     @Override
@@ -88,18 +87,6 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.update(sql,
                 film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 Objects.nonNull(film.getMpa()) ? film.getMpa().getId() : null, film.getId()) > 0;
-    }
-
-    @Override
-    public boolean addLike(long filmId, long userId) {
-        String sql = "MERGE INTO likes (film_id, user_id) VALUES (?, ?);";
-        return jdbcTemplate.update(sql, filmId, userId) > 0;
-    }
-
-    @Override
-    public boolean removeLike(long filmId, long userId) {
-        String sql = "DELETE FROM likes WHERE film_id=? AND user_id=?;";
-        return jdbcTemplate.update(sql, filmId, userId) > 0;
     }
 
     private static Film makeFilm(ResultSet resultSet) throws SQLException {
