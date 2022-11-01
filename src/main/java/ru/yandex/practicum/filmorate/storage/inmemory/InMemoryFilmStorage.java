@@ -1,17 +1,16 @@
 package ru.yandex.practicum.filmorate.storage.inmemory;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.LikesStorage;
 import ru.yandex.practicum.filmorate.util.IdGenerator;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-@Component
 @RequiredArgsConstructor
-public class InMemoryFilmStorage implements FilmStorage {
+public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
 
     private final Map<Long, Film> films = new HashMap<>();
     private final Map<Long, Set<Long>> likes = new HashMap<>();
@@ -28,26 +27,21 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void checkFilmExists(long id) {
-        if (!films.containsKey(id)) {
-            String message = String.format("Film id=%s not found", id);
-            throw new NotFoundException(message);
-        }
-    }
-
-    @Override
-    public Film addFilm(Film film) {
+    public long addFilm(Film film) {
         long id = idGenerator.getNextId();
         film = film.withId(id);
         films.put(id, film);
-        return film;
+        return id;
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public boolean updateFilm(Film film) {
         long id = film.getId();
+        if (!films.containsKey(id)) {
+            return false;
+        }
         films.put(id, film);
-        return film;
+        return true;
     }
 
     @Override
@@ -73,9 +67,17 @@ public class InMemoryFilmStorage implements FilmStorage {
         return result;
     }
 
-    @Override
     public int getLikesCount(long filmId) {
         Set<Long> filmLikes = likes.get(filmId);
         return Objects.isNull(filmLikes) ? 0 : filmLikes.size();
+    }
+
+    @Override
+    public Collection<Film> getMostPopularFilms(int count) {
+        Comparator<Film> comparator = Comparator.comparingInt(film -> getLikesCount(film.getId()));
+        return getAllFilms().stream()
+                .sorted(comparator.reversed())
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }

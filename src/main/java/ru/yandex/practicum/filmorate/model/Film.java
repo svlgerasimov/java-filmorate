@@ -2,12 +2,13 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Value;
 import lombok.With;
-import lombok.experimental.NonFinal;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Collection;
 
 @Value
 public class Film {
@@ -15,7 +16,7 @@ public class Film {
     private static final int MAX_FILM_DESCRIPTION_LENGTH = 200;
     private final static String MIN_FILM_RELEASE_DATE = "1895-12-28";
 
-    @NonFinal @With
+    @With
     long id;                   // идентификатор
 
     @NotBlank(message = "Film name is blank")
@@ -31,4 +32,12 @@ public class Film {
 
     @Positive(message = "Film duration is not positive")
     int duration;      // продолжительность
+
+    @NotNull
+    Mpa mpa;
+
+    @With
+    Collection<Genre> genres;
+
+    int rate;
 }

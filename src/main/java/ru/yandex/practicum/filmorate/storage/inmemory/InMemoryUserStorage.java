@@ -1,18 +1,16 @@
 package ru.yandex.practicum.filmorate.storage.inmemory;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.util.IdGenerator;
 
 import java.util.*;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
-@Component
 @RequiredArgsConstructor
-public class InMemoryUserStorage implements UserStorage {
+public class InMemoryUserStorage implements UserStorage, FriendsStorage {
 
     private final Map<Long, User> users = new HashMap<>();
     // Если хранить список друзей в User, придётся его "перекладывать" в новый экземпляр при обновлении
@@ -30,25 +28,20 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void checkUserExists(long id) {
-        if (!users.containsKey(id)) {
-            String message = String.format("User id=%s not found", id);
-            throw new NotFoundException(message);
-        }
-    }
-
-    @Override
-    public User addUser(User user) {
+    public long addUser(User user) {
         long id = idGenerator.getNextId();
         user = user.withId(id);
         users.put(id, user);
-        return user;
+        return id;
     }
 
     @Override
-    public User updateUser(User user) {
+    public boolean updateUser(User user) {
+        if (!users.containsKey(user.getId())) {
+            return false;
+        }
         users.put(user.getId(), user);
-        return user;
+        return true;
     }
 
     @Override
@@ -75,8 +68,23 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Stream<Long> getFriends(long userId) {
+    public Collection<User> getFriends(long userId) {
         Set<Long> userFriends = friends.get(userId);
-        return Objects.isNull(userFriends) ? Stream.empty() : userFriends.stream();
+        return Objects.isNull(userFriends) ? List.of() :
+                userFriends.stream()
+                        .map(users::get)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<User> getCommonFriends(long userId, long otherId) {
+        Set<Long> other = friends.get(otherId);
+        return Objects.isNull(other) ? List.of() :
+                friends.get(userId).stream()
+                        .filter(other::contains)
+                        .map(users::get)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
     }
 }
