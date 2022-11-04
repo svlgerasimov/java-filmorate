@@ -10,6 +10,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.*;
+import ru.yandex.practicum.filmorate.storage.db.DirectorDbStorage;
+import ru.yandex.practicum.filmorate.storage.inmemory.DirectorStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,6 +26,9 @@ public class FilmService {
     private final FilmGenreStorage filmGenreStorage;
     private final UserStorage userStorage;
     private final LikesStorage likesStorage;
+
+    private final DirectorStorage directorStorage;
+
 
     public Collection<Film> getAllFilms() {
         Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
@@ -125,4 +130,6 @@ public class FilmService {
             }
         }
     }
+
+
 }

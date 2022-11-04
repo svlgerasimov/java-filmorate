@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS film, users, film_genre, genre, mpa, likes, friends;
+DROP TABLE IF EXISTS film, users, film_genre, genre, mpa, likes, friends, director, film_directors;
 
 CREATE TABLE IF NOT EXISTS mpa
 (
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS film
     description VARCHAR(200),
     release_date DATE,
     duration INT,
-    mpa_id INT REFERENCES mpa (id) NOT NULL,
+    mpa_id INT NOT NULL REFERENCES mpa (id),
     CONSTRAINT duration_check CHECK (duration > 0)
 );
 
@@ -53,4 +53,24 @@ CREATE TABLE IF NOT EXISTS likes
     film_id BIGINT REFERENCES film (id) ON DELETE CASCADE,
     user_id BIGINT REFERENCES users (id) ON DELETE CASCADE,
     PRIMARY KEY (film_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS director
+(
+    DIRECTOR_ID INTEGER auto_increment,
+    NAME        CHARACTER VARYING(64) not null,
+    constraint DIRECTOR_PK
+        primary key (DIRECTOR_ID)
+);
+
+CREATE TABLE IF NOT EXISTS film_directors
+(
+    FILM_ID     INTEGER not null,
+    DIRECTOR_ID INTEGER not null,
+    constraint FILM_DIRECTORS_PK
+        primary key (DIRECTOR_ID, FILM_ID),
+    constraint FILM_DIRECTORS_DIRECTOR_DIRECTOR_ID_FK
+        foreign key (DIRECTOR_ID) references DIRECTOR,
+    constraint FILM_DIRECTORS_FILM_ID_FK
+        foreign key (FILM_ID) references FILM
 );

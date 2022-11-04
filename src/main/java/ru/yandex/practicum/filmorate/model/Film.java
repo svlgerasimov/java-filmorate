@@ -40,4 +40,6 @@ public class Film {
     Collection<Genre> genres;
 
     int rate;
+
+    //Director director;
 }
