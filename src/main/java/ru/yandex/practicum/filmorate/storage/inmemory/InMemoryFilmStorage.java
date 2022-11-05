@@ -67,6 +67,11 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
         return result;
     }
 
+    @Override
+    public List<Long> findSimilarUsers(long userId, int limit) {
+        return null;
+    }
+
     public int getLikesCount(long filmId) {
         Set<Long> filmLikes = likes.get(filmId);
         return Objects.isNull(filmLikes) ? 0 : filmLikes.size();
@@ -79,5 +84,10 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
                 .sorted(comparator.reversed())
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<Film> getFilmsLikedByUser(long userId) {
+        return null;
     }
 }

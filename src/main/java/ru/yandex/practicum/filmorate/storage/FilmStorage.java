@@ -10,6 +10,8 @@ public interface FilmStorage {
 
     Collection<Film> getMostPopularFilms(int count);
 
+    Collection<Film> getFilmsLikedByUser(long userId);
+
     Optional<Film> getById(long id);
 
     long addFilm(Film film);
