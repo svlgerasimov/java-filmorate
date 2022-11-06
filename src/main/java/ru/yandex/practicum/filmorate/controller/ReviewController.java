@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.storage.ReviewStorage;
+import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import javax.validation.constraints.Positive;
 import java.util.List;
@@ -14,52 +14,52 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReviewController {
 
-    private final ReviewStorage reviewsStorage;
+    private final ReviewService reviewService;
 
     @PostMapping
     public Review addReview(@RequestBody Review review) {
-        return reviewsStorage.addReview(review);
+        return reviewService.addReview(review);
     }
 
     @PutMapping
     public Review updateReview(@RequestBody Review review) {
-        return reviewsStorage.updateReview(review);
+        return reviewService.updateReview(review);
     }
 
     @DeleteMapping("/{id}")
     public void deleteReview(@PathVariable long id) {
-        reviewsStorage.removeReview(id);
+        reviewService.removeReview(id);
     }
 
     @GetMapping("/{id}")
     public Review getReviewById(@PathVariable long id) {
-        return reviewsStorage.getReviewById(id);
+        return reviewService.getReviewById(id);
     }
 
     @GetMapping
     public List<Review> getAllReview( //  если фильм не указан то все. Если кол-во не указано то 10.
                                       @RequestParam(required = false, defaultValue = "10") @Positive int count,
                                       @RequestParam(required = false, defaultValue = "0") @Positive int filmId) {
-        return reviewsStorage.getAllReview(filmId, count);
+        return reviewService.getAllReview(filmId, count);
     }
 
     @PutMapping("/{id}/like/{userId}") // пользователь ставит лайк отзыву
-    public Review addLikeReview(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
-        return reviewsStorage.addLikeReview(reviewId, userId);
+    public void addLikeReview(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
+        reviewService.addLikeReview(reviewId, userId);
     }
 
     @PutMapping("/{id}/dislike/{userId}") // пользователь ставит дизлайк отзыву
-    public Review addDislikeReview(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
-        return reviewsStorage.addDislikeReview(reviewId, userId);
+    public void addDislikeReview(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
+        reviewService.addDislikeReview(reviewId, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Review deleteLikeReview(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
-        return reviewsStorage.deleteLikeReview(reviewId, userId);
+    public void deleteLikeReview(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
+        reviewService.deleteLikeReview(reviewId, userId);
     }
 
     @DeleteMapping("/{id}/dislike/{userId}") // пользователь ставит дизлайк отзыву
-    public Review deleteDislikeReview(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
-        return reviewsStorage.deleteDislikeReview(reviewId, userId);
+    public void deleteDislikeReview(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
+        reviewService.deleteDislikeReview(reviewId, userId);
     }
 }

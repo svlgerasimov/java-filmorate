@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS film, users, film_genre, genre, mpa, likes, friends, reviews, film_review, user_review;
+DROP TABLE IF EXISTS film, users, film_genre, genre, mpa, likes, friends, reviews, user_review, like_review, dislike_review;
 
 CREATE TABLE IF NOT EXISTS mpa
 (
@@ -61,15 +61,8 @@ CREATE TABLE IF NOT EXISTS reviews
     content    VARCHAR(150) NOT NULL,
     isPositive BOOLEAN,
     user_Id    BIGINT REFERENCES users (id) ON DELETE CASCADE,
-    film_id    BIGINT REFERENCES film (id) ON DELETE CASCADE,
-    useful     INT DEFAULT 0
-);
-
-CREATE TABLE IF NOT EXISTS film_review
-(
-    film_id   BIGINT REFERENCES film (id) ON DELETE CASCADE,
-    review_id BIGINT REFERENCES reviews (id) ON DELETE CASCADE,
-    PRIMARY KEY (film_id, review_id)
+    film_id    BIGINT REFERENCES film (id) ON DELETE CASCADE
+    --useful     INT DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS user_review
