@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
@@ -17,12 +18,12 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping
-    public Review addReview(@RequestBody Review review) {
+    public Review addReview(@Valid @RequestBody Review review) {
         return reviewService.addReview(review);
     }
 
     @PutMapping
-    public Review updateReview(@RequestBody Review review) {
+    public Review updateReview(@Valid @RequestBody Review review) {
         return reviewService.updateReview(review);
     }
 

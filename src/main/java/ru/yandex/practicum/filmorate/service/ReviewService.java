@@ -30,7 +30,7 @@ public class ReviewService {
     }
 
     public Review updateReview(Review review) {
-        long id = review.getId();
+        long id = review.getReviewId();
         reviewStorage.updateReview(review);
         review = reviewStorage.getReviewById(id).orElseThrow(() ->
                 new DbCreateEntityFaultException(String.format("Review (id=%s) hasn't been updated in database", id)));

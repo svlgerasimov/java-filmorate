@@ -3,15 +3,18 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.yandex.practicum.filmorate.exception.DataBaseException;
 import ru.yandex.practicum.filmorate.exception.DbCreateEntityFaultException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
 import javax.validation.ConstraintViolationException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -86,5 +89,11 @@ public class ErrorHandler {
         Map<String, String> result = Map.of("Internal Server Error", exception.getMessage());
         log.warn(String.valueOf(result), exception);
         return result;
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleDataBaseException(DataBaseException e) {
+        log.error("Ошибка БД 404 {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 }
