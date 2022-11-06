@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DbCreateEntityFaultException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FriendsStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.*;
 
@@ -19,6 +19,8 @@ public class UserService {
 
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
+
+    private final EventStorage eventStorage;
 
     public Collection<User> getAllUsers() {
         return userStorage.getAllUsers();
@@ -87,5 +89,9 @@ public class UserService {
         userStorage.getById(id)
                 .orElseThrow(() ->
                         new NotFoundException(String.format("User id=%s not found", id)));
+    }
+
+    public Collection<Event> getAllEvents(long userId) {
+        return eventStorage.getAllEvents(userId);
     }
 }
