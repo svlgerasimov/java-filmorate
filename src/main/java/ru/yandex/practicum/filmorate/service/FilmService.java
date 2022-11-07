@@ -89,6 +89,12 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
+    public Collection<Film> getCommonFilms(long userId, long friendId) {
+        Collection<Film> commonFilms = filmStorage.getCommonFilms(userId, friendId);
+        log.debug("Film service: common films for users id={} and friend id={}", userId, friendId);
+        return commonFilms;
+    }
+
     private void checkFilmExists(long id) {
         filmStorage.getById(id)
                 .orElseThrow(() ->

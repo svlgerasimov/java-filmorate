@@ -89,6 +89,26 @@ public class FilmDbStorage implements FilmStorage {
                 Objects.nonNull(film.getMpa()) ? film.getMpa().getId() : null, film.getId()) > 0;
     }
 
+    @Override
+    public Collection<Film> getCommonFilms(long userId, long friendId) {
+        String sql =
+                "SELECT DISTINCT *, m.name AS mpa_name FROM " +
+                        "(SELECT film_id " +
+                        "FROM likes " +
+                        "WHERE user_id = ? " +
+                        "INTERSECT SELECT DISTINCT film_id " +
+                        "FROM likes " +
+                        "WHERE user_id = ?) AS l "+
+                        "LEFT JOIN " +
+                        "(SELECT film_id, COUNT(user_id) AS rate " +
+                        "FROM likes " +
+                        "GROUP BY film_id) f ON (f.film_id = l.film_id) " +
+                        "JOIN film AS f ON (f.id = l.film_id) "+
+                        "JOIN mpa AS m ON m.id = f.mpa_id " +
+                        "ORDER BY f.rate DESC ";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId, friendId);
+    }
+
     private static Film makeFilm(ResultSet resultSet) throws SQLException {
         Date releaseDate = resultSet.getDate("release_date");
 
