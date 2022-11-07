@@ -82,12 +82,12 @@ public class FilmDbStorageTest {
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
-    /*@Test
+    @Test
     public void addFilmWithNullMpaAndThenThrowException() {
         Film film = TestFilmBuilder.defaultBuilder().withMpa(null).build();
         assertThatThrownBy(() -> filmStorage.addFilm(film))
                 .isInstanceOf(DataIntegrityViolationException.class);
-    }*/
+    }
 
     @Test
     public void addFilmWithNonPositiveDurationAndThenThrowException() {

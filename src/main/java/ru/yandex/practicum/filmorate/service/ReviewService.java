@@ -51,8 +51,8 @@ public class ReviewService {
                 .orElseThrow(() -> new NotFoundException(String.format("Review id=%s not found", id)));
     }
 
-    public List<Review> getAllReview(long filmId, int count) {
-        if (filmId != 0) {
+    public List<Review> getAllReview(Long filmId, int count) {
+        if (filmId != null) {
             checkFilmExists(filmId);
         }
         return reviewStorage.getAllReview(filmId, count);

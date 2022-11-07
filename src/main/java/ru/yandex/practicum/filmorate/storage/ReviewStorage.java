@@ -13,7 +13,7 @@ public interface ReviewStorage {
 
     Optional<Review> getReviewById(long id);
 
-    List<Review> getAllReview(long filmId, int count);
+    List<Review> getAllReview(Long filmId, int count);
 
     boolean addLikeReview(long reviewId, long userId);
 

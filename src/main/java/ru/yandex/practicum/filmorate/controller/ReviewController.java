@@ -40,7 +40,7 @@ public class ReviewController {
     @GetMapping
     public List<Review> getAllReview( //  если фильм не указан то все. Если кол-во не указано то 10.
                                       @RequestParam(required = false, defaultValue = "10") @Positive int count,
-                                      @RequestParam(required = false, defaultValue = "0") @Positive int filmId) {
+                                      @RequestParam(required = false) @Positive Long filmId) {
         return reviewService.getAllReview(filmId, count);
     }
 

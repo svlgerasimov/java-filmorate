@@ -64,9 +64,9 @@ public class ReviewsDbStorage implements ReviewStorage {
     }
 
     @Override
-    public List<Review> getAllReview(long filmId, int count) { //  если фильм не указан то все. Если кол-во не указано то 10.
+    public List<Review> getAllReview(Long filmId, int count) { //  если фильм не указан то все. Если кол-во не указано то 10.
         String where = "";
-        if (filmId != 0) {
+        if (filmId != null) {
             where = "WHERE r.film_id =" + filmId;
         }
         String sql = "SELECT r.id, r.content, r.ispositive, r.user_id, r.film_id, " +
