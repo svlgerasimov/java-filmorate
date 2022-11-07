@@ -11,9 +11,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
+import java.sql.*;
 import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 @Component
@@ -62,6 +61,27 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), id);
         return films.isEmpty() ? Optional.empty() : Optional.of(films.get(0));
     }
+
+    @Override
+    public Collection<Film> findByName(String substring) {
+        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
+                "m.id AS mpa_id, m.name AS mpa_name, " +
+                "COUNT(DISTINCT l.user_id) AS rate " +
+                "FROM film AS f " +
+                "LEFT JOIN mpa AS m ON m.id=f.mpa_id " +
+                "LEFT JOIN likes AS l ON l.film_id=f.id " +
+                "WHERE LOWER(f.name) LIKE LOWER(?) " +
+                "GROUP BY f.id " +
+                "ORDER BY rate DESC;";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), "%" + substring + "%");
+    }
+
+    @Override
+    // TODO Реализовать после добавления режиссёров
+    public Collection<Film> findByDirector(String substring) {
+        return List.of();
+    }
+
 
     @Override
     public long addFilm(Film film) {

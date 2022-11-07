@@ -89,6 +89,22 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
+    public Collection<Film> searchFilms(String query, boolean searchByName, boolean searchByDirector) {
+        List<Film> films = new ArrayList<>();
+        if (searchByName) {
+            films.addAll(filmStorage.findByName(query));
+        }
+        if (searchByDirector) {
+            films.addAll(filmStorage.findByDirector(query));
+        }
+        Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(films.stream()
+                .map(Film::getId)
+                .collect(Collectors.toList()));
+        return films.stream()
+                .map(film -> film.withGenres(genres.containsKey(film.getId()) ? genres.get(film.getId()) : List.of()))
+                .collect(Collectors.toList());
+    }
+
     private void checkFilmExists(long id) {
         filmStorage.getById(id)
                 .orElseThrow(() ->

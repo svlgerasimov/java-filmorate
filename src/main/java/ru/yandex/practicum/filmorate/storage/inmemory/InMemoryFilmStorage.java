@@ -27,6 +27,17 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     }
 
     @Override
+    public Collection<Film> findByName(String substring) {
+        return null;
+    }
+
+    @Override
+    public Collection<Film> findByDirector(String substring) {
+        return null;
+    }
+
+
+    @Override
     public long addFilm(Film film) {
         long id = idGenerator.getNextId();
         film = film.withId(id);
