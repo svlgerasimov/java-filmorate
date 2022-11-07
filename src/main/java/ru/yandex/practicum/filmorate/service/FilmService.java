@@ -90,9 +90,12 @@ public class FilmService {
     }
 
     public Collection<Film> getCommonFilms(long userId, long friendId) {
+        Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
         Collection<Film> commonFilms = filmStorage.getCommonFilms(userId, friendId);
         log.debug("Film service: common films for users id={} and friend id={}", userId, friendId);
-        return commonFilms;
+        return commonFilms.stream()
+                .map(film -> film.withGenres(genres.get(film.getId())))
+                .collect(Collectors.toList());
     }
 
     private void checkFilmExists(long id) {
