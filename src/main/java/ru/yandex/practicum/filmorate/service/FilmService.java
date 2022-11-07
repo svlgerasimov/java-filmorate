@@ -9,9 +9,17 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.*;
+import ru.yandex.practicum.filmorate.storage.FilmGenreStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.LikesStorage;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,7 +46,7 @@ public class FilmService {
         long id = filmStorage.addFilm(film);
         filmGenreStorage.addFilmGenres(id, film.getGenres());
         film = filmStorage.getById(id).orElseThrow(() ->
-                new DbCreateEntityFaultException(String.format("Film (id=%s) hasn't been added to database", id)))
+                        new DbCreateEntityFaultException(String.format("Film (id=%s) hasn't been added to database", id)))
                 .withGenres(filmGenreStorage.getGenresByFilmId(id));
         log.debug("Add film: {}", film);
         return film;
@@ -52,8 +60,8 @@ public class FilmService {
         filmStorage.updateFilm(film);
         filmGenreStorage.deleteFilmGenres(id);
         filmGenreStorage.addFilmGenres(id, film.getGenres());
-        film = filmStorage.getById(id).orElseThrow(()  ->
-                new DbCreateEntityFaultException(String.format("Film (id=%s) hasn't been updated in database", id)))
+        film = filmStorage.getById(id).orElseThrow(() ->
+                        new DbCreateEntityFaultException(String.format("Film (id=%s) hasn't been updated in database", id)))
                 .withGenres(filmGenreStorage.getGenresByFilmId(id));
         log.debug("Update film {}", film);
         return film;
@@ -87,6 +95,13 @@ public class FilmService {
         return films.stream()
                 .map(film -> film.withGenres(genres.get(film.getId())))
                 .collect(Collectors.toList());
+    }
+
+    public void removeFilm(long filmId) {
+        checkFilmExists(filmId);
+        filmStorage.removeFilm(filmId);
+        genreStorage.removeGenreByFilm(filmId);
+        likesStorage.removeLikesByFilm(filmId);
     }
 
     private void checkFilmExists(long id) {

@@ -9,7 +9,11 @@ import ru.yandex.practicum.filmorate.storage.GenreStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -42,6 +46,12 @@ public class GenreDbStorage implements GenreStorage {
             genres.put(id, new Genre(id, name));
         });
         return genres;
+    }
+
+    @Override
+    public void removeGenreByFilm(long filmId) {
+        String sql = "DELETE FROM film_genre WHERE film_id = ?";
+        jdbcTemplate.update(sql, filmId);
     }
 
     private static Genre makeGenre(ResultSet resultSet) throws SQLException {

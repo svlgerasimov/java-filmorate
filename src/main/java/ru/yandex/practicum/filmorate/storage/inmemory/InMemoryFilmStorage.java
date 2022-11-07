@@ -6,7 +6,14 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikesStorage;
 import ru.yandex.practicum.filmorate.util.IdGenerator;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -79,5 +86,20 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
                 .sorted(comparator.reversed())
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void removeFilm(long filmId) {
+
+    }
+
+    @Override
+    public boolean removeLikesByFilm(long filmId) {
+        return true;
+    }
+
+    @Override
+    public boolean removeLikesByUser(long filmId) {
+        return false;
     }
 }
