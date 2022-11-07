@@ -31,35 +31,15 @@ public class ReviewsDbStorage implements ReviewStorage {
                 .addValue("user_id", review.getUserId())
                 .addValue("film_id", review.getFilmId());
         return simpleJdbcInsert.executeAndReturnKey(mapSqlParameterSource).longValue();
-
-
-        /*String sqlQueryReview = "INSERT INTO reviews (content, ispositive, user_Id, film_id) VALUES( ?, ?, ?, ?)";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        try {
-            jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(sqlQueryReview, new String[]{"id"});
-                ps.setString(1, review.getContent());
-                ps.setBoolean(2, review.getIsPositive());
-                ps.setLong(3, review.getUserId());
-                ps.setLong(4, review.getFilmId());
-                return ps;
-            }, keyHolder);
-
-        } catch (SQLIntegrityConstraintViolationException e) {
-            throw new DataBaseException("Ошибка добавления Review в БД");
-        }
-        return Objects.requireNonNull(keyHolder.getKey()).intValue();*/
     }
 
     @Override
     public boolean updateReview(Review review) {
         String sql = "UPDATE reviews " +
-                "SET content=?, ispositive=?  WHERE id = ?;"; //user_id=?, film_id=?
+                "SET content=?, ispositive=?  WHERE id = ?;";
         return jdbcTemplate.update(sql,
                 review.getContent(),
                 review.getIsPositive(),
-               // review.getUserId(),
-               // review.getFilmId(),
                 review.getReviewId()) > 0;
     }
 
