@@ -7,9 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DbCreateEntityFaultException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.ReviewStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.List;
 
@@ -20,6 +18,7 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
     public Review addReview(Review review) {
         checkUserExists(review.getUserId());
@@ -29,6 +28,8 @@ public class ReviewService {
         review = reviewStorage.getReviewById(id).orElseThrow(() ->
                 new DbCreateEntityFaultException(String.format("Review (id=%s) hasn't been added to database", id)));
         log.debug("Add review: {}", review);
+        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.ADD, review.getReviewId());
+        log.info("Event service: add new review with id={}.", id);
         return review;
     }
 
@@ -38,12 +39,20 @@ public class ReviewService {
         review = reviewStorage.getReviewById(id).orElseThrow(() ->
                 new DbCreateEntityFaultException(String.format("Review (id=%s) hasn't been updated in database", id)));
         log.debug("Update review {}", review);
+        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.UPDATE, review.getReviewId());
+        log.info("Event service: update review with id={}.", id);
         return review;
     }
 
     public void removeReview(long id) {
+        Review review = reviewStorage.getReviewById(id)
+                .orElseThrow(() ->
+                        new NotFoundException(String.format("Review id=%s not found", id)));
         reviewStorage.removeReview(id);
         log.debug("Remove Review by id={}", id);
+        eventStorage.addEvent(review.getUserId(), EventType.REVIEW,
+                EventOperation.REMOVE, id);
+        log.info("Event service: delete review with id={}.", id);
     }
 
     public Review getReviewById(long id) {
