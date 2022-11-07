@@ -11,7 +11,6 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Value
-@JsonIgnoreProperties({"positive"})
 public class Review {
 
     @With
@@ -21,16 +20,15 @@ public class Review {
     String content;
 
     @NotNull
-    @JsonProperty(value="isPositive")
     Boolean isPositive; // Тип отзыва
 
     @NotNull
-    @Min(-5)
-    long userId;  // Пользователь
+   // @Size(min = 1)
+    Long userId;  // Пользователь
 
     @NotNull
-    @Min(-5)
-    long filmId;  // Фильм
+          //  @Size(min = 1)
+   Long filmId;  // Фильм
 
     int useful;   // рейтинг полезности
 

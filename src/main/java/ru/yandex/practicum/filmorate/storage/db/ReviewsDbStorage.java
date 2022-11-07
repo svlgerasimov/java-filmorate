@@ -2,22 +2,16 @@ package ru.yandex.practicum.filmorate.storage.db;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.DataBaseException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -36,7 +30,6 @@ public class ReviewsDbStorage implements ReviewStorage {
                 .addValue("ispositive", review.getIsPositive())
                 .addValue("user_id", review.getUserId())
                 .addValue("film_id", review.getFilmId());
-                //.addValue("useful", review.getUseful());
         return simpleJdbcInsert.executeAndReturnKey(mapSqlParameterSource).longValue();
 
 
@@ -52,8 +45,7 @@ public class ReviewsDbStorage implements ReviewStorage {
                 return ps;
             }, keyHolder);
 
-        } catch (
-                DataAccessException e) {
+        } catch (SQLIntegrityConstraintViolationException e) {
             throw new DataBaseException("Ошибка добавления Review в БД");
         }
         return Objects.requireNonNull(keyHolder.getKey()).intValue();*/

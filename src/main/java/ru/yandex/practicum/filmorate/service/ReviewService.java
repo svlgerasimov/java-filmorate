@@ -22,6 +22,9 @@ public class ReviewService {
     private final UserStorage userStorage;
 
     public Review addReview(Review review) {
+        checkUserExists(review.getUserId());
+        checkFilmExists(review.getFilmId());
+
         long id = reviewStorage.addReview(review);
         review = reviewStorage.getReviewById(id).orElseThrow(() ->
                 new DbCreateEntityFaultException(String.format("Review (id=%s) hasn't been added to database", id)));
