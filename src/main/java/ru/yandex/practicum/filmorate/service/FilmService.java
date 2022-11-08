@@ -33,6 +33,8 @@ public class FilmService {
     private final UserStorage userStorage;
     private final LikesStorage likesStorage;
 
+    private final EventStorage eventStorage;
+
     public Collection<Film> getAllFilms() {
         Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
         return filmStorage.getAllFilms().stream()
@@ -78,6 +80,8 @@ public class FilmService {
         checkUserExists(userId);
         likesStorage.addLike(filmId, userId);
         log.debug("Add like to film id={} by user id={}", filmId, userId);
+        eventStorage.addEvent(userId, EventType.LIKE, EventOperation.ADD, filmId);
+        log.debug("Add event: add like film id={} by user id={}.", filmId, userId);
     }
 
     public void removeLike(long filmId, long userId) {
@@ -85,6 +89,8 @@ public class FilmService {
         checkUserExists(userId);
         likesStorage.removeLike(filmId, userId);
         log.debug("Remove like from film id={} by user id={}", filmId, userId);
+        eventStorage.addEvent(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
+        log.debug("Add event: remove like film id={} by user id={}.", filmId, userId);
     }
 
     public Collection<Film> getMostPopularFilms(Integer count, Long genreId, Integer year) {
