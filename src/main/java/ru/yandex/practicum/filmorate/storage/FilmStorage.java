@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface FilmStorage {
     Collection<Film> getAllFilms();
 
-    Collection<Film> getMostPopularFilms(Integer count, Long genreId, Integer year);
+    Collection<Film> getMostPopularFilms(int count, Long genreId, Integer year);
 
     Optional<Film> getById(long id);
 

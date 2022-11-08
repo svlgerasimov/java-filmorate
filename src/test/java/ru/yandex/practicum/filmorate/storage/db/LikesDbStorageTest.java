@@ -66,42 +66,42 @@ public class LikesDbStorageTest {
                 .hasValueSatisfying(film -> assertThat(film.getRate()).isEqualTo(1));
     }
 
-//    @Test
-//    public void getMostPopularFilms() {
-//        User user = TestUserBuilder.defaultBuilder().build();
-//        long userId1 = userStorage.addUser(user);
-//        long userId2 = userStorage.addUser(user);
-//        long userId3 = userStorage.addUser(user);
-//        TestFilmBuilder filmBuilder1 = TestFilmBuilder.defaultBuilder().withName("name1");
-//        TestFilmBuilder filmBuilder2 = TestFilmBuilder.defaultBuilder().withName("name2");
-//        TestFilmBuilder filmBuilder3 = TestFilmBuilder.defaultBuilder().withName("name3");
-//        long filmId1 = filmStorage.addFilm(filmBuilder1.build());
-//        long filmId2 = filmStorage.addFilm(filmBuilder2.build());
-//        long filmId3 = filmStorage.addFilm(filmBuilder3.build());
-//        likesStorage.addLike(filmId1, userId1);
-//        likesStorage.addLike(filmId1, userId2);
-//        likesStorage.addLike(filmId2, userId1);
-//        likesStorage.addLike(filmId2, userId2);
-//        likesStorage.addLike(filmId2, userId3);
-//        likesStorage.addLike(filmId3, userId1);
-//
-//        Film film1 = filmBuilder1.withId(filmId1).withRate(2).build();
-//        Film film2 = filmBuilder2.withId(filmId2).withRate(3).build();
-//        Film film3 = filmBuilder3.withId(filmId3).withRate(1).build();
-//
-//        assertThat(filmStorage.getMostPopularFilms(1, -1L, -1))
-//                .isNotEmpty()
-//                .hasSize(1)
-//                .contains(film2);
-//        assertThat(filmStorage.getMostPopularFilms(3, -1L, -1))
-//                .isNotEmpty()
-//                .hasSize(3)
-//                .containsExactly(film2, film1, film3);
-//        assertThat(filmStorage.getMostPopularFilms(4, -1L, -1))
-//                .isNotEmpty()
-//                .hasSize(3)
-//                .containsExactly(film2, film1, film3);
-//    }
+    @Test
+    public void getMostPopularFilms() {
+        User user = TestUserBuilder.defaultBuilder().build();
+        long userId1 = userStorage.addUser(user);
+        long userId2 = userStorage.addUser(user);
+        long userId3 = userStorage.addUser(user);
+        TestFilmBuilder filmBuilder1 = TestFilmBuilder.defaultBuilder().withName("name1");
+        TestFilmBuilder filmBuilder2 = TestFilmBuilder.defaultBuilder().withName("name2");
+        TestFilmBuilder filmBuilder3 = TestFilmBuilder.defaultBuilder().withName("name3");
+        long filmId1 = filmStorage.addFilm(filmBuilder1.build());
+        long filmId2 = filmStorage.addFilm(filmBuilder2.build());
+        long filmId3 = filmStorage.addFilm(filmBuilder3.build());
+        likesStorage.addLike(filmId1, userId1);
+        likesStorage.addLike(filmId1, userId2);
+        likesStorage.addLike(filmId2, userId1);
+        likesStorage.addLike(filmId2, userId2);
+        likesStorage.addLike(filmId2, userId3);
+        likesStorage.addLike(filmId3, userId1);
+
+        Film film1 = filmBuilder1.withId(filmId1).withRate(2).build();
+        Film film2 = filmBuilder2.withId(filmId2).withRate(3).build();
+        Film film3 = filmBuilder3.withId(filmId3).withRate(1).build();
+
+        assertThat(filmStorage.getMostPopularFilms(1, null, null))
+                .isNotEmpty()
+                .hasSize(1)
+                .contains(film2);
+        assertThat(filmStorage.getMostPopularFilms(3, null, null))
+                .isNotEmpty()
+                .hasSize(3)
+                .containsExactly(film2, film1, film3);
+        assertThat(filmStorage.getMostPopularFilms(4, null, null))
+                .isNotEmpty()
+                .hasSize(3)
+                .containsExactly(film2, film1, film3);
+    }
 
     @Test
     public void removeLike() {
