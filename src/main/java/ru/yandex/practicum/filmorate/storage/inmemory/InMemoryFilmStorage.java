@@ -92,14 +92,4 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     public void removeFilm(long filmId) {
 
     }
-
-    @Override
-    public boolean removeLikesByFilm(long filmId) {
-        return true;
-    }
-
-    @Override
-    public boolean removeLikesByUser(long filmId) {
-        return false;
-    }
 }

@@ -99,9 +99,4 @@ public class InMemoryUserStorage implements UserStorage, FriendsStorage {
     public void removeUser(long userId) {
 
     }
-
-    @Override
-    public void removeFriendsByUser(long userId) {
-
-    }
 }

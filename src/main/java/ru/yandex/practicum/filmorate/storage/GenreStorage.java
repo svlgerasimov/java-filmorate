@@ -12,6 +12,4 @@ public interface GenreStorage {
     Optional<Genre> getGenreById(long id);
 
     Map<Integer, Genre> getGenresByIds(Collection<Integer> genreIds);
-
-    void removeGenreByFilm(long filmId);
 }

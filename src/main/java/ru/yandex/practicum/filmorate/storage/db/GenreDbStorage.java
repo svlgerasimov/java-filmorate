@@ -48,12 +48,6 @@ public class GenreDbStorage implements GenreStorage {
         return genres;
     }
 
-    @Override
-    public void removeGenreByFilm(long filmId) {
-        String sql = "DELETE FROM film_genre WHERE film_id = ?";
-        jdbcTemplate.update(sql, filmId);
-    }
-
     private static Genre makeGenre(ResultSet resultSet) throws SQLException {
         return new Genre(resultSet.getInt("id"), resultSet.getString("name"));
     }

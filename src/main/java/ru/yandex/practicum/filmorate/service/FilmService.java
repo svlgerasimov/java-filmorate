@@ -100,8 +100,7 @@ public class FilmService {
     public void removeFilm(long filmId) {
         checkFilmExists(filmId);
         filmStorage.removeFilm(filmId);
-        genreStorage.removeGenreByFilm(filmId);
-        likesStorage.removeLikesByFilm(filmId);
+        log.debug("Film id = {} removed", filmId);
     }
 
     private void checkFilmExists(long id) {

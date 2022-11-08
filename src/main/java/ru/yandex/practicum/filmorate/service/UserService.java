@@ -89,8 +89,7 @@ public class UserService {
     public void removeUser(long userId) {
         checkUserExists(userId);
         userStorage.removeUser(userId);
-        friendsStorage.removeFriendsByUser(userId);
-        likesStorage.removeLikesByUser(userId);
+        log.debug("User id = {} removed", userId);
     }
 
     private void checkUserExists(long id) {

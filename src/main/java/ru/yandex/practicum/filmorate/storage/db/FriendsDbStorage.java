@@ -53,10 +53,4 @@ public class FriendsDbStorage implements FriendsStorage {
                 "WHERE f1.user_id=? AND f2.user_id=?;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> UserDbStorage.makeUser(rs), userId, otherId);
     }
-
-    @Override
-    public void removeFriendsByUser(long userId) {
-        String sql = "DELETE FROM friends WHERE user_id = ? OR friend_id = ?";
-        jdbcTemplate.update(sql, userId, userId);
-    }
 }
