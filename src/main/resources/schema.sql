@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS events
     user_id    BIGINT REFERENCES users (id) ON DELETE CASCADE,
     event_type VARCHAR NOT NULL,
     operation  VARCHAR NOT NULL,
-    entity_id  BIGINT
+    entity_id  BIGINT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS reviews

@@ -18,7 +18,7 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-    private final EventStorage eventStorage;
+    private final EventService eventService;
 
     public Review addReview(Review review) {
         checkUserExists(review.getUserId());
@@ -28,8 +28,7 @@ public class ReviewService {
         review = reviewStorage.getReviewById(id).orElseThrow(() ->
                 new DbCreateEntityFaultException(String.format("Review (id=%s) hasn't been added to database", id)));
         log.debug("Add review: {}", review);
-        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.ADD, review.getReviewId());
-        log.info("Event service: add new review with id={}.", id);
+        eventService.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.ADD, review.getReviewId());
         return review;
     }
 
@@ -39,8 +38,7 @@ public class ReviewService {
         review = reviewStorage.getReviewById(id).orElseThrow(() ->
                 new DbCreateEntityFaultException(String.format("Review (id=%s) hasn't been updated in database", id)));
         log.debug("Update review {}", review);
-        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.UPDATE, review.getReviewId());
-        log.info("Event service: update review with id={}.", id);
+        eventService.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.UPDATE, review.getReviewId());
         return review;
     }
 
@@ -50,9 +48,7 @@ public class ReviewService {
                         new NotFoundException(String.format("Review id=%s not found", id)));
         reviewStorage.removeReview(id);
         log.debug("Remove Review by id={}", id);
-        eventStorage.addEvent(review.getUserId(), EventType.REVIEW,
-                EventOperation.REMOVE, id);
-        log.info("Event service: delete review with id={}.", id);
+        eventService.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.REMOVE, id);
     }
 
     public Review getReviewById(long id) {

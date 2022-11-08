@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
@@ -18,6 +19,7 @@ import java.util.Collection;
 public class UserController {
 
     private final UserService userService;
+    private final EventService eventService;
 
     @GetMapping
     public Collection<User> getAllUsers() {
@@ -61,6 +63,6 @@ public class UserController {
 
     @GetMapping("/{id}/feed")
     public Collection<Event> getEvents(@PathVariable long id) {
-        return userService.getAllEvents(id);
+        return eventService.getAllEvents(id);
     }
 }

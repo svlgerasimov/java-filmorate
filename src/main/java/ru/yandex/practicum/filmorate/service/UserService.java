@@ -19,8 +19,7 @@ public class UserService {
 
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
-
-    private final EventStorage eventStorage;
+    private final EventService eventService;
 
     public Collection<User> getAllUsers() {
         return userStorage.getAllUsers();
@@ -65,8 +64,7 @@ public class UserService {
         checkUserExists(friendId);
         friendsStorage.addFriend(userId, friendId);
         log.debug("Add friends id={} and id={}", userId, friendId);
-        eventStorage.addEvent(userId, EventType.FRIEND, EventOperation.ADD, friendId);
-        log.debug("Add event: add friend for user id={} from user id={}.",  userId, friendId);
+        eventService.addEvent(userId, EventType.FRIEND, EventOperation.ADD, friendId);
     }
 
     public void removeFromFriends(long userId, long friendId) {
@@ -74,8 +72,7 @@ public class UserService {
         checkUserExists(friendId);
         friendsStorage.removeFriend(userId, friendId);
         log.debug("Remove friends id={} and id={}", userId, friendId);
-        eventStorage.addEvent(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
-        log.debug("Add event: remove friend for user id={} from user id={}.",  userId, friendId);
+        eventService.addEvent(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
     }
 
     public Collection<User> getFriends(long userId) {
@@ -93,9 +90,5 @@ public class UserService {
         userStorage.getById(id)
                 .orElseThrow(() ->
                         new NotFoundException(String.format("User id=%s not found", id)));
-    }
-
-    public Collection<Event> getAllEvents(long userId) {
-        return eventStorage.getAllEvents(userId);
     }
 }
