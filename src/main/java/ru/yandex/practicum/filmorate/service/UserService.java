@@ -24,7 +24,6 @@ public class UserService {
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
     private final EventService eventService;
-    private final LikesStorage likesStorage;
 
     public Collection<User> getAllUsers() {
         return userStorage.getAllUsers();
