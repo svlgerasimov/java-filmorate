@@ -6,12 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DbCreateEntityFaultException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.*;
-import ru.yandex.practicum.filmorate.storage.db.DirectorDbStorage;
 import ru.yandex.practicum.filmorate.storage.inmemory.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.inmemory.FilmDirectorsStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,11 +27,15 @@ public class FilmService {
 
     private final DirectorStorage directorStorage;
 
+    private final FilmDirectorsStorage filmDirectorsStorage;
+
 
     public Collection<Film> getAllFilms() {
         Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
+        Map<Long, ArrayList<Director>> directors = filmDirectorsStorage.getAllFilmDirectors();
         return filmStorage.getAllFilms().stream()
                 .map(film -> film.withGenres(genres.get(film.getId())))
+                .map(film -> film.withDirectors(directors.get(film.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -42,10 +44,14 @@ public class FilmService {
         checkGenresExist(film);
         long id = filmStorage.addFilm(film);
         filmGenreStorage.addFilmGenres(id, film.getGenres());
+        filmDirectorsStorage.saveFilmDirectors(id, film.getDirectors());
         film = filmStorage.getById(id).orElseThrow(() ->
                 new DbCreateEntityFaultException(String.format("Film (id=%s) hasn't been added to database", id)))
-                .withGenres(filmGenreStorage.getGenresByFilmId(id));
+                .withGenres(filmGenreStorage.getGenresByFilmId(id))
+                .withDirectors((ArrayList<Director>) filmDirectorsStorage.getDirectorsByFilmId(id));
         log.debug("Add film: {}", film);
+        log.debug("Dir: {}", film.getDirectors());
+        log.debug("Directors: {}", filmDirectorsStorage.getDirectorsByFilmId(id));
         return film;
     }
 
@@ -57,9 +63,11 @@ public class FilmService {
         filmStorage.updateFilm(film);
         filmGenreStorage.deleteFilmGenres(id);
         filmGenreStorage.addFilmGenres(id, film.getGenres());
+        filmDirectorsStorage.saveFilmDirectors(id, film.getDirectors());
         film = filmStorage.getById(id).orElseThrow(()  ->
                 new DbCreateEntityFaultException(String.format("Film (id=%s) hasn't been updated in database", id)))
-                .withGenres(filmGenreStorage.getGenresByFilmId(id));
+                .withGenres(filmGenreStorage.getGenresByFilmId(id))
+                .withDirectors((ArrayList<Director>) filmDirectorsStorage.getDirectorsByFilmId(id));
         log.debug("Update film {}", film);
         return film;
     }
@@ -131,5 +139,7 @@ public class FilmService {
         }
     }
 
-
+    public List<Film> findByDirector(long directorId, FilmSortBy sortBy){
+        return filmDirectorsStorage.findByDirector(directorId, sortBy);
+    }
 }

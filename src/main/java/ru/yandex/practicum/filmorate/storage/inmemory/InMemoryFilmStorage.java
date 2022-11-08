@@ -2,10 +2,12 @@ package ru.yandex.practicum.filmorate.storage.inmemory;
 
 import lombok.RequiredArgsConstructor;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmSortBy;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikesStorage;
 import ru.yandex.practicum.filmorate.util.IdGenerator;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -80,4 +82,9 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
                 .limit(count)
                 .collect(Collectors.toList());
     }
+
+//    @Override
+//    List<Film> findByDirector(long directorId, FilmSortBy sortBy) {
+//        return null;
+//    }
 }

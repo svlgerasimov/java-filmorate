@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -26,9 +27,17 @@ import java.util.Objects;
 public class DirectorDbStorage implements DirectorStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final FilmDbStorage filmDbStorage;
 
     private final Logger log = LoggerFactory.getLogger(DirectorDbStorage.class);
 
+//    @Override
+//    public void addFilmDirector(long filmId, long directorId){
+//        filmDbStorage.getById(filmId);
+//        getDirectorById(directorId);
+//        String sql = "UPDATE film SET director_id = ? WHERE id = ?";
+//        jdbcTemplate.update(sql, directorId, filmId);
+//    }
 
     @Override
     public List<Director> getAllDirectors() {
@@ -37,17 +46,19 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public Director getDirectorById(long id) {
-        SqlRowSet dirRows = jdbcTemplate.queryForRowSet("select * from director" +
-                " where director_id = ?", id);
+    public Optional<Director> getDirectorById(long id) {
+        SqlRowSet dirRows = jdbcTemplate.queryForRowSet("select * from director where director_id = ?", id);
         if (dirRows.next()) {
-            return new Director(dirRows.getLong("director_id"), dirRows.getString("name"));
+            Director director = new Director(dirRows.getLong("director_id"),
+                    dirRows.getString("name"));
+            return Optional.of(director);
+        } else{
+            return Optional.empty();
         }
-        throw new NotFoundException("Такого режиссера нет");
     }
 
     @Override
-    public Director addDirector(Director director) {
+    public Optional<Director> addDirector(Director director) {
         String sqlQuery = "insert into director(name) " +
                 "values (?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -57,29 +68,32 @@ public class DirectorDbStorage implements DirectorStorage {
             stmt.setString(1, director.getName());
             return stmt;
         }, keyHolder);
-        director.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
+        director.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         log.info("director id {}", director.getId());
         return getDirectorById(director.getId());
     }
 
     @Override
-    public Director updateDirector(Director director) {
-        String updateDirectorSql = "update director set name = ?";
-        List<Director> directors = getAllDirectors();
-        if (directors.contains(director)) {
-            jdbcTemplate.update(updateDirectorSql, director.getName());
+    public Optional<Director> updateDirector(Director director) {
+        String updateDirectorSql = "update director set name = ? WHERE director_id = ?";
+            checkDirectorExists(director.getId());
+            jdbcTemplate.update(updateDirectorSql, director.getName(), director.getId());
             return getDirectorById(director.getId());
-        }
-        throw new NotFoundException("Такого режиссера нет");
     }
 
-    public Director makeDirector(ResultSet resultSet) throws SQLException {
-        return new Director(resultSet.getLong("director_id"), resultSet.getString("name"));
+    private static Director makeDirector(ResultSet resultSet) throws SQLException {
+        return new Director(resultSet.getInt("director_id"), resultSet.getString("name"));
     }
 
     @Override
     public void deleteDirector(long id) {
         String sql = "delete from director where director_id = ?";
         jdbcTemplate.update(sql, id);
+    }
+
+    private void checkDirectorExists(long id) {
+        getDirectorById(id)
+                .orElseThrow(() ->
+                        new NotFoundException(String.format("Director id=%s not found", id)));
     }
 }

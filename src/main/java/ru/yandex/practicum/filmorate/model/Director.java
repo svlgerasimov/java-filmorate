@@ -1,15 +1,17 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@AllArgsConstructor
+import javax.validation.constraints.NotBlank;
+
+@ToString
 @Getter
 @Setter
+@AllArgsConstructor
 public class Director {
 
     long id;
 
+    @NotBlank(message = "Director name is blank")
     String name;
 }

@@ -1,15 +1,19 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmSortBy;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/films")
@@ -17,10 +21,13 @@ import java.util.Collection;
 @Validated
 public class FilmController {
 
+    private final Logger log = LoggerFactory.getLogger(FilmController.class);
+
     private final FilmService filmService;
 
     @GetMapping
     public Collection<Film> getAllFilms() {
+        log.info("GetAllFilms");
         return filmService.getAllFilms();
     }
 
@@ -31,6 +38,7 @@ public class FilmController {
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
+        log.debug("Add first film: {}", film);
         return filmService.addFilm(film);
     }
 
@@ -53,5 +61,11 @@ public class FilmController {
     public Collection<Film> getMostPopularFilms(
             @RequestParam(required = false, defaultValue = "10") @Positive int count) {
         return filmService.getMostPopularFilms(count);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> findByDirector(@PathVariable long directorId, @RequestParam FilmSortBy sortBy) {
+        log.info("Get film by director {} sort by {}", directorId, sortBy);
+        return filmService.findByDirector(directorId, sortBy);
     }
 }
