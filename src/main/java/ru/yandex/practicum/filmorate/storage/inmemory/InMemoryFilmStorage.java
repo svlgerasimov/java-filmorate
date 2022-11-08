@@ -6,7 +6,14 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikesStorage;
 import ru.yandex.practicum.filmorate.util.IdGenerator;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -73,7 +80,7 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     }
 
     @Override
-    public Collection<Film> getMostPopularFilms(int count) {
+    public Collection<Film> getMostPopularFilms(Integer count, Long genreId, Integer year) {
         Comparator<Film> comparator = Comparator.comparingInt(film -> getLikesCount(film.getId()));
         return getAllFilms().stream()
                 .sorted(comparator.reversed())

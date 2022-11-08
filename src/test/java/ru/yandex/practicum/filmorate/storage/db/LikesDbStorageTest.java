@@ -10,8 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -88,15 +89,15 @@ public class LikesDbStorageTest {
         Film film2 = filmBuilder2.withId(filmId2).withRate(3).build();
         Film film3 = filmBuilder3.withId(filmId3).withRate(1).build();
 
-        assertThat(filmStorage.getMostPopularFilms(1))
+        assertThat(filmStorage.getMostPopularFilms(1, -1L, -1))
                 .isNotEmpty()
                 .hasSize(1)
                 .contains(film2);
-        assertThat(filmStorage.getMostPopularFilms(3))
+        assertThat(filmStorage.getMostPopularFilms(3, -1L, -1))
                 .isNotEmpty()
                 .hasSize(3)
                 .containsExactly(film2, film1, film3);
-        assertThat(filmStorage.getMostPopularFilms(4))
+        assertThat(filmStorage.getMostPopularFilms(4, -1L, -1))
                 .isNotEmpty()
                 .hasSize(3)
                 .containsExactly(film2, film1, film3);
