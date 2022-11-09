@@ -31,14 +31,6 @@ public class DirectorDbStorage implements DirectorStorage {
 
     private final Logger log = LoggerFactory.getLogger(DirectorDbStorage.class);
 
-//    @Override
-//    public void addFilmDirector(long filmId, long directorId){
-//        filmDbStorage.getById(filmId);
-//        getDirectorById(directorId);
-//        String sql = "UPDATE film SET director_id = ? WHERE id = ?";
-//        jdbcTemplate.update(sql, directorId, filmId);
-//    }
-
     @Override
     public List<Director> getAllDirectors() {
         String directorsSql = "select * from director";
@@ -52,8 +44,8 @@ public class DirectorDbStorage implements DirectorStorage {
             Director director = new Director(dirRows.getLong("director_id"),
                     dirRows.getString("name"));
             return Optional.of(director);
-        } else{
-            return Optional.empty();
+        } else {
+            throw new NotFoundException("Такого режиссера нет");
         }
     }
 
@@ -76,9 +68,9 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public Optional<Director> updateDirector(Director director) {
         String updateDirectorSql = "update director set name = ? WHERE director_id = ?";
-            checkDirectorExists(director.getId());
-            jdbcTemplate.update(updateDirectorSql, director.getName(), director.getId());
-            return getDirectorById(director.getId());
+        checkDirectorExists(director.getId());
+        jdbcTemplate.update(updateDirectorSql, director.getName(), director.getId());
+        return getDirectorById(director.getId());
     }
 
     private static Director makeDirector(ResultSet resultSet) throws SQLException {

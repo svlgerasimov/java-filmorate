@@ -11,6 +11,8 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmSortBy;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.FilmGenreStorage;
+import ru.yandex.practicum.filmorate.storage.inmemory.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.inmemory.FilmDirectorsStorage;
 
 import java.sql.ResultSet;
@@ -25,6 +27,10 @@ public class FilmDirectorsDbStorage implements FilmDirectorsStorage {
     private final JdbcTemplate jdbcTemplate;
 
     private final FilmDbStorage filmDbStorage;
+
+    private final FilmGenreStorage filmGenreStorage;
+
+    private final DirectorStorage directorStorage;
 
     @Override
     public void saveFilmDirectors(long filmId, List<Director> directors) {
@@ -53,7 +59,6 @@ public class FilmDirectorsDbStorage implements FilmDirectorsStorage {
     @Override
     public void deleteFilmDirectors(long filmId) {
         List<Director> directors = getDirectorsByFilmId(filmId);
-       // List<Director> directors = film.getDirectors();
         if (Objects.isNull(directors) || directors.size() < 1) {
             return;
         } else {
@@ -91,17 +96,39 @@ public class FilmDirectorsDbStorage implements FilmDirectorsStorage {
     }
 
     @Override
-    public List<Film> findByDirector(long directorId, FilmSortBy sortBy){
-
-        List<Film> directorFilms = filmDbStorage.getFilmsByDirectorId(directorId);
-        if(FilmSortBy.year == sortBy){
+    public List<Film> findByDirector(long directorId, FilmSortBy sortBy) {
+        directorStorage.getDirectorById(directorId);
+        List<Film> directorFilms = getFilmsByDirectorId(directorId);
+        if (FilmSortBy.year == sortBy) {
             return directorFilms.stream().sorted(Comparator.comparingInt(o -> o.getReleaseDate().getYear()))
                     .collect(Collectors.toList());
-        } else if(FilmSortBy.likes.equals(sortBy)){
+        } else if (FilmSortBy.likes.equals(sortBy)) {
             return directorFilms.stream().sorted(Comparator.comparingInt(o -> o.getRate()))
                     .collect(Collectors.toList());
-        } else{
+        } else {
             throw new NotFoundException("Такого запроса нет");
         }
+    }
+
+    public List<Film> getFilmsByDirectorId(long directorId) {
+
+        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, d.director_id, " +
+                "d.name, m.id AS mpa_id, m.name AS mpa_name, COUNT(DISTINCT l.user_id) AS rate, g.name, g.id, fg.film_id, " +
+                "fg.genre_id FROM film AS f " +
+                "LEFT JOIN film_genre AS fg ON f.id = fg.film_id " +
+                "LEFT JOIN genre AS g ON fg.genre_id = g.id " +
+                "LEFT JOIN mpa AS m ON m.id=f.mpa_id " +
+                "JOIN film_directors AS fd ON fd.film_id = f.id " +
+                "JOIN director AS d ON d.director_id = fd.director_id " +
+                "LEFT JOIN likes AS l ON l.film_id=f.id " +
+                "WHERE d.director_id = ? GROUP BY f.id, d.director_id";
+        List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> filmDbStorage.makeFilm(rs), directorId);
+        Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
+        Map<Long, List<Director>> directors = getAllFilmDirectors();
+        return films.stream().map(film -> film.withGenres(
+                        genres.containsKey(film.getId()) ? genres.get(film.getId()) : List.of()))
+                .map(film -> film.withDirectors(
+                        directors.containsKey(film.getId()) ? directors.get(film.getId())
+                                : List.of())).collect(Collectors.toList());
     }
 }

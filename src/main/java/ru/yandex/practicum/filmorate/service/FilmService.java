@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.exception.DbCreateEntityFaultException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.*;
-import ru.yandex.practicum.filmorate.storage.inmemory.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.inmemory.FilmDirectorsStorage;
 
 import java.util.*;
@@ -24,16 +23,13 @@ public class FilmService {
     private final FilmGenreStorage filmGenreStorage;
     private final UserStorage userStorage;
     private final LikesStorage likesStorage;
-
-    private final DirectorStorage directorStorage;
-
     private final FilmDirectorsStorage filmDirectorsStorage;
 
 
     public Collection<Film> getAllFilms() {
         Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
         Map<Long, List<Director>> directors = filmDirectorsStorage.getAllFilmDirectors();
-        return  filmStorage.getAllFilms().stream()
+        return filmStorage.getAllFilms().stream()
                 .map(film -> film.withGenres(
                         genres.containsKey(film.getId()) ? genres.get(film.getId()) : List.of()))
                 .map(film -> film.withDirectors(
@@ -48,7 +44,7 @@ public class FilmService {
         filmGenreStorage.addFilmGenres(id, film.getGenres());
         filmDirectorsStorage.saveFilmDirectors(id, film.getDirectors());
         film = filmStorage.getById(id).orElseThrow(() ->
-                new DbCreateEntityFaultException(String.format("Film (id=%s) hasn't been added to database", id)))
+                        new DbCreateEntityFaultException(String.format("Film (id=%s) hasn't been added to database", id)))
                 .withGenres(filmGenreStorage.getGenresByFilmId(id))
                 .withDirectors(filmDirectorsStorage.getDirectorsByFilmId(id));
         log.debug("Add film: {}", film);
@@ -67,8 +63,8 @@ public class FilmService {
         filmGenreStorage.addFilmGenres(id, film.getGenres());
         filmDirectorsStorage.deleteFilmDirectors(id);
         filmDirectorsStorage.saveFilmDirectors(id, film.getDirectors());
-        film = filmStorage.getById(id).orElseThrow(()  ->
-                new DbCreateEntityFaultException(String.format("Film (id=%s) hasn't been updated in database", id)))
+        film = filmStorage.getById(id).orElseThrow(() ->
+                        new DbCreateEntityFaultException(String.format("Film (id=%s) hasn't been updated in database", id)))
                 .withGenres(filmGenreStorage.getGenresByFilmId(id))
                 .withDirectors(filmDirectorsStorage.getDirectorsByFilmId(id));
         log.debug("Update film {}", film);
@@ -105,7 +101,7 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    public List<Film> findByDirector(long directorId, FilmSortBy sortBy){
+    public List<Film> findByDirector(long directorId, FilmSortBy sortBy) {
         return filmDirectorsStorage.findByDirector(directorId, sortBy);
     }
 

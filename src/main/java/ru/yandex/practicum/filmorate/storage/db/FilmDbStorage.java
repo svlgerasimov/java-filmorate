@@ -11,12 +11,15 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.FilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.inmemory.FilmDirectorsStorage;
 
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Qualifier("FilmDbStorage")
@@ -24,7 +27,9 @@ import java.util.*;
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    
+    private final FilmGenreStorage filmGenreStorage;
+
+    //private final FilmDirectorsStorage filmDirectorsStorage;
     @Override
     public Collection<Film> getAllFilms() {
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, d.director_id, " +
@@ -95,7 +100,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getId()) > 0;
     }
 
-    private static Film makeFilm(ResultSet resultSet) throws SQLException {
+    public static Film makeFilm(ResultSet resultSet) throws SQLException {
         Date releaseDate = resultSet.getDate("release_date");
         int mpaId = resultSet.getInt("mpa_id");
         String mpaName = resultSet.getString("mpa_name");
@@ -108,42 +113,4 @@ public class FilmDbStorage implements FilmStorage {
                     null,
                     resultSet.getInt("rate"),null);
         }
-
-    //@Override
-    public List<Film> getFilmsByDirectorId(long directorId){
-        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, d.director_id, " +
-                "d.name, m.id AS mpa_id, m.name AS mpa_name, COUNT(DISTINCT l.user_id) AS rate, g.name, g.id, fg.film_id, " +
-                "fg.genre_id FROM film AS f " +
-                "LEFT JOIN film_genre AS fg ON f.id = fg.film_id " +
-                "LEFT JOIN genre AS g ON fg.genre_id = g.id " +
-                "LEFT JOIN mpa AS m ON m.id=f.mpa_id " +
-                "JOIN film_directors AS fd ON fd.film_id = f.id " +
-                "JOIN director AS d ON d.director_id = fd.director_id " +
-                "LEFT JOIN likes AS l ON l.film_id=f.id " +
-                "WHERE d.director_id = ? GROUP BY f.id, d.director_id";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFullFilm(rs), directorId);
-    }
-
-    public Film makeFullFilm(ResultSet resultSet) throws SQLException {
-        Date releaseDate = resultSet.getDate("release_date");
-        int mpaId = resultSet.getInt("mpa_id");
-        String mpaName = resultSet.getString("mpa_name");
-
-        ArrayList<Director> directors = new ArrayList<>();
-        directors.add(new Director(resultSet.getLong("director_id"),
-                resultSet.getString("director.name")));
-
-        Collection<Genre> genres = new ArrayList<>();
-        genres.add(new Genre(resultSet.getInt("genre.id"),
-                resultSet.getString("genre.name")));
-
-            return new Film(resultSet.getLong("id"),
-                    resultSet.getString("name"),
-                    resultSet.getString("description"),
-                    Objects.isNull(releaseDate) ? null : releaseDate.toLocalDate(),
-                    resultSet.getInt("duration"),
-                    mpaId == 0 ? null : new Mpa(mpaId, mpaName),
-                    genres,
-                    resultSet.getInt("rate"), directors);
-    }
 }

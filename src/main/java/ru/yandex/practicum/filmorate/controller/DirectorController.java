@@ -18,35 +18,31 @@ public class DirectorController {
 
     private final DirectorDbStorage directorDbStorage;
 
-//    public DirectorController(DirectorDbStorage directorDbStorage) {
-//        this.directorDbStorage = directorDbStorage;
-//    }
-
     @GetMapping()
-    public List<Director> getAllDirectors(){
+    public List<Director> getAllDirectors() {
         return directorDbStorage.getAllDirectors();
     }
 
     @GetMapping("/{id}")
-    public Director getDirectorById(@PathVariable long id){
+    public Director getDirectorById(@PathVariable long id) {
         return directorDbStorage.getDirectorById(id).orElseThrow(() ->
                 new NotFoundException("Director not found"));
     }
 
     @PostMapping
-    public Optional<Director> addDirector(@RequestBody @Valid Director director){
+    public Optional<Director> addDirector(@RequestBody @Valid Director director) {
         return directorDbStorage.addDirector(director);
     }
 
     @PutMapping
-    public Optional<Director> updateDirector(@RequestBody Director director){
+    public Optional<Director> updateDirector(@RequestBody Director director) {
         directorDbStorage.getDirectorById(director.getId()).orElseThrow(() ->
                 new NotFoundException("Director not found"));
         return directorDbStorage.updateDirector(director);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteDirector(@PathVariable("id") long id){
+    public void deleteDirector(@PathVariable("id") long id) {
         directorDbStorage.getDirectorById(id).orElseThrow(() ->
                 new NotFoundException("Director not found"));
         directorDbStorage.deleteDirector(id);
