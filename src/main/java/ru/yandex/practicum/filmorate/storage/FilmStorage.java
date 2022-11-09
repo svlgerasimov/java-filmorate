@@ -15,4 +15,6 @@ public interface FilmStorage {
     long addFilm(Film film);
 
     boolean updateFilm(Film film);
+
+    void removeFilm(long filmId);
 }
