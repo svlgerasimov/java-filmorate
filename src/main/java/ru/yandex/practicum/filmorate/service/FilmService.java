@@ -32,11 +32,13 @@ public class FilmService {
 
     public Collection<Film> getAllFilms() {
         Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
-        Map<Long, ArrayList<Director>> directors = filmDirectorsStorage.getAllFilmDirectors();
-        return filmStorage.getAllFilms().stream()
-                .map(film -> film.withGenres(genres.get(film.getId())))
-                .map(film -> film.withDirectors(directors.get(film.getId())))
-                .collect(Collectors.toList());
+        Map<Long, List<Director>> directors = filmDirectorsStorage.getAllFilmDirectors();
+        return  filmStorage.getAllFilms().stream()
+                .map(film -> film.withGenres(
+                        genres.containsKey(film.getId()) ? genres.get(film.getId()) : List.of()))
+                .map(film -> film.withDirectors(
+                        directors.containsKey(film.getId()) ? directors.get(film.getId())
+                                : List.of())).collect(Collectors.toList());
     }
 
     public Film addFilm(Film film) {
@@ -48,7 +50,7 @@ public class FilmService {
         film = filmStorage.getById(id).orElseThrow(() ->
                 new DbCreateEntityFaultException(String.format("Film (id=%s) hasn't been added to database", id)))
                 .withGenres(filmGenreStorage.getGenresByFilmId(id))
-                .withDirectors((ArrayList<Director>) filmDirectorsStorage.getDirectorsByFilmId(id));
+                .withDirectors(filmDirectorsStorage.getDirectorsByFilmId(id));
         log.debug("Add film: {}", film);
         log.debug("Dir: {}", film.getDirectors());
         log.debug("Directors: {}", filmDirectorsStorage.getDirectorsByFilmId(id));
@@ -63,11 +65,12 @@ public class FilmService {
         filmStorage.updateFilm(film);
         filmGenreStorage.deleteFilmGenres(id);
         filmGenreStorage.addFilmGenres(id, film.getGenres());
+        filmDirectorsStorage.deleteFilmDirectors(id);
         filmDirectorsStorage.saveFilmDirectors(id, film.getDirectors());
         film = filmStorage.getById(id).orElseThrow(()  ->
                 new DbCreateEntityFaultException(String.format("Film (id=%s) hasn't been updated in database", id)))
                 .withGenres(filmGenreStorage.getGenresByFilmId(id))
-                .withDirectors((ArrayList<Director>) filmDirectorsStorage.getDirectorsByFilmId(id));
+                .withDirectors(filmDirectorsStorage.getDirectorsByFilmId(id));
         log.debug("Update film {}", film);
         return film;
     }
@@ -75,7 +78,7 @@ public class FilmService {
     public Film getFilmById(long id) {
         return filmStorage.getById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Film id=%s not found", id)))
-                .withGenres(filmGenreStorage.getGenresByFilmId(id));
+                .withGenres(filmGenreStorage.getGenresByFilmId(id)).withDirectors(filmDirectorsStorage.getDirectorsByFilmId(id));
     }
 
     public void addLike(long filmId, long userId) {
@@ -100,6 +103,10 @@ public class FilmService {
         return films.stream()
                 .map(film -> film.withGenres(genres.get(film.getId())))
                 .collect(Collectors.toList());
+    }
+
+    public List<Film> findByDirector(long directorId, FilmSortBy sortBy){
+        return filmDirectorsStorage.findByDirector(directorId, sortBy);
     }
 
     private void checkFilmExists(long id) {
@@ -137,9 +144,5 @@ public class FilmService {
                 throw new NotFoundException(String.format("Genre with id=%s not found", id));
             }
         }
-    }
-
-    public List<Film> findByDirector(long directorId, FilmSortBy sortBy){
-        return filmDirectorsStorage.findByDirector(directorId, sortBy);
     }
 }

@@ -87,8 +87,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public boolean updateFilm(Film film) {
         String sql = "UPDATE film " +
-                "SET name=?, description=?, release_date=?, duration=?, mpa_id=?" +
-                "WHERE id=?;";
+                "SET name=?, description=?, release_date=?, duration=?, mpa_id=? " +
+                "WHERE id=?";
         return jdbcTemplate.update(sql,
                 film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 Objects.nonNull(film.getMpa()) ? film.getMpa().getId() : null,
@@ -105,11 +105,12 @@ public class FilmDbStorage implements FilmStorage {
                     Objects.isNull(releaseDate) ? null : releaseDate.toLocalDate(),
                     resultSet.getInt("duration"),
                     mpaId == 0 ? null : new Mpa(mpaId, mpaName),
-                    new ArrayList<>(),
-                    resultSet.getInt("rate"), new ArrayList<>(0));
+                    null,
+                    resultSet.getInt("rate"),null);
         }
 
-    public List<Film> getDirectorFilms(long directorId){
+    //@Override
+    public List<Film> getFilmsByDirectorId(long directorId){
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, d.director_id, " +
                 "d.name, m.id AS mpa_id, m.name AS mpa_name, COUNT(DISTINCT l.user_id) AS rate, g.name, g.id, fg.film_id, " +
                 "fg.genre_id FROM film AS f " +
@@ -120,7 +121,7 @@ public class FilmDbStorage implements FilmStorage {
                 "JOIN director AS d ON d.director_id = fd.director_id " +
                 "LEFT JOIN likes AS l ON l.film_id=f.id " +
                 "WHERE d.director_id = ? GROUP BY f.id, d.director_id";
-         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFullFilm(rs), directorId);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFullFilm(rs), directorId);
     }
 
     public Film makeFullFilm(ResultSet resultSet) throws SQLException {

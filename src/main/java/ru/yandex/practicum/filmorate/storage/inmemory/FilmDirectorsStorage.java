@@ -4,20 +4,18 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmSortBy;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public interface FilmDirectorsStorage {
 
-    void saveFilmDirectors(long filmId, ArrayList<Director> directors);
+    void saveFilmDirectors(long filmId, List<Director> directors);
 
     List<Director> getDirectorsByFilmId(long filmId);
 
-    void deleteFilmDirectors(Film film);
+    void deleteFilmDirectors(long filmId);
 
-    public Map<Long, ArrayList<Director>> getAllFilmDirectors();
+     Map<Long, List<Director>> getAllFilmDirectors();
 
-    public List<Film> findByDirector(long directorId, FilmSortBy sortBy);
-
+     List<Film> findByDirector(long directorId, FilmSortBy sortBy);
 }

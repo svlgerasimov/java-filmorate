@@ -23,4 +23,11 @@ public class LikesDbStorage implements LikesStorage {
         String sql = "DELETE FROM likes WHERE film_id=? AND user_id=?;";
         return jdbcTemplate.update(sql, filmId, userId) > 0;
     }
+
+//    @Override
+//    public int getFilmLikes(long filmId) {
+//        String sql = "SELECT COUNT(DISTINCT l.user_id) FROM film AS f " +
+//                "LEFT JOIN likes AS l ON l.film_id=f.id WHERE f.id = ?";
+//        return jdbcTemplate.query(sql, filmId);
+//    }
 }

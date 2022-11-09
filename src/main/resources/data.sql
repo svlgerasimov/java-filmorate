@@ -48,3 +48,4 @@ VALUES (1, 'Комедия'),
 --        JOIN director AS d ON d.director_id = fd.director_id
 --        LEFT JOIN likes AS l ON l.film_id=f.id
 --                WHERE d.director_id = 1 GROUP BY f.id, d.director_id;
+

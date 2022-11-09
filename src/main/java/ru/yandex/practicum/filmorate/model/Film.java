@@ -10,6 +10,7 @@ import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Value
 public class Film {
@@ -43,5 +44,5 @@ public class Film {
     int rate;
 
     @With
-    ArrayList<Director> directors;
+    List<Director> directors;
 }

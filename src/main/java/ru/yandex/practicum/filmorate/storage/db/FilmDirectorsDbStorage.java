@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmSortBy;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.inmemory.FilmDirectorsStorage;
 
 import java.sql.ResultSet;
@@ -26,7 +27,7 @@ public class FilmDirectorsDbStorage implements FilmDirectorsStorage {
     private final FilmDbStorage filmDbStorage;
 
     @Override
-    public void saveFilmDirectors(long filmId, ArrayList<Director> directors) {
+    public void saveFilmDirectors(long filmId, List<Director> directors) {
 
         if (Objects.isNull(directors) || directors.size() < 1) {
             return;
@@ -50,18 +51,19 @@ public class FilmDirectorsDbStorage implements FilmDirectorsStorage {
     }
 
     @Override
-    public void deleteFilmDirectors(Film film) {
-        ArrayList<Director> directors = film.getDirectors();
+    public void deleteFilmDirectors(long filmId) {
+        List<Director> directors = getDirectorsByFilmId(filmId);
+       // List<Director> directors = film.getDirectors();
         if (Objects.isNull(directors) || directors.size() < 1) {
             return;
         } else {
             String sql = "DELETE FROM film_directors WHERE film_id=?;";
-            jdbcTemplate.update(sql, film.getId());
+            jdbcTemplate.update(sql, filmId);
         }
     }
 
     @Override
-    public Map<Long, ArrayList<Director>> getAllFilmDirectors() {
+    public Map<Long, List<Director>> getAllFilmDirectors() {
         String sql = "SELECT f.id AS film_id, d.director_id, d.name " +
                 "FROM film AS f " +
                 "JOIN film_directors AS fd ON fd.film_id=f.id " +
@@ -74,12 +76,12 @@ public class FilmDirectorsDbStorage implements FilmDirectorsStorage {
     private static class RowCollectorToMap implements RowCallbackHandler {
 
         @Getter
-        private final Map<Long, ArrayList<Director>> directorsByFilm = new HashMap<>();
+        private final Map<Long, List<Director>> directorsByFilm = new HashMap<>();
 
         @Override
         public void processRow(ResultSet rs) throws SQLException {
             long filmId = rs.getLong("film_id");
-            ArrayList<Director> directors = directorsByFilm.get(filmId);
+            List<Director> directors = directorsByFilm.get(filmId);
             if (Objects.isNull(directors)) {
                 directors = new ArrayList<>();
                 directorsByFilm.put(filmId, directors);
@@ -90,7 +92,8 @@ public class FilmDirectorsDbStorage implements FilmDirectorsStorage {
 
     @Override
     public List<Film> findByDirector(long directorId, FilmSortBy sortBy){
-        List<Film> directorFilms = filmDbStorage.getDirectorFilms(directorId);
+
+        List<Film> directorFilms = filmDbStorage.getFilmsByDirectorId(directorId);
         if(FilmSortBy.year == sortBy){
             return directorFilms.stream().sorted(Comparator.comparingInt(o -> o.getReleaseDate().getYear()))
                     .collect(Collectors.toList());

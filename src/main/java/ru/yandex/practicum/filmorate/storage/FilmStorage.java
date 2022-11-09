@@ -20,4 +20,6 @@ public interface FilmStorage {
     boolean updateFilm(Film film);
 
     //List<Film> findByDirector(long directorId, FilmSortBy sortBy)
+
+   // List<Film> getFilmsByDirectorId(long directorId);
 }
