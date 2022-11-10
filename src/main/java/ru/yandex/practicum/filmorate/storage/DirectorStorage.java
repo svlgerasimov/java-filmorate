@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.inmemory;
+package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.Director;
 
@@ -16,6 +16,4 @@ public interface DirectorStorage {
     Optional<Director> updateDirector(Director director);
 
     void deleteDirector(long id);
-
-    //void addFilmDirector(long filmId, long directorId);
 }

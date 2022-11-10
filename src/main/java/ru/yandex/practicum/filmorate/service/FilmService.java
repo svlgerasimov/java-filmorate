@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.exception.DbCreateEntityFaultException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.*;
-import ru.yandex.practicum.filmorate.storage.inmemory.FilmDirectorsStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,8 +47,6 @@ public class FilmService {
                 .withGenres(filmGenreStorage.getGenresByFilmId(id))
                 .withDirectors(filmDirectorsStorage.getDirectorsByFilmId(id));
         log.debug("Add film: {}", film);
-        log.debug("Dir: {}", film.getDirectors());
-        log.debug("Directors: {}", filmDirectorsStorage.getDirectorsByFilmId(id));
         return film;
     }
 

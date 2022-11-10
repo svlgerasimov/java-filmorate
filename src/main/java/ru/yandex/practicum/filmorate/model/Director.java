@@ -4,14 +4,13 @@ import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 
-@ToString
-@Getter
-@Setter
-@AllArgsConstructor
+
+@Value
 public class Director {
 
-    long id;
+    @With
+     long id;
 
     @NotBlank(message = "Director name is blank")
-    String name;
+     String name;
 }

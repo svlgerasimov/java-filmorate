@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -20,14 +18,10 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Validated
 public class FilmController {
-
-    private final Logger log = LoggerFactory.getLogger(FilmController.class);
-
     private final FilmService filmService;
 
     @GetMapping
     public Collection<Film> getAllFilms() {
-        log.info("GetAllFilms");
         return filmService.getAllFilms();
     }
 
@@ -38,7 +32,6 @@ public class FilmController {
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-        log.debug("Add first film: {}", film);
         return filmService.addFilm(film);
     }
 
@@ -65,7 +58,6 @@ public class FilmController {
 
     @GetMapping("/director/{directorId}")
     public List<Film> findByDirector(@PathVariable long directorId, @RequestParam FilmSortBy sortBy) {
-        log.info("Get film by director {} sort by {}", directorId, sortBy);
         return filmService.findByDirector(directorId, sortBy);
     }
 }

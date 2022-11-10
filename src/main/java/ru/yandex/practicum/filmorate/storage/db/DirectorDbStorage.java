@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,7 +11,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.storage.inmemory.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,12 +23,10 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Qualifier("DirectorDbStorage")
+@Slf4j
 public class DirectorDbStorage implements DirectorStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final FilmDbStorage filmDbStorage;
-
-    private final Logger log = LoggerFactory.getLogger(DirectorDbStorage.class);
 
     @Override
     public List<Director> getAllDirectors() {
@@ -55,12 +52,13 @@ public class DirectorDbStorage implements DirectorStorage {
                 "values (?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         log.info("вызван метод");
+        String directorName = director.getName();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"director_id"});
-            stmt.setString(1, director.getName());
+            stmt.setString(1, directorName);
             return stmt;
         }, keyHolder);
-        director.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
+        director = director.withId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         log.info("director id {}", director.getId());
         return getDirectorById(director.getId());
     }
