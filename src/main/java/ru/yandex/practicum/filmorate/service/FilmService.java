@@ -96,8 +96,8 @@ public class FilmService {
         log.debug("Add event: remove like film id={} by user id={}.", filmId, userId);
     }
 
-    public Collection<Film> getMostPopularFilms(int count) {
-        Collection<Film> films = filmStorage.getMostPopularFilms(count);
+    public Collection<Film> getMostPopularFilms(Integer count, Long genreId, Integer year) {
+        Collection<Film> films = filmStorage.getMostPopularFilms(count, genreId, year);
         Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(films.stream()
                 .map(Film::getId)
                 .collect(Collectors.toList()));

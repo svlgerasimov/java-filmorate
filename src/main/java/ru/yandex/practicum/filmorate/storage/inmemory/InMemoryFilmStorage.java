@@ -80,7 +80,7 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     }
 
     @Override
-    public Collection<Film> getMostPopularFilms(int count) {
+    public Collection<Film> getMostPopularFilms(int count, Long genreId, Integer year) {
         Comparator<Film> comparator = Comparator.comparingInt(film -> getLikesCount(film.getId()));
         return getAllFilms().stream()
                 .sorted(comparator.reversed())
