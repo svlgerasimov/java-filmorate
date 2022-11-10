@@ -25,7 +25,7 @@ import java.util.Optional;
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
-
+    
     @Override
     public Collection<Film> getAllFilms() {
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
@@ -70,7 +70,7 @@ public class FilmDbStorage implements FilmStorage {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("film")
                 .usingGeneratedKeyColumns("id");
-        MapSqlParameterSource mapSqlParameterSource = new MapSqlParameterSource()
+        MapSqlParameterSource mapSqlParameterSource =  new MapSqlParameterSource()
                 .addValue("name", film.getName())
                 .addValue("description", film.getDescription())
                 .addValue("release_date", Date.valueOf(film.getReleaseDate()))
@@ -89,6 +89,12 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.update(sql,
                 film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 Objects.nonNull(film.getMpa()) ? film.getMpa().getId() : null, film.getId()) > 0;
+    }
+
+    @Override
+    public void removeFilm(long filmId) {
+        String sql = "DELETE FROM film WHERE id = ?;";
+        jdbcTemplate.update(sql, filmId);
     }
 
     private Collection<Film> getMostPopularFilmsByFilter(int count, Long genreId, Integer year) {

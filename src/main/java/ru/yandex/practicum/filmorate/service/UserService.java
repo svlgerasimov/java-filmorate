@@ -8,6 +8,9 @@ import ru.yandex.practicum.filmorate.exception.DbCreateEntityFaultException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendsStorage;
+import ru.yandex.practicum.filmorate.storage.LikesStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.Collection;
@@ -85,6 +88,12 @@ public class UserService {
         checkUserExists(userId);
         checkUserExists(otherId);
         return friendsStorage.getCommonFriends(userId, otherId);
+    }
+
+    public void removeUser(long userId) {
+        checkUserExists(userId);
+        userStorage.removeUser(userId);
+        log.debug("User id = {} removed", userId);
     }
 
     private void checkUserExists(long id) {

@@ -13,3 +13,4 @@ public interface GenreStorage {
 
     Map<Integer, Genre> getGenresByIds(Collection<Integer> genreIds);
 }
+

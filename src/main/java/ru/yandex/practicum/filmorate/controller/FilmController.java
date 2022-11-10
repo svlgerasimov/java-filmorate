@@ -64,4 +64,9 @@ public class FilmController {
             @RequestParam(required = false) Integer year) {
         return filmService.getMostPopularFilms(count, genreId, year);
     }
+
+    @DeleteMapping("/{filmId}")
+    public void removeFilm(@PathVariable long filmId) {
+        filmService.removeFilm(filmId);
+    }
 }

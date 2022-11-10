@@ -94,4 +94,9 @@ public class InMemoryUserStorage implements UserStorage, FriendsStorage {
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
     }
+
+    @Override
+    public void removeUser(long userId) {
+
+    }
 }

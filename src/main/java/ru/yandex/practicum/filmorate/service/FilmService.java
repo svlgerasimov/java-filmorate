@@ -106,6 +106,12 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
+    public void removeFilm(long filmId) {
+        checkFilmExists(filmId);
+        filmStorage.removeFilm(filmId);
+        log.debug("Film id = {} removed", filmId);
+    }
+
     private void checkFilmExists(long id) {
         filmStorage.getById(id)
                 .orElseThrow(() ->

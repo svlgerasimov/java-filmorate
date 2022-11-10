@@ -58,6 +58,12 @@ public class UserDbStorage implements UserStorage {
                 user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId()) > 0;
     }
 
+    @Override
+    public void removeUser(long userId) {
+        String sql = "DELETE FROM users WHERE id = ?;";
+        jdbcTemplate.update(sql, userId);
+    }
+
     public static User makeUser(ResultSet resultSet) throws SQLException {
         Date birthday = resultSet.getDate("birthday");
         return new User(resultSet.getLong("id"),
