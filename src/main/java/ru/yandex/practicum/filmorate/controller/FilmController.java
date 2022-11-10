@@ -3,7 +3,15 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -51,8 +59,15 @@ public class FilmController {
 
     @GetMapping("/popular")
     public Collection<Film> getMostPopularFilms(
-            @RequestParam(required = false, defaultValue = "10") @Positive int count) {
-        return filmService.getMostPopularFilms(count);
+            @RequestParam(required = false, defaultValue = "10") @Positive int count,
+            @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) Integer year) {
+        return filmService.getMostPopularFilms(count, genreId, year);
+    }
+
+    @DeleteMapping("/{filmId}")
+    public void removeFilm(@PathVariable long filmId) {
+        filmService.removeFilm(filmId);
     }
 
     @GetMapping("/common")

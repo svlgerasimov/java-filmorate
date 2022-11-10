@@ -13,7 +13,10 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Component
 @Qualifier("UserDbStorage")
@@ -40,11 +43,11 @@ public class UserDbStorage implements UserStorage {
                 .withTableName("users")
                 .usingGeneratedKeyColumns("id");
         return simpleJdbcInsert.executeAndReturnKey(
-                new MapSqlParameterSource()
-                        .addValue("email", user.getEmail())
-                        .addValue("login", user.getLogin())
-                        .addValue("name", user.getName())
-                        .addValue("birthday", Date.valueOf(user.getBirthday())))
+                        new MapSqlParameterSource()
+                                .addValue("email", user.getEmail())
+                                .addValue("login", user.getLogin())
+                                .addValue("name", user.getName())
+                                .addValue("birthday", Date.valueOf(user.getBirthday())))
                 .longValue();
     }
 
@@ -53,6 +56,12 @@ public class UserDbStorage implements UserStorage {
         String sql = "UPDATE users SET email=?, login=?, name=?, birthday=? WHERE id=?;";
         return jdbcTemplate.update(sql,
                 user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId()) > 0;
+    }
+
+    @Override
+    public void removeUser(long userId) {
+        String sql = "DELETE FROM users WHERE id = ?;";
+        jdbcTemplate.update(sql, userId);
     }
 
     public static User makeUser(ResultSet resultSet) throws SQLException {

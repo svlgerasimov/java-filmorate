@@ -98,7 +98,7 @@ public class FriendsDbStorageTest {
         User user2 = userBuilder2.build();
         user2 = user2.withId(userStorage.addUser(user2));
         User user3 = userBuilder3.build();
-        user3= user3.withId(userStorage.addUser(user3));
+        user3 = user3.withId(userStorage.addUser(user3));
 
         friendsStorage.addFriend(user1.getId(), user2.getId());
         friendsStorage.addFriend(user1.getId(), user3.getId());
