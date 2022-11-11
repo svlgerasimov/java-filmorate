@@ -34,12 +34,12 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     }
 
     @Override
-    public Collection<Film> findByName(String substring) {
+    public Collection<Film> searchByName(String substring) {
         return null;
     }
 
     @Override
-    public Collection<Film> findByDirector(String substring) {
+    public Collection<Film> searchByDirector(String substring) {
         return null;
     }
 

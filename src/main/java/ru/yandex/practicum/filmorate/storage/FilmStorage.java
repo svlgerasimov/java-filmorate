@@ -12,9 +12,9 @@ public interface FilmStorage {
 
     Optional<Film> getById(long id);
 
-    Collection<Film> findByName(String substring);
+    Collection<Film> searchByName(String substring);
 
-    Collection<Film> findByDirector(String substring);
+    Collection<Film> searchByDirector(String substring);
 
     long addFilm(Film film);
 

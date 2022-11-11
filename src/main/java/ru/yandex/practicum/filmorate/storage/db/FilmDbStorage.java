@@ -66,7 +66,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> findByName(String substring) {
+    public Collection<Film> searchByName(String substring) {
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
                 "m.id AS mpa_id, m.name AS mpa_name, " +
                 "COUNT(DISTINCT l.user_id) AS rate " +
@@ -81,7 +81,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     // TODO Реализовать после добавления режиссёров
-    public Collection<Film> findByDirector(String substring) {
+    public Collection<Film> searchByDirector(String substring) {
         return List.of();
     }
 

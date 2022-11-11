@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.EventOperation;
-import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.EventType;
 import ru.yandex.practicum.filmorate.storage.FilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -19,10 +18,7 @@ import ru.yandex.practicum.filmorate.storage.LikesStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -112,10 +108,10 @@ public class FilmService {
     public Collection<Film> searchFilms(String query, boolean searchByName, boolean searchByDirector) {
         List<Film> films = new ArrayList<>();
         if (searchByName) {
-            films.addAll(filmStorage.findByName(query));
+            films.addAll(filmStorage.searchByName(query));
         }
         if (searchByDirector) {
-            films.addAll(filmStorage.findByDirector(query));
+            films.addAll(filmStorage.searchByDirector(query));
         }
         Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(films.stream()
                 .map(Film::getId)
