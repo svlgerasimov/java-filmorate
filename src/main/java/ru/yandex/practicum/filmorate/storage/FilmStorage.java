@@ -16,5 +16,7 @@ public interface FilmStorage {
 
     boolean updateFilm(Film film);
 
+    Collection<Film> getCommonFilms(long userId, long friendId);
+
     void removeFilm(long filmId);
 }

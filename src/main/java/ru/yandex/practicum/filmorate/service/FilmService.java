@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.EventOperation;
-import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.EventType;
 import ru.yandex.practicum.filmorate.storage.FilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -103,46 +102,56 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    public void removeFilm(long filmId) {
-        checkFilmExists(filmId);
-        filmStorage.removeFilm(filmId);
-        log.debug("Film id = {} removed", filmId);
-    }
-
-    private void checkFilmExists(long id) {
-        filmStorage.getById(id)
-                .orElseThrow(() ->
-                        new NotFoundException(String.format("Film id=%s not found", id)));
-    }
-
-    private void checkUserExists(long id) {
-        userStorage.getById(id)
-                .orElseThrow(() ->
-                        new NotFoundException(String.format("User id=%s not found", id)));
-    }
-
-    private void checkMpaExists(Film film) {
-        Mpa mpa = film.getMpa();
-        if (Objects.nonNull(mpa)) {
-            int id = mpa.getId();
-            mpaStorage.getMpaById(id)
-                    .orElseThrow(() ->
-                            new NotFoundException(String.format("Mpa rating with id=%s not found", id)));
-        }
-    }
-
-    private void checkGenresExist(Film film) {
-        if (Objects.isNull(film.getGenres())) {
-            return;
-        }
-        List<Integer> genreIds = film.getGenres().stream()
-                .map(Genre::getId)
+    public Collection<Film> getCommonFilms(long userId, long friendId) {
+        checkUserExists(userId);
+        checkUserExists(friendId);
+        Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
+        Collection<Film> commonFilms = filmStorage.getCommonFilms(userId, friendId);
+        return commonFilms.stream()
+                .map(film -> film.withGenres(genres.get(film.getId())))
                 .collect(Collectors.toList());
-        Map<Integer, Genre> genres = genreStorage.getGenresByIds(genreIds);
-        for (Integer id : genreIds) {
-            if (Objects.isNull(genres.get(id))) {
-                throw new NotFoundException(String.format("Genre with id=%s not found", id));
+    }
+
+        public void removeFilm(long filmId) {
+            checkFilmExists(filmId);
+            filmStorage.removeFilm(filmId);
+            log.debug("Film id = {} removed", filmId);
+        }
+
+        private void checkFilmExists(long id) {
+            filmStorage.getById(id)
+                    .orElseThrow(() ->
+                            new NotFoundException(String.format("Film id=%s not found", id)));
+        }
+
+        private void checkUserExists(long id) {
+            userStorage.getById(id)
+                    .orElseThrow(() ->
+                            new NotFoundException(String.format("User id=%s not found", id)));
+        }
+
+        private void checkMpaExists(Film film) {
+            Mpa mpa = film.getMpa();
+            if (Objects.nonNull(mpa)) {
+                int id = mpa.getId();
+                mpaStorage.getMpaById(id)
+                        .orElseThrow(() ->
+                                new NotFoundException(String.format("Mpa rating with id=%s not found", id)));
             }
         }
-    }
+
+        private void checkGenresExist(Film film) {
+            if (Objects.isNull(film.getGenres())) {
+                return;
+            }
+            List<Integer> genreIds = film.getGenres().stream()
+                    .map(Genre::getId)
+                    .collect(Collectors.toList());
+            Map<Integer, Genre> genres = genreStorage.getGenresByIds(genreIds);
+            for (Integer id : genreIds) {
+                if (Objects.isNull(genres.get(id))) {
+                    throw new NotFoundException(String.format("Genre with id=%s not found", id));
+                }
+            }
+        }
 }
