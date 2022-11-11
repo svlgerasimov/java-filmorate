@@ -103,6 +103,18 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
+    public Collection<Film> getFilmsLikedByUser(long userId) {
+        checkUserExists(userId);
+        Collection<Film>films = filmStorage.getFilmsLikedByUser(userId);
+        Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(films.stream().distinct()
+                .map(Film::getId)
+                .collect(Collectors.toList()));
+        //TODO не забыть добавить режиссёров!!!
+        return films.stream()
+                .map(film -> film.withGenres(genres.get(film.getId())))
+                .collect(Collectors.toList());
+    }
+
     public void removeFilm(long filmId) {
         checkFilmExists(filmId);
         filmStorage.removeFilm(filmId);

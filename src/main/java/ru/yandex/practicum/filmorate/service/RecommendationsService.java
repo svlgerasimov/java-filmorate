@@ -17,20 +17,17 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class RecommendationsService {
+    private final FilmService filmService;
     private final LikesStorage likesStorage;
-    private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
 
     public List<Film> formRecommendations(long userId, int similarUsersCount) {
-        // Проверка, есть ли пользователь с этим id
-        checkUserExists(userId);
-        // Фильмы, которым пользователь уже поставил лайк
-        Collection<Film> filmsLikesByUser = filmStorage.getFilmsLikedByUser(userId);
+        // Фильмы, которым пользователь уже поставил лайк, проверка наличия пользователя - в filmService
+        Collection<Film> filmsLikesByUser = filmService.getFilmsLikedByUser(userId);
         // id пользователей, отсортированные по общим лайкам
         return likesStorage.findSimilarUsers(userId, similarUsersCount)
                 .stream()
                 // каждый id пользователя отображаем в коллекцию фильмов, которым он поставил лайк
-                .map(filmStorage::getFilmsLikedByUser)
+                .map(filmService::getFilmsLikedByUser)
                 // объединяем все фильмы в один стрим
                 .flatMap(Collection::stream)
                 // убираем повторы
@@ -38,11 +35,5 @@ public class RecommendationsService {
                 // оставляем фильмы, которым пользователь ещё не поставил лайк
                 .filter(film -> !filmsLikesByUser.contains(film))
                 .collect(Collectors.toList());
-    }
-
-    private void checkUserExists(long id) {
-        userStorage.getById(id)
-                .orElseThrow(() ->
-                        new NotFoundException(String.format("User id=%s not found", id)));
     }
 }
