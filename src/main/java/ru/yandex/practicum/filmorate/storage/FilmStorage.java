@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface FilmStorage {
     Collection<Film> getAllFilms();
 
-    Collection<Film> getMostPopularFilms(int count);
+    Collection<Film> getMostPopularFilms(int count, Long genreId, Integer year);
 
     Collection<Film> getFilmsLikedByUser(long userId);
 
@@ -17,4 +17,6 @@ public interface FilmStorage {
     long addFilm(Film film);
 
     boolean updateFilm(Film film);
+
+    void removeFilm(long filmId);
 }
