@@ -22,6 +22,7 @@ public class FilmService {
     private final FilmGenreStorage filmGenreStorage;
     private final UserStorage userStorage;
     private final LikesStorage likesStorage;
+    private final EventService eventService;
     private final FilmDirectorsStorage filmDirectorsStorage;
 
     private final DirectorService directorService;
@@ -81,6 +82,7 @@ public class FilmService {
         checkUserExists(userId);
         likesStorage.addLike(filmId, userId);
         log.debug("Add like to film id={} by user id={}", filmId, userId);
+        eventService.addEvent(userId, EventType.LIKE, EventOperation.ADD, filmId);
     }
 
     public void removeLike(long filmId, long userId) {
@@ -88,10 +90,11 @@ public class FilmService {
         checkUserExists(userId);
         likesStorage.removeLike(filmId, userId);
         log.debug("Remove like from film id={} by user id={}", filmId, userId);
+        eventService.addEvent(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
     }
 
-    public Collection<Film> getMostPopularFilms(int count) {
-        Collection<Film> films = filmStorage.getMostPopularFilms(count);
+    public Collection<Film> getMostPopularFilms(Integer count, Long genreId, Integer year) {
+        Collection<Film> films = filmStorage.getMostPopularFilms(count, genreId, year);
         Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(films.stream()
                 .map(Film::getId)
                 .collect(Collectors.toList()));
@@ -127,40 +130,56 @@ public class FilmService {
                                 : List.of())).collect(Collectors.toList());
     }
 
-    private void checkFilmExists(long id) {
-        filmStorage.getById(id)
-                .orElseThrow(() ->
-                        new NotFoundException(String.format("Film id=%s not found", id)));
-    }
-
-    private void checkUserExists(long id) {
-        userStorage.getById(id)
-                .orElseThrow(() ->
-                        new NotFoundException(String.format("User id=%s not found", id)));
-    }
-
-    private void checkMpaExists(Film film) {
-        Mpa mpa = film.getMpa();
-        if (Objects.nonNull(mpa)) {
-            int id = mpa.getId();
-            mpaStorage.getMpaById(id)
-                    .orElseThrow(() ->
-                            new NotFoundException(String.format("Mpa rating with id=%s not found", id)));
-        }
-    }
-
-    private void checkGenresExist(Film film) {
-        if (Objects.isNull(film.getGenres())) {
-            return;
-        }
-        List<Integer> genreIds = film.getGenres().stream()
-                .map(Genre::getId)
+    public Collection<Film> getCommonFilms(long userId, long friendId) {
+        checkUserExists(userId);
+        checkUserExists(friendId);
+        Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
+        Collection<Film> commonFilms = filmStorage.getCommonFilms(userId, friendId);
+        return commonFilms.stream()
+                .map(film -> film.withGenres(genres.get(film.getId())))
                 .collect(Collectors.toList());
-        Map<Integer, Genre> genres = genreStorage.getGenresByIds(genreIds);
-        for (Integer id : genreIds) {
-            if (Objects.isNull(genres.get(id))) {
-                throw new NotFoundException(String.format("Genre with id=%s not found", id));
+    }
+
+        public void removeFilm(long filmId) {
+            checkFilmExists(filmId);
+            filmStorage.removeFilm(filmId);
+            log.debug("Film id = {} removed", filmId);
+        }
+
+        private void checkFilmExists(long id) {
+            filmStorage.getById(id)
+                    .orElseThrow(() ->
+                            new NotFoundException(String.format("Film id=%s not found", id)));
+        }
+
+        private void checkUserExists(long id) {
+            userStorage.getById(id)
+                    .orElseThrow(() ->
+                            new NotFoundException(String.format("User id=%s not found", id)));
+        }
+
+        private void checkMpaExists(Film film) {
+            Mpa mpa = film.getMpa();
+            if (Objects.nonNull(mpa)) {
+                int id = mpa.getId();
+                mpaStorage.getMpaById(id)
+                        .orElseThrow(() ->
+                                new NotFoundException(String.format("Mpa rating with id=%s not found", id)));
             }
         }
-    }
+
+        private void checkGenresExist(Film film) {
+            if (Objects.isNull(film.getGenres())) {
+                return;
+            }
+            List<Integer> genreIds = film.getGenres().stream()
+                    .map(Genre::getId)
+                    .collect(Collectors.toList());
+            Map<Integer, Genre> genres = genreStorage.getGenresByIds(genreIds);
+            for (Integer id : genreIds) {
+                if (Objects.isNull(genres.get(id))) {
+                    throw new NotFoundException(String.format("Genre with id=%s not found", id));
+                }
+            }
+        }
 }

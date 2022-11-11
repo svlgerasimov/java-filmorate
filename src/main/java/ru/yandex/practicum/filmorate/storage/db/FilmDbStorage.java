@@ -16,7 +16,6 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @Qualifier("FilmDbStorage")
@@ -26,6 +25,7 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final DirectorService directorService;
 
+
     @Override
     public Collection<Film> getAllFilms() {
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
@@ -34,22 +34,21 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM film AS f " +
                 "LEFT JOIN mpa AS m ON m.id=f.mpa_id " +
                 "LEFT JOIN likes AS l ON l.film_id=f.id " +
-                "GROUP BY f.id";
+                "GROUP BY f.id;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
     }
 
     @Override
-    public Collection<Film> getMostPopularFilms(int count) {
-        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
-                "m.id AS mpa_id, m.name AS mpa_name, " +
-                "COUNT(DISTINCT l.user_id) AS rate " +
-                "FROM film AS f " +
-                "LEFT JOIN mpa AS m ON m.id=f.mpa_id " +
-                "LEFT JOIN likes AS l ON l.film_id=f.id " +
-                "GROUP BY f.id " +
-                "ORDER BY COUNT(DISTINCT  l.user_id) DESC " +
-                "LIMIT ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
+    public Collection<Film> getMostPopularFilms(int count, Long genreId, Integer year) {
+        if (genreId == null && year == null) {
+            return getMostPopularFilmsByFilter(count);
+        } else if (genreId == null) {
+            return getMostPopularFilmsByFilter(count, year);
+        } else if (year == null) {
+            return getMostPopularFilmsByFilter(count, genreId);
+        } else {
+            return getMostPopularFilmsByFilter(count, genreId, year);
+        }
     }
 
     @Override
@@ -60,7 +59,8 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM film AS f " +
                 "LEFT JOIN mpa AS m ON m.id=f.mpa_id " +
                 "LEFT JOIN likes AS l ON l.film_id=f.id " +
-                "WHERE f.id=? GROUP BY f.id"; //, d.director_id";
+                "WHERE f.id=? " +
+                "GROUP BY f.id;";
         List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), id);
         return films.isEmpty() ? Optional.empty() : Optional.of(films.get(0));
     }
@@ -85,11 +85,10 @@ public class FilmDbStorage implements FilmStorage {
     public boolean updateFilm(Film film) {
         String sql = "UPDATE film " +
                 "SET name=?, description=?, release_date=?, duration=?, mpa_id=? " +
-                "WHERE id=?";
+                "WHERE id=?;";
         return jdbcTemplate.update(sql,
                 film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
-                Objects.nonNull(film.getMpa()) ? film.getMpa().getId() : null,
-                film.getId()) > 0;
+                Objects.nonNull(film.getMpa()) ? film.getMpa().getId() : null, film.getId()) > 0;
     }
 
     private static Film makeFilm(ResultSet resultSet) throws SQLException {
@@ -116,4 +115,88 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE fd.director_id = ? GROUP BY f.id, fd.director_id";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), directorId);
     }
+    @Override
+    public Collection<Film> getCommonFilms(long userId, long friendId) {
+        String sql =
+                "SELECT DISTINCT f.id, f.name, f.description, f.release_date, f.duration," +
+                        " f.mpa_id, m.name AS mpa_name, f.rate FROM " +
+                        "(SELECT film_id " +
+                        "FROM likes " +
+                        "WHERE user_id = ? " +
+                        "INTERSECT SELECT DISTINCT film_id " +
+                        "FROM likes " +
+                        "WHERE user_id = ?) AS l " +
+                        "LEFT JOIN " +
+                        "(SELECT film_id, COUNT(user_id) AS rate " +
+                        "FROM likes " +
+                        "GROUP BY film_id) f ON (f.film_id = l.film_id) " +
+                        "JOIN film AS f ON (f.id = l.film_id) " +
+                        "JOIN mpa AS m ON m.id = f.mpa_id " +
+                        "ORDER BY f.rate DESC";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId, friendId);
+    }
+
+        public void removeFilm ( long filmId){
+            String sql = "DELETE FROM film WHERE id = ?;";
+            jdbcTemplate.update(sql, filmId);
+        }
+
+        private Collection<Film> getMostPopularFilmsByFilter ( int count, Long genreId, Integer year){
+            return jdbcTemplate.query(
+                    "SELECT  film.id, film.name, description, release_date, duration, mpa_id, " +
+                            "COUNT(l.FILM_ID) as rate, m.NAME as mpa_name " +
+                            "FROM film " +
+                            "LEFT JOIN likes AS l on film.id = l.film_id " +
+                            "LEFT JOIN film_genre AS fg on film.id = fg.film_id " +
+                            "LEFT JOIN mpa AS m on film.mpa_id = m.id " +
+                            "WHERE YEAR(release_date) = ? AND fg.genre_id = ?" +
+                            "GROUP BY  film.id " +
+                            "ORDER BY rate DESC " +
+                            "LIMIT ?;",
+                    (rs, rowNum) -> makeFilm(rs), year, genreId, count);
+        }
+
+        private Collection<Film> getMostPopularFilmsByFilter ( int count, Long genreId){
+            return jdbcTemplate.query(
+                    "SELECT  film.id, film.name, description, release_date, duration, mpa_id, " +
+                            "COUNT(l.FILM_ID) as rate, m.NAME as mpa_name " +
+                            "FROM film " +
+                            "LEFT JOIN likes AS l on film.id = l.film_id " +
+                            "LEFT JOIN film_genre AS fg on film.id = fg.film_id " +
+                            "LEFT JOIN mpa AS m on film.mpa_id = m.id " +
+                            "WHERE fg.genre_id = ?" +
+                            "GROUP BY  film.id " +
+                            "ORDER BY rate DESC " +
+                            "LIMIT ?;",
+                    (rs, rowNum) -> makeFilm(rs), genreId, count);
+        }
+
+        private Collection<Film> getMostPopularFilmsByFilter ( int count, Integer year){
+            return jdbcTemplate.query(
+                    "SELECT  film.id, film.name, description, release_date, duration, mpa_id, " +
+                            "COUNT(l.FILM_ID) as rate, m.NAME as mpa_name " +
+                            "FROM film " +
+                            "LEFT JOIN likes AS l on film.id = l.film_id " +
+                            "LEFT JOIN film_genre AS fg on film.id = fg.film_id " +
+                            "LEFT JOIN mpa AS m on film.mpa_id = m.id " +
+                            "WHERE YEAR(release_date) = ?" +
+                            "GROUP BY  film.id " +
+                            "ORDER BY rate DESC " +
+                            "LIMIT ?;",
+                    (rs, rowNum) -> makeFilm(rs), year, count);
+        }
+
+        private Collection<Film> getMostPopularFilmsByFilter ( int count){
+            return jdbcTemplate.query(
+                    "SELECT  film.id, film.name, description, release_date, duration, mpa_id, " +
+                            "COUNT(l.FILM_ID) as rate, m.NAME as mpa_name " +
+                            "FROM film " +
+                            "LEFT JOIN likes AS l on film.id = l.film_id " +
+                            "LEFT JOIN film_genre AS fg on film.id = fg.film_id " +
+                            "LEFT JOIN mpa AS m on film.mpa_id = m.id " +
+                            "GROUP BY  film.id " +
+                            "ORDER BY rate DESC " +
+                            "LIMIT ?;",
+                    (rs, rowNum) -> makeFilm(rs), count);
+        }
 }
