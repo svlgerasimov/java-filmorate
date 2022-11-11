@@ -117,6 +117,8 @@ public class FilmService {
                 .map(Film::getId)
                 .collect(Collectors.toList()));
         return films.stream()
+                // Сортировка на случай, если найдены фильмы и по названию, и по режиссёру
+                .sorted(Comparator.comparingInt(Film::getRate).reversed())
                 .map(film -> film.withGenres(genres.containsKey(film.getId()) ? genres.get(film.getId()) : List.of()))
                 .collect(Collectors.toList());
     }
