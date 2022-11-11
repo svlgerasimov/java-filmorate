@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface FilmStorage {
@@ -16,17 +17,5 @@ public interface FilmStorage {
 
     boolean updateFilm(Film film);
 
-
-//    interface FilmDirectorsStorage {
-//
-//        void saveFilmDirectors(long filmId, List<Director> directors);
-//
-//        List<Director> getDirectorsByFilmId(long filmId);
-//
-//        void deleteFilmDirectors(long filmId);
-//
-//         Map<Long, List<Director>> getAllFilmDirectors();
-//
-//         List<Film> findByDirector(long directorId, FilmSortBy sortBy);
-//    }
+    List<Film> getFilmsByDirectorId(long directorId);
 }

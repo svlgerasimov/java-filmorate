@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.FilmSortBy;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
@@ -57,7 +56,7 @@ public class FilmController {
     }
 
     @GetMapping("/director/{directorId}")
-    public List<Film> findByDirector(@PathVariable long directorId, @RequestParam FilmSortBy sortBy) {
+    public List<Film> findByDirector(@PathVariable long directorId, @RequestParam String sortBy) {
         return filmService.findByDirector(directorId, sortBy);
     }
 }

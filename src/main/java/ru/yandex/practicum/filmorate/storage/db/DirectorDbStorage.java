@@ -9,7 +9,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 
@@ -30,19 +29,20 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public List<Director> getAllDirectors() {
-        String directorsSql = "select * from director";
+        String directorsSql = "select d.director_id, d.name from director AS d";
         return jdbcTemplate.query(directorsSql, (rs, rowNum) -> makeDirector(rs));
     }
 
     @Override
     public Optional<Director> getDirectorById(long id) {
-        SqlRowSet dirRows = jdbcTemplate.queryForRowSet("select * from director where director_id = ?", id);
+        SqlRowSet dirRows = jdbcTemplate.queryForRowSet("select d.director_id, d.name from director AS d" +
+                " where director_id = ?", id);
         if (dirRows.next()) {
             Director director = new Director(dirRows.getLong("director_id"),
                     dirRows.getString("name"));
             return Optional.of(director);
         } else {
-            throw new NotFoundException("Такого режиссера нет");
+            return Optional.empty();
         }
     }
 
@@ -51,7 +51,6 @@ public class DirectorDbStorage implements DirectorStorage {
         String sqlQuery = "insert into director(name) " +
                 "values (?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        log.info("вызван метод");
         String directorName = director.getName();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"director_id"});
@@ -66,7 +65,6 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public Optional<Director> updateDirector(Director director) {
         String updateDirectorSql = "update director set name = ? WHERE director_id = ?";
-        checkDirectorExists(director.getId());
         jdbcTemplate.update(updateDirectorSql, director.getName(), director.getId());
         return getDirectorById(director.getId());
     }
@@ -79,11 +77,5 @@ public class DirectorDbStorage implements DirectorStorage {
     public void deleteDirector(long id) {
         String sql = "delete from director where director_id = ?";
         jdbcTemplate.update(sql, id);
-    }
-
-    private void checkDirectorExists(long id) {
-        getDirectorById(id)
-                .orElseThrow(() ->
-                        new NotFoundException(String.format("Director id=%s not found", id)));
     }
 }

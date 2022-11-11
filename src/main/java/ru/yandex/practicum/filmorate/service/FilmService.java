@@ -24,6 +24,8 @@ public class FilmService {
     private final LikesStorage likesStorage;
     private final FilmDirectorsStorage filmDirectorsStorage;
 
+    private final DirectorService directorService;
+
 
     public Collection<Film> getAllFilms() {
         Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
@@ -98,8 +100,31 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    public List<Film> findByDirector(long directorId, FilmSortBy sortBy) {
-        return filmDirectorsStorage.findByDirector(directorId, sortBy);
+    public List<Film> findByDirector(long directorId, String sortBy) {
+        directorService.checkDirectorExists(directorId);
+        List<Film> sortedFilms;
+        List<Film> directorFilms = filmStorage.getFilmsByDirectorId(directorId);
+        if (FilmSortBy.YEAR.equals(FilmSortBy.valueOf(sortBy.toUpperCase()))) {
+             sortedFilms = directorFilms.stream().sorted(Comparator.comparingInt(o -> o.getReleaseDate().getYear()))
+                    .collect(Collectors.toList());
+        } else if (FilmSortBy.LIKES.equals(FilmSortBy.valueOf(sortBy.toUpperCase()))) {
+             sortedFilms =  directorFilms.stream().sorted(Comparator.comparingInt(o -> o.getRate()))
+                    .collect(Collectors.toList());
+        } else {
+            throw new NotFoundException("Такого запроса нет");
+        }
+        Map<Long, List<Director>> directors = filmDirectorsStorage.getDirectorsByFilmIds(sortedFilms.stream()
+                .map(Film::getId)
+                .collect(Collectors.toList()));
+        Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(sortedFilms.stream()
+                .map(Film::getId)
+                .collect(Collectors.toList()));
+        return sortedFilms.stream()
+                .map(film -> film.withGenres(
+                        genres.containsKey(film.getId()) ? genres.get(film.getId()) : List.of()))
+                .map(film -> film.withDirectors(
+                        directors.containsKey(film.getId()) ? directors.get(film.getId())
+                                : List.of())).collect(Collectors.toList());
     }
 
     private void checkFilmExists(long id) {
