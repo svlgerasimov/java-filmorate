@@ -15,7 +15,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -25,8 +26,8 @@ public class UserDbStorageTest {
     private final UserDbStorage userStorage;
 
     private final TestUserBuilder userBuilder1 =
-        TestUserBuilder.of(0, "email1", "login1", "name1",
-                LocalDate.of(2000, Month.JANUARY, 1));
+            TestUserBuilder.of(0, "email1", "login1", "name1",
+                    LocalDate.of(2000, Month.JANUARY, 1));
     private final TestUserBuilder userBuilder2 =
             TestUserBuilder.of(0, "email2", "login2", "name2",
                     LocalDate.of(2000, Month.JANUARY, 2));
@@ -85,7 +86,7 @@ public class UserDbStorageTest {
         assertThatThrownBy(() -> userStorage.addUser(user))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
-    
+
     @Test
     public void updateUserWithCorrectId() {
         User user1 = userBuilder1.build();

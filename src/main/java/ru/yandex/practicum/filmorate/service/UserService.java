@@ -6,11 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DbCreateEntityFaultException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
+import ru.yandex.practicum.filmorate.storage.LikesStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -19,6 +23,7 @@ public class UserService {
 
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
+    private final EventService eventService;
 
     public Collection<User> getAllUsers() {
         return userStorage.getAllUsers();
@@ -63,6 +68,7 @@ public class UserService {
         checkUserExists(friendId);
         friendsStorage.addFriend(userId, friendId);
         log.debug("Add friends id={} and id={}", userId, friendId);
+        eventService.addEvent(userId, EventType.FRIEND, EventOperation.ADD, friendId);
     }
 
     public void removeFromFriends(long userId, long friendId) {
@@ -70,6 +76,7 @@ public class UserService {
         checkUserExists(friendId);
         friendsStorage.removeFriend(userId, friendId);
         log.debug("Remove friends id={} and id={}", userId, friendId);
+        eventService.addEvent(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
     }
 
     public Collection<User> getFriends(long userId) {
@@ -81,6 +88,12 @@ public class UserService {
         checkUserExists(userId);
         checkUserExists(otherId);
         return friendsStorage.getCommonFriends(userId, otherId);
+    }
+
+    public void removeUser(long userId) {
+        checkUserExists(userId);
+        userStorage.removeUser(userId);
+        log.debug("User id = {} removed", userId);
     }
 
     private void checkUserExists(long id) {

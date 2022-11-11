@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.With;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;

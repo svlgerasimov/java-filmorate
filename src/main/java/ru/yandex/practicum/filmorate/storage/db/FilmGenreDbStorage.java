@@ -11,7 +11,12 @@ import ru.yandex.practicum.filmorate.storage.FilmGenreStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -35,7 +40,7 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
     @Override
     public void deleteFilmGenres(long filmId) {
         String sql = "DELETE FROM film_genre WHERE film_id=?;";
-        jdbcTemplate.update(sql,filmId);
+        jdbcTemplate.update(sql, filmId);
     }
 
     @Override
@@ -91,3 +96,4 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
         }
     }
 }
+
