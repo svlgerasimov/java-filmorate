@@ -66,7 +66,7 @@ public class UserController {
 
     @GetMapping("/{id}/recommendations")
     public Collection<Film> getRecommendations(@PathVariable(name = "id") long userId) {
-        return recommendationsService.formRecommendations(userId, 3);
+        return recommendationsService.formRecommendations(userId);
     }
 
     @DeleteMapping("/{userId}")
