@@ -31,12 +31,7 @@ public class FilmService {
     public Collection<Film> getAllFilms() {
         Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
         Map<Long, List<Director>> directors = filmDirectorsStorage.getAllFilmDirectors();
-        return filmStorage.getAllFilms().stream()
-                .map(film -> film.withGenres(
-                        genres.containsKey(film.getId()) ? genres.get(film.getId()) : List.of()))
-                .map(film -> film.withDirectors(
-                        directors.containsKey(film.getId()) ? directors.get(film.getId())
-                                : List.of())).collect(Collectors.toList());
+        return addFieldsToFilms(filmStorage.getAllFilms(), genres, directors);
     }
 
     public Film addFilm(Film film) {
@@ -46,7 +41,8 @@ public class FilmService {
         filmGenreStorage.addFilmGenres(id, film.getGenres());
         filmDirectorsStorage.saveFilmDirectors(id, film.getDirectors());
         film = filmStorage.getById(id).orElseThrow(() ->
-                        new DbCreateEntityFaultException(String.format("Film (id=%s) hasn't been added to database", id)))
+                        new DbCreateEntityFaultException(
+                                String.format("Film (id=%s) hasn't been added to database", id)))
                 .withGenres(filmGenreStorage.getGenresByFilmId(id))
                 .withDirectors(filmDirectorsStorage.getDirectorsByFilmId(id));
         log.debug("Add film: {}", film);
@@ -64,7 +60,8 @@ public class FilmService {
         filmDirectorsStorage.deleteFilmDirectors(id);
         filmDirectorsStorage.saveFilmDirectors(id, film.getDirectors());
         film = filmStorage.getById(id).orElseThrow(() ->
-                        new DbCreateEntityFaultException(String.format("Film (id=%s) hasn't been updated in database", id)))
+                        new DbCreateEntityFaultException(
+                                String.format("Film (id=%s) hasn't been updated in database", id)))
                 .withGenres(filmGenreStorage.getGenresByFilmId(id))
                 .withDirectors(filmDirectorsStorage.getDirectorsByFilmId(id));
         log.debug("Update film {}", film);
@@ -74,7 +71,8 @@ public class FilmService {
     public Film getFilmById(long id) {
         return filmStorage.getById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Film id=%s not found", id)))
-                .withGenres(filmGenreStorage.getGenresByFilmId(id)).withDirectors(filmDirectorsStorage.getDirectorsByFilmId(id));
+                .withGenres(filmGenreStorage.getGenresByFilmId(id))
+                .withDirectors(filmDirectorsStorage.getDirectorsByFilmId(id));
     }
 
     public void addLike(long filmId, long userId) {
@@ -95,12 +93,7 @@ public class FilmService {
 
     public Collection<Film> getMostPopularFilms(Integer count, Long genreId, Integer year) {
         Collection<Film> films = filmStorage.getMostPopularFilms(count, genreId, year);
-        Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(films.stream()
-                .map(Film::getId)
-                .collect(Collectors.toList()));
-        return films.stream()
-                .map(film -> film.withGenres(genres.get(film.getId())))
-                .collect(Collectors.toList());
+        return addFieldsToFilms(films);
     }
 
     public List<Film> findByDirector(long directorId, String sortBy) {
@@ -108,49 +101,28 @@ public class FilmService {
         List<Film> sortedFilms;
         List<Film> directorFilms = filmStorage.getFilmsByDirectorId(directorId);
         if (FilmSortBy.YEAR.equals(FilmSortBy.valueOf(sortBy.toUpperCase()))) {
-             sortedFilms = directorFilms.stream().sorted(Comparator.comparingInt(o -> o.getReleaseDate().getYear()))
+            sortedFilms = directorFilms.stream().sorted(Comparator.comparingInt(o -> o.getReleaseDate().getYear()))
                     .collect(Collectors.toList());
         } else if (FilmSortBy.LIKES.equals(FilmSortBy.valueOf(sortBy.toUpperCase()))) {
-             sortedFilms =  directorFilms.stream().sorted(Comparator.comparingInt(o -> o.getRate()))
+            sortedFilms = directorFilms.stream().sorted(Comparator.comparingInt(Film::getRate))
                     .collect(Collectors.toList());
         } else {
             throw new NotFoundException("Такого запроса нет");
         }
-        Map<Long, List<Director>> directors = filmDirectorsStorage.getDirectorsByFilmIds(sortedFilms.stream()
-                .map(Film::getId)
-                .collect(Collectors.toList()));
-        Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(sortedFilms.stream()
-                .map(Film::getId)
-                .collect(Collectors.toList()));
-        return sortedFilms.stream()
-                .map(film -> film.withGenres(
-                        genres.containsKey(film.getId()) ? genres.get(film.getId()) : List.of()))
-                .map(film -> film.withDirectors(
-                        directors.containsKey(film.getId()) ? directors.get(film.getId())
-                                : List.of())).collect(Collectors.toList());
+        return addFieldsToFilms(sortedFilms);
     }
 
     public Collection<Film> getCommonFilms(long userId, long friendId) {
         checkUserExists(userId);
         checkUserExists(friendId);
-        Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
         Collection<Film> commonFilms = filmStorage.getCommonFilms(userId, friendId);
-        return commonFilms.stream()
-                .map(film -> film.withGenres(genres.get(film.getId())))
-                .collect(Collectors.toList());
+        return addFieldsToFilms(commonFilms);
     }
 
     public Collection<Film> getFilmsLikedByUser(long userId) {
         checkUserExists(userId);
-        Collection<Film>films = filmStorage.getFilmsLikedByUser(userId);
-        List<Long> filmIds = films.stream().distinct()
-                .map(Film::getId)
-                .collect(Collectors.toList());
-        Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(filmIds);
-        Map<Long, List<Director>> directors = filmDirectorsStorage.getDirectorsByFilmIds(filmIds);
-        return films.stream()
-                .map(film -> film.withGenres(genres.get(film.getId())).withDirectors(directors.get(film.getId())))
-                .collect(Collectors.toList());
+        Collection<Film> films = filmStorage.getFilmsLikedByUser(userId);
+        return addFieldsToFilms(films);
     }
 
     public void removeFilm(long filmId) {
@@ -167,18 +139,34 @@ public class FilmService {
         if (searchByDirector) {
             films.addAll(filmStorage.searchByDirector(query));
         }
+        films = addFieldsToFilms(films);
+        // Сортировка на случай, если найдены фильмы и по названию, и по режиссёру
+        films.sort(Comparator.comparingInt(Film::getRate).reversed());
+        return films;
+    }
+
+    // Добавление к коллекции фильмов полей со списками жанров и режиссёров
+    private List<Film> addFieldsToFilms(Collection<Film> films) {
         List<Long> filmIds = films.stream()
                 .map(Film::getId)
                 .collect(Collectors.toList());
         Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(filmIds);
         Map<Long, List<Director>> directors = filmDirectorsStorage.getDirectorsByFilmIds(filmIds);
+        return addFieldsToFilms(films, genres, directors);
+    }
+
+    private List<Film> addFieldsToFilms(Collection<Film> films,
+                                        Map<Long, List<Genre>> genres, Map<Long, List<Director>> directors) {
         return films.stream()
-                // Сортировка на случай, если найдены фильмы и по названию, и по режиссёру
-                .sorted(Comparator.comparingInt(Film::getRate).reversed())
-                .map(film -> film.withGenres(genres.containsKey(film.getId()) ? genres.get(film.getId()) : List.of()))
-                .map(film -> film.withDirectors(
-                        directors.containsKey(film.getId()) ? directors.get(film.getId()) : List.of()))
+                .map(film -> addFieldsToFilm(film, genres, directors))
                 .collect(Collectors.toList());
+    }
+
+    private Film addFieldsToFilm(Film film, Map<Long, List<Genre>> genres, Map<Long, List<Director>> directors) {
+        long filmId = film.getId();
+        return film
+                .withGenres(genres.containsKey(filmId) ? genres.get(filmId) : List.of())
+                .withDirectors(directors.containsKey(filmId) ? directors.get(filmId) : List.of());
     }
 
     private void checkFilmExists(long id) {
@@ -187,34 +175,34 @@ public class FilmService {
                         new NotFoundException(String.format("Film id=%s not found", id)));
     }
 
-        private void checkUserExists(long id) {
-            userStorage.getById(id)
+    private void checkUserExists(long id) {
+        userStorage.getById(id)
+                .orElseThrow(() ->
+                        new NotFoundException(String.format("User id=%s not found", id)));
+    }
+
+    private void checkMpaExists(Film film) {
+        Mpa mpa = film.getMpa();
+        if (Objects.nonNull(mpa)) {
+            int id = mpa.getId();
+            mpaStorage.getMpaById(id)
                     .orElseThrow(() ->
-                            new NotFoundException(String.format("User id=%s not found", id)));
+                            new NotFoundException(String.format("Mpa rating with id=%s not found", id)));
         }
+    }
 
-        private void checkMpaExists(Film film) {
-            Mpa mpa = film.getMpa();
-            if (Objects.nonNull(mpa)) {
-                int id = mpa.getId();
-                mpaStorage.getMpaById(id)
-                        .orElseThrow(() ->
-                                new NotFoundException(String.format("Mpa rating with id=%s not found", id)));
+    private void checkGenresExist(Film film) {
+        if (Objects.isNull(film.getGenres())) {
+            return;
+        }
+        List<Integer> genreIds = film.getGenres().stream()
+                .map(Genre::getId)
+                .collect(Collectors.toList());
+        Map<Integer, Genre> genres = genreStorage.getGenresByIds(genreIds);
+        for (Integer id : genreIds) {
+            if (Objects.isNull(genres.get(id))) {
+                throw new NotFoundException(String.format("Genre with id=%s not found", id));
             }
         }
-
-        private void checkGenresExist(Film film) {
-            if (Objects.isNull(film.getGenres())) {
-                return;
-            }
-            List<Integer> genreIds = film.getGenres().stream()
-                    .map(Genre::getId)
-                    .collect(Collectors.toList());
-            Map<Integer, Genre> genres = genreStorage.getGenresByIds(genreIds);
-            for (Integer id : genreIds) {
-                if (Objects.isNull(genres.get(id))) {
-                    throw new NotFoundException(String.format("Genre with id=%s not found", id));
-                }
-            }
-        }
+    }
 }
