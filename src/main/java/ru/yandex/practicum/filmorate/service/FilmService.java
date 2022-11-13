@@ -143,12 +143,13 @@ public class FilmService {
     public Collection<Film> getFilmsLikedByUser(long userId) {
         checkUserExists(userId);
         Collection<Film>films = filmStorage.getFilmsLikedByUser(userId);
-        Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(films.stream().distinct()
+        List<Long> filmIds = films.stream().distinct()
                 .map(Film::getId)
-                .collect(Collectors.toList()));
-        //TODO не забыть добавить режиссёров!!!
+                .collect(Collectors.toList());
+        Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(filmIds);
+        Map<Long, List<Director>> directors = filmDirectorsStorage.getDirectorsByFilmIds(filmIds);
         return films.stream()
-                .map(film -> film.withGenres(genres.get(film.getId())))
+                .map(film -> film.withGenres(genres.get(film.getId())).withDirectors(directors.get(film.getId())))
                 .collect(Collectors.toList());
     }
 
