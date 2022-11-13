@@ -80,6 +80,41 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public Collection<Film> searchByName(String substring) {
+        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
+                "m.id AS mpa_id, m.name AS mpa_name, " +
+                "COUNT(DISTINCT l.user_id) AS rate " +
+                "FROM film AS f " +
+                "LEFT JOIN mpa AS m ON m.id=f.mpa_id " +
+                "LEFT JOIN likes AS l ON l.film_id=f.id " +
+                "WHERE LOWER(f.name) LIKE LOWER(?) " +
+                "GROUP BY f.id " +
+                "ORDER BY rate DESC;";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), "%" + substring + "%");
+    }
+
+    @Override
+    public Collection<Film> searchByDirector(String substring) {
+        String sql =
+                "WITH rates AS\n" +
+                "    (SELECT f.id AS film_id, COUNT(DISTINCT l.user_id) AS rate\n" +
+                "     FROM film AS f\n" +
+                "         LEFT JOIN likes AS l ON l.film_id = f.id\n" +
+                "     GROUP BY f.id)\n" +
+                "SELECT DISTINCT f.id, f.name, f.description, f.release_date, f.duration,\n" +
+                "       m.id AS mpa_id, m.name AS mpa_name, r.rate\n" +
+                "FROM film AS f\n" +
+                "    LEFT JOIN rates AS r ON r.film_id = f.id\n" +
+                "    LEFT JOIN mpa AS m ON m.id = f.mpa_id\n" +
+                "    JOIN film_directors AS fd ON fd.film_id = f.id\n" +
+                "    JOIN DIRECTOR d on d.director_id = fd.director_id\n" +
+                "WHERE LOWER(d.name) LIKE LOWER(?)\n" +
+                "ORDER BY rate DESC;";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), "%" + substring + "%");
+    }
+
+
+    @Override
     public long addFilm(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("film")

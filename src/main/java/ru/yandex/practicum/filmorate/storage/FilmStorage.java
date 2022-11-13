@@ -15,6 +15,10 @@ public interface FilmStorage {
 
     Optional<Film> getById(long id);
 
+    Collection<Film> searchByName(String substring);
+
+    Collection<Film> searchByDirector(String substring);
+
     long addFilm(Film film);
 
     boolean updateFilm(Film film);

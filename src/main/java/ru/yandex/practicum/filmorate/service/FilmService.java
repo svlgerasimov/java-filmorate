@@ -159,11 +159,33 @@ public class FilmService {
         log.debug("Film id = {} removed", filmId);
     }
 
-        private void checkFilmExists(long id) {
-            filmStorage.getById(id)
-                    .orElseThrow(() ->
-                            new NotFoundException(String.format("Film id=%s not found", id)));
+    public Collection<Film> searchFilms(String query, boolean searchByName, boolean searchByDirector) {
+        List<Film> films = new ArrayList<>();
+        if (searchByName) {
+            films.addAll(filmStorage.searchByName(query));
         }
+        if (searchByDirector) {
+            films.addAll(filmStorage.searchByDirector(query));
+        }
+        List<Long> filmIds = films.stream()
+                .map(Film::getId)
+                .collect(Collectors.toList());
+        Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(filmIds);
+        Map<Long, List<Director>> directors = filmDirectorsStorage.getDirectorsByFilmIds(filmIds);
+        return films.stream()
+                // Сортировка на случай, если найдены фильмы и по названию, и по режиссёру
+                .sorted(Comparator.comparingInt(Film::getRate).reversed())
+                .map(film -> film.withGenres(genres.containsKey(film.getId()) ? genres.get(film.getId()) : List.of()))
+                .map(film -> film.withDirectors(
+                        directors.containsKey(film.getId()) ? directors.get(film.getId()) : List.of()))
+                .collect(Collectors.toList());
+    }
+
+    private void checkFilmExists(long id) {
+        filmStorage.getById(id)
+                .orElseThrow(() ->
+                        new NotFoundException(String.format("Film id=%s not found", id)));
+    }
 
         private void checkUserExists(long id) {
             userStorage.getById(id)
