@@ -18,13 +18,13 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/films")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Validated
 public class FilmController {
-
     private final FilmService filmService;
 
     @GetMapping
@@ -74,5 +74,10 @@ public class FilmController {
     public Collection<Film> getCommonFilms(@RequestParam(name = "userId") long userId,
                                            @RequestParam(name = "friendId") long friendId) {
         return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> findByDirector(@PathVariable long directorId, @RequestParam String sortBy) {
+        return filmService.findByDirector(directorId, sortBy);
     }
 }

@@ -7,17 +7,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @Qualifier("FilmDbStorage")
@@ -25,6 +23,8 @@ import java.util.Optional;
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final DirectorService directorService;
+
 
     @Override
     public Collection<Film> getAllFilms() {
@@ -91,6 +91,30 @@ public class FilmDbStorage implements FilmStorage {
                 Objects.nonNull(film.getMpa()) ? film.getMpa().getId() : null, film.getId()) > 0;
     }
 
+    private static Film makeFilm(ResultSet resultSet) throws SQLException {
+        Date releaseDate = resultSet.getDate("release_date");
+        int mpaId = resultSet.getInt("mpa_id");
+        String mpaName = resultSet.getString("mpa_name");
+        return new Film(resultSet.getLong("id"),
+                resultSet.getString("name"),
+                resultSet.getString("description"),
+                Objects.isNull(releaseDate) ? null : releaseDate.toLocalDate(),
+                resultSet.getInt("duration"),
+                mpaId == 0 ? null : new Mpa(mpaId, mpaName),
+                null,
+                resultSet.getInt("rate"), null);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorId(long directorId) {
+        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
+                "m.id AS mpa_id, m.name AS mpa_name, COUNT(DISTINCT l.user_id) AS rate, fd.director_id FROM film AS f " +
+                "LEFT JOIN mpa AS m ON m.id=f.mpa_id " +
+                "JOIN film_directors AS fd ON fd.film_id = f.id " +
+                "LEFT JOIN likes AS l ON l.film_id=f.id " +
+                "WHERE fd.director_id = ? GROUP BY f.id, fd.director_id";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), directorId);
+    }
     @Override
     public Collection<Film> getCommonFilms(long userId, long friendId) {
         String sql =
@@ -174,21 +198,5 @@ public class FilmDbStorage implements FilmStorage {
                             "ORDER BY rate DESC " +
                             "LIMIT ?;",
                     (rs, rowNum) -> makeFilm(rs), count);
-        }
-
-        private static Film makeFilm (ResultSet resultSet) throws SQLException {
-            Date releaseDate = resultSet.getDate("release_date");
-
-            int mpaId = resultSet.getInt("mpa_id");
-            String mpaName = resultSet.getString("mpa_name");
-
-            return new Film(resultSet.getLong("id"),
-                    resultSet.getString("name"),
-                    resultSet.getString("description"),
-                    Objects.isNull(releaseDate) ? null : releaseDate.toLocalDate(),
-                    resultSet.getInt("duration"),
-                    mpaId == 0 ? null : new Mpa(mpaId, mpaName),
-                    null,
-                    resultSet.getInt("rate"));
         }
 }
