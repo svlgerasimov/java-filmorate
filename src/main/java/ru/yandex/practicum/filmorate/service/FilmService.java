@@ -154,13 +154,17 @@ public class FilmService {
         if (searchByDirector) {
             films.addAll(filmStorage.searchByDirector(query));
         }
-        Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(films.stream()
+        List<Long> filmIds = films.stream()
                 .map(Film::getId)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+        Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(filmIds);
+        Map<Long, List<Director>> directors = filmDirectorsStorage.getDirectorsByFilmIds(filmIds);
         return films.stream()
                 // Сортировка на случай, если найдены фильмы и по названию, и по режиссёру
                 .sorted(Comparator.comparingInt(Film::getRate).reversed())
                 .map(film -> film.withGenres(genres.containsKey(film.getId()) ? genres.get(film.getId()) : List.of()))
+                .map(film -> film.withDirectors(
+                        directors.containsKey(film.getId()) ? directors.get(film.getId()) : List.of()))
                 .collect(Collectors.toList());
     }
 
