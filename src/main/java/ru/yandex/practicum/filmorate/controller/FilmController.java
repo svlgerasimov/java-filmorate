@@ -25,7 +25,6 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Validated
 public class FilmController {
-
     private final FilmService filmService;
 
     @GetMapping
@@ -69,6 +68,17 @@ public class FilmController {
     @DeleteMapping("/{filmId}")
     public void removeFilm(@PathVariable long filmId) {
         filmService.removeFilm(filmId);
+    }
+
+    @GetMapping("/common")
+    public Collection<Film> getCommonFilms(@RequestParam(name = "userId") long userId,
+                                           @RequestParam(name = "friendId") long friendId) {
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> findByDirector(@PathVariable long directorId, @RequestParam String sortBy) {
+        return filmService.findByDirector(directorId, sortBy);
     }
 
     @GetMapping("/search")

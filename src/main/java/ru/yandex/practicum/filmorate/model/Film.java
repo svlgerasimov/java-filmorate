@@ -9,6 +9,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 @Value
 public class Film {
@@ -40,4 +41,7 @@ public class Film {
     Collection<Genre> genres;
 
     int rate;
+
+    @With
+    List<Director> directors;
 }

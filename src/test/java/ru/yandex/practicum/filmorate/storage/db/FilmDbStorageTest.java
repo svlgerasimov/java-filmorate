@@ -13,8 +13,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import java.time.LocalDate;
 import java.time.Month;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -25,17 +24,17 @@ public class FilmDbStorageTest {
     private final UserDbStorage userStorage;
 
     private final TestFilmBuilder filmBuilder1 =
-            TestFilmBuilder.of(0, "name1", "description1",
+            TestFilmBuilder.of(0, "name1" , "description1",
                     LocalDate.of(2000, Month.JANUARY, 1), 110, new Mpa(1, "G"),
-                    null, 0);
+                    null, 0, null);
     private final TestFilmBuilder filmBuilder2 =
-            TestFilmBuilder.of(0, "name2", "description2",
+            TestFilmBuilder.of(0, "name2" , "description2",
                     LocalDate.of(2000, Month.JANUARY, 2), 120, new Mpa(2, "PG"),
-                    null, 0);
+                    null, 0, null);
     private final TestFilmBuilder filmBuilder3 =
-            TestFilmBuilder.of(0, "name3", "description3",
+            TestFilmBuilder.of(0, "name3" , "description3",
                     LocalDate.of(2000, Month.JANUARY, 3), 130, new Mpa(3, "PG-13"),
-                    null, 0);
+                    null, 0, null);
 
     @Test
     public void getAllFilmsWithNoFilmPresent() {
