@@ -55,7 +55,7 @@ public class FilmDbStorage implements FilmStorage {
                 "     FROM film AS f\n" +
                 "     LEFT JOIN likes AS l ON l.film_id = f.id\n" +
                 "     GROUP BY f.id)\n" +
-                "SELECT f.id, f.name, f.description, f.release_date, f.duration,\n" +
+                "SELECT DISTINCT f.id, f.name, f.description, f.release_date, f.duration,\n" +
                 "       m.id AS mpa_id, m.name AS mpa_name, r.rate\n" +
                 "FROM film AS f\n" +
                 "    LEFT JOIN rates AS r ON r.film_id = f.id\n" +
