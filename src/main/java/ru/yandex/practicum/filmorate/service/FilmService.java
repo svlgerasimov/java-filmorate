@@ -140,11 +140,24 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-        public void removeFilm(long filmId) {
-            checkFilmExists(filmId);
-            filmStorage.removeFilm(filmId);
-            log.debug("Film id = {} removed", filmId);
-        }
+    public Collection<Film> getFilmsLikedByUser(long userId) {
+        checkUserExists(userId);
+        Collection<Film>films = filmStorage.getFilmsLikedByUser(userId);
+        List<Long> filmIds = films.stream().distinct()
+                .map(Film::getId)
+                .collect(Collectors.toList());
+        Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(filmIds);
+        Map<Long, List<Director>> directors = filmDirectorsStorage.getDirectorsByFilmIds(filmIds);
+        return films.stream()
+                .map(film -> film.withGenres(genres.get(film.getId())).withDirectors(directors.get(film.getId())))
+                .collect(Collectors.toList());
+    }
+
+    public void removeFilm(long filmId) {
+        checkFilmExists(filmId);
+        filmStorage.removeFilm(filmId);
+        log.debug("Film id = {} removed", filmId);
+    }
 
         private void checkFilmExists(long id) {
             filmStorage.getById(id)

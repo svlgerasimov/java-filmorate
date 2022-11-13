@@ -48,6 +48,24 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public Collection<Film> getFilmsLikedByUser(long userId) {
+        //Фильмы, которым пользователь поставил лайк
+        String sql = "WITH rates AS\n" +
+                "    (SELECT f.id AS film_id, COUNT(DISTINCT l.user_id) AS rate\n" +
+                "     FROM film AS f\n" +
+                "     LEFT JOIN likes AS l ON l.film_id = f.id\n" +
+                "     GROUP BY f.id)\n" +
+                "SELECT f.id, f.name, f.description, f.release_date, f.duration,\n" +
+                "       m.id AS mpa_id, m.name AS mpa_name, r.rate\n" +
+                "FROM film AS f\n" +
+                "    LEFT JOIN rates AS r ON r.film_id = f.id\n" +
+                "    LEFT JOIN mpa AS m ON m.id = f.mpa_id\n" +
+                "    LEFT JOIN likes AS l ON l.film_id = f.id\n" +
+                "WHERE l.user_id = ?;";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId);
+    }
+
+    @Override
     public Optional<Film> getById(long id) {
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
                 "m.id AS mpa_id, m.name AS mpa_name, " +
