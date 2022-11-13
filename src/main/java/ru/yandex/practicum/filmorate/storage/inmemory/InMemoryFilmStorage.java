@@ -45,6 +45,11 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     }
 
     @Override
+    public Collection<Film> getCommonFilms(long userId, long friendId) {
+        return null;
+    }
+
+    @Override
     public boolean addLike(long filmId, long userId) {
         Set<Long> filmLikes = likes.get(filmId);
         if (Objects.isNull(filmLikes)) {
@@ -88,6 +93,11 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
 
     @Override
     public Collection<Film> getFilmsLikedByUser(long userId) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorId(long directorId) {
         return null;
     }
 
