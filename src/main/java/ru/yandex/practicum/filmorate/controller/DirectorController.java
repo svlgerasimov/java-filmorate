@@ -33,13 +33,11 @@ public class DirectorController {
 
     @PutMapping
     public Director updateDirector(@RequestBody @Valid Director director) {
-        directorService.getDirectorById(director.getId());
         return directorService.updateDirector(director);
     }
 
     @DeleteMapping("/{id}")
     public void deleteDirector(@PathVariable("id") long id) {
-        directorService.getDirectorById(id);
         directorService.deleteDirector(id);
     }
 }

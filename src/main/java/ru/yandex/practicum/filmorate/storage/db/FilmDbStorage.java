@@ -7,9 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.*;
-import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.sql.Date;
@@ -23,8 +21,6 @@ import java.util.*;
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final DirectorService directorService;
-
 
     @Override
     public Collection<Film> getAllFilms() {
@@ -112,7 +108,7 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN mpa AS m ON m.id=f.mpa_id " +
                 "JOIN film_directors AS fd ON fd.film_id = f.id " +
                 "LEFT JOIN likes AS l ON l.film_id=f.id " +
-                "WHERE fd.director_id = ? GROUP BY f.id, fd.director_id";
+                "WHERE fd.director_id = ? GROUP BY f.id";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), directorId);
     }
     @Override
