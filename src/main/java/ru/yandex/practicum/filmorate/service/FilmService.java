@@ -145,30 +145,6 @@ public class FilmService {
         return films;
     }
 
-    // Добавление к коллекции фильмов полей со списками жанров и режиссёров
-    private List<Film> addFieldsToFilms(Collection<Film> films) {
-        List<Long> filmIds = films.stream()
-                .map(Film::getId)
-                .collect(Collectors.toList());
-        Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(filmIds);
-        Map<Long, List<Director>> directors = filmDirectorsStorage.getDirectorsByFilmIds(filmIds);
-        return addFieldsToFilms(films, genres, directors);
-    }
-
-    private List<Film> addFieldsToFilms(Collection<Film> films,
-                                        Map<Long, List<Genre>> genres, Map<Long, List<Director>> directors) {
-        return films.stream()
-                .map(film -> addFieldsToFilm(film, genres, directors))
-                .collect(Collectors.toList());
-    }
-
-    private Film addFieldsToFilm(Film film, Map<Long, List<Genre>> genres, Map<Long, List<Director>> directors) {
-        long filmId = film.getId();
-        return film
-                .withGenres(genres.containsKey(filmId) ? genres.get(filmId) : List.of())
-                .withDirectors(directors.containsKey(filmId) ? directors.get(filmId) : List.of());
-    }
-
     private void checkFilmExists(long id) {
         filmStorage.getById(id)
                 .orElseThrow(() ->
@@ -204,5 +180,29 @@ public class FilmService {
                 throw new NotFoundException(String.format("Genre with id=%s not found", id));
             }
         }
+    }
+
+    // Добавление к коллекции фильмов полей со списками жанров и режиссёров
+    private List<Film> addFieldsToFilms(Collection<Film> films) {
+        List<Long> filmIds = films.stream()
+                .map(Film::getId)
+                .collect(Collectors.toList());
+        Map<Long, List<Genre>> genres = filmGenreStorage.getGenresByFilmIds(filmIds);
+        Map<Long, List<Director>> directors = filmDirectorsStorage.getDirectorsByFilmIds(filmIds);
+        return addFieldsToFilms(films, genres, directors);
+    }
+
+    private List<Film> addFieldsToFilms(Collection<Film> films,
+                                        Map<Long, List<Genre>> genres, Map<Long, List<Director>> directors) {
+        return films.stream()
+                .map(film -> addFieldsToFilm(film, genres, directors))
+                .collect(Collectors.toList());
+    }
+
+    private Film addFieldsToFilm(Film film, Map<Long, List<Genre>> genres, Map<Long, List<Director>> directors) {
+        long filmId = film.getId();
+        return film
+                .withGenres(genres.containsKey(filmId) ? genres.get(filmId) : List.of())
+                .withDirectors(directors.containsKey(filmId) ? directors.get(filmId) : List.of());
     }
 }
