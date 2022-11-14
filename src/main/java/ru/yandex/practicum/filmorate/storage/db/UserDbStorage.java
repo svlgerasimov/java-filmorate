@@ -58,9 +58,9 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public void remove(long userId) {
+    public boolean remove(long userId) {
         String sql = "DELETE FROM users WHERE id = ?;";
-        jdbcTemplate.update(sql, userId);
+        return jdbcTemplate.update(sql, userId) > 0;
     }
 
     public static User makeUser(ResultSet resultSet) throws SQLException {
