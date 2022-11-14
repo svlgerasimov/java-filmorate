@@ -202,7 +202,7 @@ public class FilmService {
     private Film addFieldsToFilm(Film film, Map<Long, List<Genre>> genres, Map<Long, List<Director>> directors) {
         long filmId = film.getId();
         return film
-                .withGenres(genres.containsKey(filmId) ? genres.get(filmId) : List.of())
-                .withDirectors(directors.containsKey(filmId) ? directors.get(filmId) : List.of());
+                .withGenres(genres.getOrDefault(filmId, List.of()))
+                .withDirectors(directors.getOrDefault(filmId, List.of()));
     }
 }
