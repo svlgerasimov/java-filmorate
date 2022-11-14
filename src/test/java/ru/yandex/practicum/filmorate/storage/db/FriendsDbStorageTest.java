@@ -93,7 +93,7 @@ public class FriendsDbStorageTest {
 
     @Test
     public void getCommonFriends() {
-        User user1 = userBuilder2.build();
+        User user1 = userBuilder1.build();
         user1 = user1.withId(userStorage.add(user1));
         User user2 = userBuilder2.build();
         user2 = user2.withId(userStorage.add(user2));

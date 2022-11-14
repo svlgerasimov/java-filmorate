@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -25,9 +24,14 @@ public class LikesDbStorageTest {
 
     @Test
     public void addLike() {
-        User user = TestUserBuilder.defaultBuilder().build();
-        long userId1 = userStorage.add(user);
-        long userId2 = userStorage.add(user);
+        TestUserBuilder userBuilder1 = TestUserBuilder.defaultBuilder()
+                .withEmail("email1")
+                .withLogin("login1");
+        TestUserBuilder userBuilder2 = TestUserBuilder.defaultBuilder()
+                .withEmail("email2")
+                .withLogin("login2");
+        long userId1 = userStorage.add(userBuilder1.build());
+        long userId2 = userStorage.add(userBuilder2.build());
         Film defaultFilm = TestFilmBuilder.defaultBuilder().build();
         long filmId1 = filmStorage.add(defaultFilm);
         long filmId2 = filmStorage.add(defaultFilm);
@@ -68,10 +72,18 @@ public class LikesDbStorageTest {
 
     @Test
     public void getMostPopularFilms() {
-        User user = TestUserBuilder.defaultBuilder().build();
-        long userId1 = userStorage.add(user);
-        long userId2 = userStorage.add(user);
-        long userId3 = userStorage.add(user);
+        TestUserBuilder userBuilder1 = TestUserBuilder.defaultBuilder()
+                .withEmail("email1")
+                .withLogin("login1");
+        TestUserBuilder userBuilder2 = TestUserBuilder.defaultBuilder()
+                .withEmail("email2")
+                .withLogin("login2");
+        TestUserBuilder userBuilder3 = TestUserBuilder.defaultBuilder()
+                .withEmail("email3")
+                .withLogin("login3");
+        long userId1 = userStorage.add(userBuilder1.build());
+        long userId2 = userStorage.add(userBuilder2.build());
+        long userId3 = userStorage.add(userBuilder3.build());
         TestFilmBuilder filmBuilder1 = TestFilmBuilder.defaultBuilder().withName("name1");
         TestFilmBuilder filmBuilder2 = TestFilmBuilder.defaultBuilder().withName("name2");
         TestFilmBuilder filmBuilder3 = TestFilmBuilder.defaultBuilder().withName("name3");
@@ -105,9 +117,14 @@ public class LikesDbStorageTest {
 
     @Test
     public void removeLike() {
-        User user = TestUserBuilder.defaultBuilder().build();
-        long userId1 = userStorage.add(user);
-        long userId2 = userStorage.add(user);
+        TestUserBuilder userBuilder1 = TestUserBuilder.defaultBuilder()
+                .withEmail("email1")
+                .withLogin("login1");
+        TestUserBuilder userBuilder2 = TestUserBuilder.defaultBuilder()
+                .withEmail("email2")
+                .withLogin("login2");
+        long userId1 = userStorage.add(userBuilder1.build());
+        long userId2 = userStorage.add(userBuilder2.build());
         Film defaultFilm = TestFilmBuilder.defaultBuilder().build();
         long filmId1 = filmStorage.add(defaultFilm);
         filmStorage.add(defaultFilm);
@@ -121,9 +138,14 @@ public class LikesDbStorageTest {
 
     @Test
     public void removeLikeTwice() {
-        User user = TestUserBuilder.defaultBuilder().build();
-        long userId1 = userStorage.add(user);
-        long userId2 = userStorage.add(user);
+        TestUserBuilder userBuilder1 = TestUserBuilder.defaultBuilder()
+                .withEmail("email1")
+                .withLogin("login1");
+        TestUserBuilder userBuilder2 = TestUserBuilder.defaultBuilder()
+                .withEmail("email2")
+                .withLogin("login2");
+        long userId1 = userStorage.add(userBuilder1.build());
+        long userId2 = userStorage.add(userBuilder2.build());
         Film defaultFilm = TestFilmBuilder.defaultBuilder().build();
         long filmId1 = filmStorage.add(defaultFilm);
         filmStorage.add(defaultFilm);
