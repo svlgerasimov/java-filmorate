@@ -20,13 +20,13 @@ public class EventDbStorage implements EventStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void addEvent(long userId, EventType eventType, EventOperation operation, long entityId) {
+    public void add(long userId, EventType eventType, EventOperation operation, long entityId) {
         String sql = "INSERT INTO events (user_id, event_type, operation, entity_id) VALUES (?, ?, ?, ?);";
         jdbcTemplate.update(sql, userId, eventType.name(), operation.name(), entityId);
     }
 
     @Override
-    public Collection<Event> getAllEvents(long userId) {
+    public Collection<Event> getAll(long userId) {
         String sql = "SELECT event_id, timestamp, user_id, event_type, operation, entity_id " +
                 "FROM events " +
                 "WHERE user_id = ?;";

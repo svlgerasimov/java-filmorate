@@ -23,7 +23,7 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Collection<Film> getAllFilms() {
+    public Collection<Film> getAll() {
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
                 "m.id AS mpa_id, m.name AS mpa_name, " +
                 "COUNT(DISTINCT l.user_id) AS rate " +
@@ -115,7 +115,7 @@ public class FilmDbStorage implements FilmStorage {
 
 
     @Override
-    public long addFilm(Film film) {
+    public long add(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("film")
                 .usingGeneratedKeyColumns("id");
@@ -131,7 +131,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public boolean updateFilm(Film film) {
+    public boolean update(Film film) {
         String sql = "UPDATE film " +
                 "SET name=?, description=?, release_date=?, duration=?, mpa_id=? " +
                 "WHERE id=?;";
@@ -185,7 +185,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId, friendId);
     }
 
-        public void removeFilm ( long filmId){
+        public void remove(long filmId){
             String sql = "DELETE FROM film WHERE id = ?;";
             jdbcTemplate.update(sql, filmId);
         }

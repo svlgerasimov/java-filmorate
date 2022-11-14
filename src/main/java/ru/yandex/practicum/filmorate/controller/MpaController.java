@@ -19,14 +19,14 @@ public class MpaController {
     private final MpaStorage mpaStorage;
 
     @GetMapping("/{id}")
-    public Mpa getMpaById(@PathVariable long id) {
-        return mpaStorage.getMpaById(id)
+    public Mpa getById(@PathVariable long id) {
+        return mpaStorage.getById(id)
                 .orElseThrow(() ->
                         new NotFoundException(String.format("MPA rating with id=%s not found", id)));
     }
 
     @GetMapping
-    public Collection<Mpa> getAllMpa() {
-        return mpaStorage.getAllMpa();
+    public Collection<Mpa> getAll() {
+        return mpaStorage.getAll();
     }
 }

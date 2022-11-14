@@ -26,49 +26,49 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping
-    public Review addReview(@Valid @RequestBody Review review) {
-        return reviewService.addReview(review);
+    public Review add(@Valid @RequestBody Review review) {
+        return reviewService.add(review);
     }
 
     @PutMapping
-    public Review updateReview(@Valid @RequestBody Review review) {
-        return reviewService.updateReview(review);
+    public Review update(@Valid @RequestBody Review review) {
+        return reviewService.update(review);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteReview(@PathVariable long id) {
-        reviewService.removeReview(id);
+    public void delete(@PathVariable long id) {
+        reviewService.remove(id);
     }
 
     @GetMapping("/{id}")
-    public Review getReviewById(@PathVariable long id) {
-        return reviewService.getReviewById(id);
+    public Review getById(@PathVariable long id) {
+        return reviewService.getById(id);
     }
 
     @GetMapping
-    public List<Review> getAllReview( //  если фильм не указан то все. Если кол-во не указано то 10.
-                                      @RequestParam(required = false, defaultValue = "10") @Positive int count,
-                                      @RequestParam(required = false) @Positive Long filmId) {
-        return reviewService.getAllReview(filmId, count);
+    public List<Review> getAll( //  если фильм не указан то все. Если кол-во не указано то 10.
+                                @RequestParam(required = false, defaultValue = "10") @Positive int count,
+                                @RequestParam(required = false) @Positive Long filmId) {
+        return reviewService.getAll(filmId, count);
     }
 
     @PutMapping("/{id}/like/{userId}") // пользователь ставит лайк отзыву
-    public void addLikeReview(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
-        reviewService.addLikeReview(reviewId, userId);
+    public void addLike(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
+        reviewService.addLike(reviewId, userId);
     }
 
     @PutMapping("/{id}/dislike/{userId}") // пользователь ставит дизлайк отзыву
-    public void addDislikeReview(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
-        reviewService.addDislikeReview(reviewId, userId);
+    public void addDislike(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
+        reviewService.addDislike(reviewId, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public void deleteLikeReview(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
-        reviewService.deleteLikeReview(reviewId, userId);
+    public void deleteLike(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
+        reviewService.deleteLike(reviewId, userId);
     }
 
     @DeleteMapping("/{id}/dislike/{userId}") // пользователь ставит дизлайк отзыву
-    public void deleteDislikeReview(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
-        reviewService.deleteDislikeReview(reviewId, userId);
+    public void deleteDislike(@PathVariable(name = "id") long reviewId, @PathVariable long userId) {
+        reviewService.deleteDislike(reviewId, userId);
     }
 }

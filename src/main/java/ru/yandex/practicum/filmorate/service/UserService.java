@@ -23,23 +23,23 @@ public class UserService {
     private final FriendsStorage friendsStorage;
     private final EventService eventService;
 
-    public Collection<User> getAllUsers() {
-        return userStorage.getAllUsers();
+    public Collection<User> getAll() {
+        return userStorage.getUsers();
     }
 
-    public User addUser(User user) {
+    public User add(User user) {
         user = preprocess(user);
-        long id = userStorage.addUser(user);
+        long id = userStorage.add(user);
         user = userStorage.getById(id).orElseThrow(() ->
                 new DbCreateEntityFaultException(String.format("User (id=%s) hasn't been added to database", id)));
         log.debug("Added user {}", user);
         return user;
     }
 
-    public User updateUser(User user) {
+    public User update(User user) {
         checkUserExists(user.getId());
         user = preprocess(user);
-        userStorage.updateUser(user);
+        userStorage.update(user);
         long id = user.getId();
         user = userStorage.getById(id).orElseThrow(() ->
                 new DbCreateEntityFaultException(String.format("User (id=%s) hasn't been updated in database", id)));
@@ -55,7 +55,7 @@ public class UserService {
         return user;
     }
 
-    public User getUserById(long id) {
+    public User getById(long id) {
         checkUserExists(id);
         return userStorage.getById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("User id=%s not found", id)));
@@ -66,7 +66,7 @@ public class UserService {
         checkUserExists(friendId);
         friendsStorage.addFriend(userId, friendId);
         log.debug("Add friends id={} and id={}", userId, friendId);
-        eventService.addEvent(userId, EventType.FRIEND, EventOperation.ADD, friendId);
+        eventService.add(userId, EventType.FRIEND, EventOperation.ADD, friendId);
     }
 
     public void removeFromFriends(long userId, long friendId) {
@@ -74,7 +74,7 @@ public class UserService {
         checkUserExists(friendId);
         friendsStorage.removeFriend(userId, friendId);
         log.debug("Remove friends id={} and id={}", userId, friendId);
-        eventService.addEvent(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
+        eventService.add(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
     }
 
     public Collection<User> getFriends(long userId) {
@@ -88,9 +88,9 @@ public class UserService {
         return friendsStorage.getCommonFriends(userId, otherId);
     }
 
-    public void removeUser(long userId) {
+    public void remove(long userId) {
         checkUserExists(userId);
-        userStorage.removeUser(userId);
+        userStorage.remove(userId);
         log.debug("User id = {} removed", userId);
     }
 

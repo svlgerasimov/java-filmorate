@@ -7,10 +7,10 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface GenreStorage {
-    Collection<Genre> getAllGenres();
+    Collection<Genre> getAll();
 
-    Optional<Genre> getGenreById(long id);
+    Optional<Genre> getById(long id);
 
-    Map<Integer, Genre> getGenresByIds(Collection<Integer> genreIds);
+    Map<Integer, Genre> getByIds(Collection<Integer> genreIds);
 }
 

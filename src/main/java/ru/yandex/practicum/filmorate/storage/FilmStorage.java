@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FilmStorage {
-    Collection<Film> getAllFilms();
+    Collection<Film> getAll();
 
     Collection<Film> getMostPopularFilms(int count, Long genreId, Integer year);
 
@@ -19,13 +19,13 @@ public interface FilmStorage {
 
     Collection<Film> searchByDirector(String substring);
 
-    long addFilm(Film film);
+    long add(Film film);
 
-    boolean updateFilm(Film film);
+    boolean update(Film film);
 
     List<Film> getFilmsByDirectorId(long directorId);
 
     Collection<Film> getCommonFilms(long userId, long friendId);
 
-    void removeFilm(long filmId);
+    void remove(long filmId);
 }

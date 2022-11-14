@@ -20,13 +20,13 @@ public class MpaDbStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Collection<Mpa> getAllMpa() {
+    public Collection<Mpa> getAll() {
         String sql = "SELECT id, name FROM mpa;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs));
     }
 
     @Override
-    public Optional<Mpa> getMpaById(long id) {
+    public Optional<Mpa> getById(long id) {
         String sql = "SELECT id, name FROM mpa WHERE id=?;";
         List<Mpa> mpas = jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs), id);
         return mpas.isEmpty() ? Optional.empty() : Optional.of(mpas.get(0));

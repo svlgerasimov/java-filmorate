@@ -25,7 +25,7 @@ public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Collection<User> getAllUsers() {
+    public Collection<User> getUsers() {
         String sql = "SELECT id, email, login, name, birthday FROM users;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs));
     }
@@ -38,7 +38,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public long addUser(User user) {
+    public long add(User user) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
                 .usingGeneratedKeyColumns("id");
@@ -52,14 +52,14 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public boolean updateUser(User user) {
+    public boolean update(User user) {
         String sql = "UPDATE users SET email=?, login=?, name=?, birthday=? WHERE id=?;";
         return jdbcTemplate.update(sql,
                 user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId()) > 0;
     }
 
     @Override
-    public void removeUser(long userId) {
+    public void remove(long userId) {
         String sql = "DELETE FROM users WHERE id = ?;";
         jdbcTemplate.update(sql, userId);
     }

@@ -20,79 +20,79 @@ public class ReviewService {
     private final UserStorage userStorage;
     private final EventService eventService;
 
-    public Review addReview(Review review) {
+    public Review add(Review review) {
         checkUserExists(review.getUserId());
         checkFilmExists(review.getFilmId());
 
-        long id = reviewStorage.addReview(review);
-        review = reviewStorage.getReviewById(id).orElseThrow(() ->
+        long id = reviewStorage.add(review);
+        review = reviewStorage.getById(id).orElseThrow(() ->
                 new DbCreateEntityFaultException(String.format("Review (id=%s) hasn't been added to database", id)));
         log.debug("Add review: {}", review);
-        eventService.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.ADD, review.getReviewId());
+        eventService.add(review.getUserId(), EventType.REVIEW, EventOperation.ADD, review.getReviewId());
         return review;
     }
 
-    public Review updateReview(Review review) {
+    public Review update(Review review) {
         long id = review.getReviewId();
-        reviewStorage.updateReview(review);
-        review = reviewStorage.getReviewById(id).orElseThrow(() ->
+        reviewStorage.update(review);
+        review = reviewStorage.getById(id).orElseThrow(() ->
                 new DbCreateEntityFaultException(String.format("Review (id=%s) hasn't been updated in database", id)));
         log.debug("Update review {}", review);
-        eventService.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.UPDATE, review.getReviewId());
+        eventService.add(review.getUserId(), EventType.REVIEW, EventOperation.UPDATE, review.getReviewId());
         return review;
     }
 
-    public void removeReview(long id) {
-        Review review = reviewStorage.getReviewById(id)
+    public void remove(long id) {
+        Review review = reviewStorage.getById(id)
                 .orElseThrow(() ->
                         new NotFoundException(String.format("Review id=%s not found", id)));
-        reviewStorage.removeReview(id);
+        reviewStorage.remove(id);
         log.debug("Remove Review by id={}", id);
-        eventService.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.REMOVE, id);
+        eventService.add(review.getUserId(), EventType.REVIEW, EventOperation.REMOVE, id);
     }
 
-    public Review getReviewById(long id) {
-        return reviewStorage.getReviewById(id)
+    public Review getById(long id) {
+        return reviewStorage.getById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Review id=%s not found", id)));
     }
 
-    public List<Review> getAllReview(Long filmId, int count) {
+    public List<Review> getAll(Long filmId, int count) {
         if (filmId != null) {
             checkFilmExists(filmId);
         }
-        return reviewStorage.getAllReview(filmId, count);
+        return reviewStorage.getAll(filmId, count);
     }
 
 
-    public void addLikeReview(long reviewId, long userId) {
+    public void addLike(long reviewId, long userId) {
         checkReviewExists(reviewId);
         checkUserExists(userId);
         log.debug("Add Like to Review id={} by user id={}", reviewId, userId);
-        reviewStorage.addLikeReview(reviewId, userId);
+        reviewStorage.addLike(reviewId, userId);
     }
 
 
-    public void addDislikeReview(long reviewId, long userId) {
+    public void addDislike(long reviewId, long userId) {
         checkReviewExists(reviewId);
         checkUserExists(userId);
         log.debug("Add Dislike to Review id={} by user id={}", reviewId, userId);
-        reviewStorage.addDislikeReview(reviewId, userId);
+        reviewStorage.addDislike(reviewId, userId);
     }
 
 
-    public void deleteLikeReview(long reviewId, long userId) {
+    public void deleteLike(long reviewId, long userId) {
         checkReviewExists(reviewId);
         checkUserExists(userId);
         log.debug("Delete Like to Review id={} by user id={}", reviewId, userId);
-        reviewStorage.deleteLikeReview(reviewId, userId);
+        reviewStorage.deleteLike(reviewId, userId);
     }
 
 
-    public void deleteDislikeReview(long reviewId, long userId) {
+    public void deleteDislike(long reviewId, long userId) {
         checkReviewExists(reviewId);
         checkUserExists(userId);
         log.debug("Delete Dislike to Review id={} by user id={}", reviewId, userId);
-        reviewStorage.deleteDislikeReview(reviewId, userId);
+        reviewStorage.deleteDislike(reviewId, userId);
     }
 
     private void checkUserExists(long id) {
@@ -108,7 +108,7 @@ public class ReviewService {
     }
 
     private void checkReviewExists(long id) {
-        reviewStorage.getReviewById(id)
+        reviewStorage.getById(id)
                 .orElseThrow(() ->
                         new NotFoundException(String.format("Review id=%s not found", id)));
     }

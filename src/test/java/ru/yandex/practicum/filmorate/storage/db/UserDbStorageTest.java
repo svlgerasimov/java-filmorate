@@ -37,13 +37,13 @@ public class UserDbStorageTest {
 
     @Test
     public void getAllUsersWithNoUsersPresent() {
-        Collection<User> users = userStorage.getAllUsers();
+        Collection<User> users = userStorage.getUsers();
         assertThat(users).isEmpty();
     }
 
     @Test
     public void getUserByIncorrectId() {
-        long id = userStorage.addUser(TestUserBuilder.defaultBuilder().build());
+        long id = userStorage.add(TestUserBuilder.defaultBuilder().build());
         Optional<User> userOptional = userStorage.getById(id + 1);
         assertThat(userOptional).isEmpty();
     }
@@ -51,7 +51,7 @@ public class UserDbStorageTest {
     @Test
     public void addAndGetValidUser() {
         User user = TestUserBuilder.defaultBuilder().build();
-        long id = userStorage.addUser(user);
+        long id = userStorage.add(user);
 
         User userExpected = user.withId(id);
         Optional<User> userOptional = userStorage.getById(id);
@@ -59,7 +59,7 @@ public class UserDbStorageTest {
                 .isPresent()
                 .hasValue(userExpected);
 
-        Collection<User> users = userStorage.getAllUsers();
+        Collection<User> users = userStorage.getUsers();
         assertThat(users)
                 .isNotEmpty()
                 .hasSize(1)
@@ -69,36 +69,36 @@ public class UserDbStorageTest {
     @Test
     public void addUserWithNullEmailAndThenThrowException() {
         User user = TestUserBuilder.defaultBuilder().withEmail(null).build();
-        assertThatThrownBy(() -> userStorage.addUser(user))
+        assertThatThrownBy(() -> userStorage.add(user))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
     public void addUserWithNullLoginAndThenThrowException() {
         User user = TestUserBuilder.defaultBuilder().withLogin(null).build();
-        assertThatThrownBy(() -> userStorage.addUser(user))
+        assertThatThrownBy(() -> userStorage.add(user))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
     public void addUserWithNullNameAndThenThrowException() {
         User user = TestUserBuilder.defaultBuilder().withName(null).build();
-        assertThatThrownBy(() -> userStorage.addUser(user))
+        assertThatThrownBy(() -> userStorage.add(user))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
     public void updateUserWithCorrectId() {
         User user1 = userBuilder1.build();
-        long id1 = userStorage.addUser(user1);
+        long id1 = userStorage.add(user1);
         User user2 = userBuilder2.build();
-        user2 = user2.withId(userStorage.addUser(user2));
+        user2 = user2.withId(userStorage.add(user2));
         User user3 = userBuilder3.withId(id1).build();
-        assertThat(userStorage.updateUser(user3)).isEqualTo(true);
+        assertThat(userStorage.update(user3)).isEqualTo(true);
         assertThat(userStorage.getById(id1))
                 .isPresent()
                 .hasValue(user3);
-        assertThat(userStorage.getAllUsers())
+        assertThat(userStorage.getUsers())
                 .isNotEmpty()
                 .hasSize(2)
                 .containsAll(List.of(user3, user2));
@@ -107,11 +107,11 @@ public class UserDbStorageTest {
     @Test
     public void updateUserWithAbsentId() {
         User user = userBuilder1.build();
-        long id = userStorage.addUser(user);
+        long id = userStorage.add(user);
         user = user.withId(id);
         User updatedUser = userBuilder2.withId(id + 1).build();
-        assertThat(userStorage.updateUser(updatedUser)).isEqualTo(false);
-        assertThat(userStorage.getAllUsers())
+        assertThat(userStorage.update(updatedUser)).isEqualTo(false);
+        assertThat(userStorage.getUsers())
                 .hasSize(1)
                 .contains(user);
     }

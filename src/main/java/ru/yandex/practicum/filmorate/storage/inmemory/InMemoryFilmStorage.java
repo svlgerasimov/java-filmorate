@@ -17,7 +17,7 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     private final IdGenerator idGenerator;
 
     @Override
-    public Collection<Film> getAllFilms() {
+    public Collection<Film> getAll() {
         return films.values();
     }
 
@@ -38,7 +38,7 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
 
 
     @Override
-    public long addFilm(Film film) {
+    public long add(Film film) {
         long id = idGenerator.getNextId();
         film = film.withId(id);
         films.put(id, film);
@@ -46,7 +46,7 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     }
 
     @Override
-    public boolean updateFilm(Film film) {
+    public boolean update(Film film) {
         long id = film.getId();
         if (!films.containsKey(id)) {
             return false;
@@ -96,7 +96,7 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     @Override
     public Collection<Film> getMostPopularFilms(int count, Long genreId, Integer year) {
         Comparator<Film> comparator = Comparator.comparingInt(film -> getLikesCount(film.getId()));
-        return getAllFilms().stream()
+        return getAll().stream()
                 .sorted(comparator.reversed())
                 .limit(count)
                 .collect(Collectors.toList());
@@ -113,7 +113,7 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     }
 
     @Override
-    public void removeFilm(long filmId) {
+    public void remove(long filmId) {
 
     }
 }

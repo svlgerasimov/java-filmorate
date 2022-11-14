@@ -28,16 +28,16 @@ public class FilmService {
     private final DirectorService directorService;
 
 
-    public Collection<Film> getAllFilms() {
+    public Collection<Film> getAll() {
         Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
         Map<Long, List<Director>> directors = filmDirectorsStorage.getAllFilmDirectors();
-        return addFieldsToFilms(filmStorage.getAllFilms(), genres, directors);
+        return addFieldsToFilms(filmStorage.getAll(), genres, directors);
     }
 
-    public Film addFilm(Film film) {
+    public Film add(Film film) {
         checkMpaExists(film);
         checkGenresExist(film);
-        long id = filmStorage.addFilm(film);
+        long id = filmStorage.add(film);
         filmGenreStorage.addFilmGenres(id, film.getGenres());
         filmDirectorsStorage.saveFilmDirectors(id, film.getDirectors());
         film = filmStorage.getById(id).orElseThrow(() ->
@@ -49,12 +49,12 @@ public class FilmService {
         return film;
     }
 
-    public Film updateFilm(Film film) {
+    public Film update(Film film) {
         checkMpaExists(film);
         checkGenresExist(film);
         long id = film.getId();
         checkFilmExists(id);
-        filmStorage.updateFilm(film);
+        filmStorage.update(film);
         filmGenreStorage.deleteFilmGenres(id);
         filmGenreStorage.addFilmGenres(id, film.getGenres());
         filmDirectorsStorage.deleteFilmDirectors(id);
@@ -68,7 +68,7 @@ public class FilmService {
         return film;
     }
 
-    public Film getFilmById(long id) {
+    public Film getById(long id) {
         return filmStorage.getById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Film id=%s not found", id)))
                 .withGenres(filmGenreStorage.getGenresByFilmId(id))
@@ -80,7 +80,7 @@ public class FilmService {
         checkUserExists(userId);
         likesStorage.addLike(filmId, userId);
         log.debug("Add like to film id={} by user id={}", filmId, userId);
-        eventService.addEvent(userId, EventType.LIKE, EventOperation.ADD, filmId);
+        eventService.add(userId, EventType.LIKE, EventOperation.ADD, filmId);
     }
 
     public void removeLike(long filmId, long userId) {
@@ -88,7 +88,7 @@ public class FilmService {
         checkUserExists(userId);
         likesStorage.removeLike(filmId, userId);
         log.debug("Remove like from film id={} by user id={}", filmId, userId);
-        eventService.addEvent(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
+        eventService.add(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
     }
 
     public Collection<Film> getMostPopularFilms(Integer count, Long genreId, Integer year) {
@@ -125,13 +125,13 @@ public class FilmService {
         return addFieldsToFilms(films);
     }
 
-    public void removeFilm(long filmId) {
+    public void remove(long filmId) {
         checkFilmExists(filmId);
-        filmStorage.removeFilm(filmId);
+        filmStorage.remove(filmId);
         log.debug("Film id = {} removed", filmId);
     }
 
-    public Collection<Film> searchFilms(String query, boolean searchByName, boolean searchByDirector) {
+    public Collection<Film> search(String query, boolean searchByName, boolean searchByDirector) {
         List<Film> films = new ArrayList<>();
         if (searchByName) {
             films.addAll(filmStorage.searchByName(query));
@@ -161,7 +161,7 @@ public class FilmService {
         Mpa mpa = film.getMpa();
         if (Objects.nonNull(mpa)) {
             int id = mpa.getId();
-            mpaStorage.getMpaById(id)
+            mpaStorage.getById(id)
                     .orElseThrow(() ->
                             new NotFoundException(String.format("Mpa rating with id=%s not found", id)));
         }
@@ -174,7 +174,7 @@ public class FilmService {
         List<Integer> genreIds = film.getGenres().stream()
                 .map(Genre::getId)
                 .collect(Collectors.toList());
-        Map<Integer, Genre> genres = genreStorage.getGenresByIds(genreIds);
+        Map<Integer, Genre> genres = genreStorage.getByIds(genreIds);
         for (Integer id : genreIds) {
             if (Objects.isNull(genres.get(id))) {
                 throw new NotFoundException(String.format("Genre with id=%s not found", id));

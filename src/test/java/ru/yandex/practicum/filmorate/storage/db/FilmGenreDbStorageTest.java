@@ -29,7 +29,7 @@ public class FilmGenreDbStorageTest {
 
     @Test
     public void addFilmGenresAndThenGetById() {
-        long filmId = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
+        long filmId = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
         filmGenreStorage.addFilmGenres(filmId, List.of(genre1, genre2));
 
         assertThat(filmGenreStorage.getGenresByFilmId(filmId))
@@ -39,7 +39,7 @@ public class FilmGenreDbStorageTest {
 
     @Test
     public void addFilmGenresTwice() {
-        long filmId = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
+        long filmId = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
         filmGenreStorage.addFilmGenres(filmId, List.of(genre1, genre2));
         filmGenreStorage.addFilmGenres(filmId, List.of(genre1));
 
@@ -50,8 +50,8 @@ public class FilmGenreDbStorageTest {
 
     @Test
     public void getAllFilmGenres() {
-        long filmId1 = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
-        long filmId2 = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
+        long filmId1 = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
+        long filmId2 = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
         filmGenreStorage.addFilmGenres(filmId1, List.of(genre1, genre2));
         filmGenreStorage.addFilmGenres(filmId2, List.of(genre2, genre3));
 
@@ -64,9 +64,9 @@ public class FilmGenreDbStorageTest {
 
     @Test
     public void getGenresByFilmIds() {
-        long filmId1 = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
-        long filmId2 = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
-        long filmId3 = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
+        long filmId1 = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
+        long filmId2 = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
+        long filmId3 = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
         filmGenreStorage.addFilmGenres(filmId1, List.of(genre1, genre2));
         filmGenreStorage.addFilmGenres(filmId2, List.of(genre2, genre3));
         filmGenreStorage.addFilmGenres(filmId3, List.of(genre3, genre1));
@@ -80,7 +80,7 @@ public class FilmGenreDbStorageTest {
 
     @Test
     public void getGenresOfFilmWithoutGenres() {
-        long filmId = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
+        long filmId = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
         assertThat(filmGenreStorage.getGenresByFilmId(filmId))
                 .isNotNull()
                 .isEmpty();
@@ -88,13 +88,13 @@ public class FilmGenreDbStorageTest {
 
     @Test
     public void addFilmGenreWithIdOnlyAndThenGetWithAllGenreFields() {
-        long filmId1 = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
+        long filmId1 = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
         filmGenreStorage.addFilmGenres(filmId1, List.of(new Genre(genre1.getId(), null)));
         assertThat(filmGenreStorage.getGenresByFilmId(filmId1))
                 .isNotEmpty()
                 .containsOnly(genre1);
 
-        long filmId2 = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
+        long filmId2 = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
         filmGenreStorage.addFilmGenres(filmId2, List.of(new Genre(genre2.getId(), "")));
         assertThat(filmGenreStorage.getGenresByFilmId(filmId2))
                 .isNotEmpty()
@@ -117,15 +117,15 @@ public class FilmGenreDbStorageTest {
 
     @Test
     public void addAbsentGenreToFilmAndThenThrowException() {
-        long filmId = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
+        long filmId = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
         assertThatThrownBy(() -> filmGenreStorage.addFilmGenres(filmId, List.of(new Genre(-1, ""))))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
     public void deleteFromFilmGenres() {
-        long filmId1 = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
-        long filmId2 = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
+        long filmId1 = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
+        long filmId2 = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
         filmGenreStorage.addFilmGenres(filmId1, List.of(genre1));
         filmGenreStorage.addFilmGenres(filmId2, List.of(genre1));
         filmGenreStorage.deleteFilmGenres(filmId1);

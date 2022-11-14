@@ -6,21 +6,21 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReviewStorage {
-    long addReview(Review review);
+    long add(Review review);
 
-    boolean updateReview(Review review);
+    boolean update(Review review);
 
-    boolean removeReview(long id);
+    boolean remove(long id);
 
-    Optional<Review> getReviewById(long id);
+    Optional<Review> getById(long id);
 
-    List<Review> getAllReview(Long filmId, int count);
+    List<Review> getAll(Long filmId, int count);
 
-    boolean addLikeReview(long reviewId, long userId);
+    boolean addLike(long reviewId, long userId);
 
-    boolean addDislikeReview(long reviewId, long userId);
+    boolean addDislike(long reviewId, long userId);
 
-    boolean deleteLikeReview(long reviewId, long userId);
+    boolean deleteLike(long reviewId, long userId);
 
-    boolean deleteDislikeReview(long reviewId, long userId);
+    boolean deleteDislike(long reviewId, long userId);
 }

@@ -21,7 +21,7 @@ public class ReviewsDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public long addReview(Review review) {
+    public long add(Review review) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("reviews")
                 .usingGeneratedKeyColumns("id");
@@ -34,7 +34,7 @@ public class ReviewsDbStorage implements ReviewStorage {
     }
 
     @Override
-    public boolean updateReview(Review review) {
+    public boolean update(Review review) {
         String sql = "UPDATE reviews " +
                 "SET content=?, ispositive=?  WHERE id = ?;";
         return jdbcTemplate.update(sql,
@@ -44,14 +44,14 @@ public class ReviewsDbStorage implements ReviewStorage {
     }
 
     @Override
-    public boolean removeReview(long id) {
+    public boolean remove(long id) {
         String sql = "DELETE FROM reviews WHERE id=?;";
         return jdbcTemplate.update(sql, id) > 0;
 
     }
 
     @Override
-    public Optional<Review> getReviewById(long id) {
+    public Optional<Review> getById(long id) {
         String sql = "SELECT r.id, r.content, r.ispositive, r.user_id, r.film_id, " +
                 "COUNT(lr.user_id) - COUNT(dr.user_id) AS useful " +
                 "FROM reviews r " +
@@ -64,7 +64,7 @@ public class ReviewsDbStorage implements ReviewStorage {
     }
 
     @Override
-    public List<Review> getAllReview(Long filmId, int count) { //  если фильм не указан то все. Если кол-во не указано то 10.
+    public List<Review> getAll(Long filmId, int count) { //  если фильм не указан то все. Если кол-во не указано то 10.
         String where = "";
         if (filmId != null) {
             where = "WHERE r.film_id =" + filmId;
@@ -80,25 +80,25 @@ public class ReviewsDbStorage implements ReviewStorage {
     }
 
     @Override
-    public boolean addLikeReview(long reviewId, long userId) {
+    public boolean addLike(long reviewId, long userId) {
         String sql = "MERGE INTO like_review (user_id, review_id) VALUES (?, ?);";
         return jdbcTemplate.update(sql, userId, reviewId) > 0;
     }
 
     @Override
-    public boolean addDislikeReview(long reviewId, long userId) {
+    public boolean addDislike(long reviewId, long userId) {
         String sql = "MERGE INTO dislike_review (user_id, review_id) VALUES (?, ?);";
         return jdbcTemplate.update(sql, userId, reviewId) > 0;
     }
 
     @Override
-    public boolean deleteLikeReview(long reviewId, long userId) {
+    public boolean deleteLike(long reviewId, long userId) {
         String sql = "DELETE FROM like_review WHERE user_id=? AND review_id=?;";
         return jdbcTemplate.update(sql, userId, reviewId) > 0;
     }
 
     @Override
-    public boolean deleteDislikeReview(long reviewId, long userId) {
+    public boolean deleteDislike(long reviewId, long userId) {
         String sql = "DELETE FROM dislike_review WHERE user_id=? AND review_id=?;";
         return jdbcTemplate.update(sql, userId, reviewId) > 0;
     }

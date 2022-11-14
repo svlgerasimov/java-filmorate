@@ -25,23 +25,23 @@ public class UserController {
     private final RecommendationsService recommendationsService;
 
     @GetMapping
-    public Collection<User> getAllUsers() {
-        return userService.getAllUsers();
+    public Collection<User> getAll() {
+        return userService.getAll();
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable long id) {
-        return userService.getUserById(id);
+    public User getById(@PathVariable long id) {
+        return userService.getById(id);
     }
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User user) {
-        return userService.addUser(user);
+    public User add(@Valid @RequestBody User user) {
+        return userService.add(user);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
-        return userService.updateUser(user);
+    public User update(@Valid @RequestBody User user) {
+        return userService.update(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -70,12 +70,12 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public void removeFilm(@PathVariable long userId) {
-        userService.removeUser(userId);
+    public void remove(@PathVariable long userId) {
+        userService.remove(userId);
     }
 
     @GetMapping("/{id}/feed")
     public Collection<Event> getEvents(@PathVariable long id) {
-        return eventService.getAllEvents(id);
+        return eventService.getAll(id);
     }
 }

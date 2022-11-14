@@ -19,14 +19,14 @@ public class GenreController {
     private final GenreStorage genreStorage;
 
     @GetMapping("/{id}")
-    public Genre getGenreById(@PathVariable long id) {
-        return genreStorage.getGenreById(id)
+    public Genre getById(@PathVariable long id) {
+        return genreStorage.getById(id)
                 .orElseThrow(() ->
                         new NotFoundException(String.format("Genre with id=%s not found", id)));
     }
 
     @GetMapping
-    public Collection<Genre> getAllMpa() {
-        return genreStorage.getAllGenres();
+    public Collection<Genre> getAll() {
+        return genreStorage.getAll();
     }
 }

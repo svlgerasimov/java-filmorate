@@ -25,7 +25,7 @@ public class InMemoryUserStorage implements UserStorage, FriendsStorage {
     private final IdGenerator idGenerator;
 
     @Override
-    public Collection<User> getAllUsers() {
+    public Collection<User> getUsers() {
         return users.values();
     }
 
@@ -35,7 +35,7 @@ public class InMemoryUserStorage implements UserStorage, FriendsStorage {
     }
 
     @Override
-    public long addUser(User user) {
+    public long add(User user) {
         long id = idGenerator.getNextId();
         user = user.withId(id);
         users.put(id, user);
@@ -43,7 +43,7 @@ public class InMemoryUserStorage implements UserStorage, FriendsStorage {
     }
 
     @Override
-    public boolean updateUser(User user) {
+    public boolean update(User user) {
         if (!users.containsKey(user.getId())) {
             return false;
         }
@@ -96,7 +96,7 @@ public class InMemoryUserStorage implements UserStorage, FriendsStorage {
     }
 
     @Override
-    public void removeUser(long userId) {
+    public void remove(long userId) {
 
     }
 }

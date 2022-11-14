@@ -28,23 +28,23 @@ public class FilmController {
     private final FilmService filmService;
 
     @GetMapping
-    public Collection<Film> getAllFilms() {
-        return filmService.getAllFilms();
+    public Collection<Film> getAll() {
+        return filmService.getAll();
     }
 
     @GetMapping("/{id}")
-    public Film getFilmById(@PathVariable long id) {
-        return filmService.getFilmById(id);
+    public Film getById(@PathVariable long id) {
+        return filmService.getById(id);
     }
 
     @PostMapping
-    public Film addFilm(@Valid @RequestBody Film film) {
-        return filmService.addFilm(film);
+    public Film add(@Valid @RequestBody Film film) {
+        return filmService.add(film);
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
-        return filmService.updateFilm(film);
+    public Film update(@Valid @RequestBody Film film) {
+        return filmService.update(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -66,8 +66,8 @@ public class FilmController {
     }
 
     @DeleteMapping("/{filmId}")
-    public void removeFilm(@PathVariable long filmId) {
-        filmService.removeFilm(filmId);
+    public void remove(@PathVariable long filmId) {
+        filmService.remove(filmId);
     }
 
     @GetMapping("/common")
@@ -82,7 +82,7 @@ public class FilmController {
     }
 
     @GetMapping("/search")
-    public Collection<Film> searchFilms(@RequestParam String query, @RequestParam List<String> by) {
-        return filmService.searchFilms(query, by.contains("title"), by.contains("director"));
+    public Collection<Film> search(@RequestParam String query, @RequestParam List<String> by) {
+        return filmService.search(query, by.contains("title"), by.contains("director"));
     }
 }

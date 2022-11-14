@@ -23,20 +23,20 @@ public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Collection<Genre> getAllGenres() {
+    public Collection<Genre> getAll() {
         String sql = "SELECT id, name FROM genre;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs));
     }
 
     @Override
-    public Optional<Genre> getGenreById(long id) {
+    public Optional<Genre> getById(long id) {
         String sql = "SELECT id, name FROM genre WHERE id=?;";
         List<Genre> genres = jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), id);
         return genres.isEmpty() ? Optional.empty() : Optional.of(genres.get(0));
     }
 
     @Override
-    public Map<Integer, Genre> getGenresByIds(Collection<Integer> genreIds) {
+    public Map<Integer, Genre> getByIds(Collection<Integer> genreIds) {
         String sql = "SELECT id, name FROM genre WHERE id IN (" +
                 genreIds.stream().map(String::valueOf).collect(Collectors.joining(", ")) + ");";
         Map<Integer, Genre> genres = new HashMap<>();

@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public interface EventStorage {
 
-    void addEvent(long userId, EventType eventType, EventOperation operation, long entityId);
+    void add(long userId, EventType eventType, EventOperation operation, long entityId);
 
-    Collection<Event> getAllEvents(long userId);
+    Collection<Event> getAll(long userId);
 }
