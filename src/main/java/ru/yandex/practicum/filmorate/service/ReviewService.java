@@ -65,7 +65,7 @@ public class ReviewService {
 
 
     public void addLikeReview(long reviewId, long userId) {
-        checkRevievExists(reviewId);
+        checkReviewExists(reviewId);
         checkUserExists(userId);
         log.debug("Add Like to Review id={} by user id={}", reviewId, userId);
         reviewStorage.addLikeReview(reviewId, userId);
@@ -73,7 +73,7 @@ public class ReviewService {
 
 
     public void addDislikeReview(long reviewId, long userId) {
-        checkRevievExists(reviewId);
+        checkReviewExists(reviewId);
         checkUserExists(userId);
         log.debug("Add Dislike to Review id={} by user id={}", reviewId, userId);
         reviewStorage.addDislikeReview(reviewId, userId);
@@ -81,7 +81,7 @@ public class ReviewService {
 
 
     public void deleteLikeReview(long reviewId, long userId) {
-        checkRevievExists(reviewId);
+        checkReviewExists(reviewId);
         checkUserExists(userId);
         log.debug("Delete Like to Review id={} by user id={}", reviewId, userId);
         reviewStorage.deleteLikeReview(reviewId, userId);
@@ -89,7 +89,7 @@ public class ReviewService {
 
 
     public void deleteDislikeReview(long reviewId, long userId) {
-        checkRevievExists(reviewId);
+        checkReviewExists(reviewId);
         checkUserExists(userId);
         log.debug("Delete Dislike to Review id={} by user id={}", reviewId, userId);
         reviewStorage.deleteDislikeReview(reviewId, userId);
@@ -107,9 +107,9 @@ public class ReviewService {
                         new NotFoundException(String.format("Film id=%s not found", id)));
     }
 
-    private void checkRevievExists(long id) {
+    private void checkReviewExists(long id) {
         reviewStorage.getReviewById(id)
                 .orElseThrow(() ->
-                        new NotFoundException(String.format("Reviev id=%s not found", id)));
+                        new NotFoundException(String.format("Review id=%s not found", id)));
     }
 }

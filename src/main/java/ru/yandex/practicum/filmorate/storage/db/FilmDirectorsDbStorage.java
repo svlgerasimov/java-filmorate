@@ -47,9 +47,7 @@ public class FilmDirectorsDbStorage implements FilmDirectorsStorage {
     @Override
     public void deleteFilmDirectors(long filmId) {
         List<Director> directors = getDirectorsByFilmId(filmId);
-        if (Objects.isNull(directors) || directors.size() < 1) {
-            return;
-        } else {
+        if (Objects.nonNull(directors) && directors.size() >= 1) {
             String sql = "DELETE FROM film_directors WHERE film_id=?;";
             jdbcTemplate.update(sql, filmId);
         }
