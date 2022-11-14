@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.storage.GenreStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,7 @@ public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Collection<Genre> getAll() {
+    public List<Genre> getAll() {
         String sql = "SELECT id, name FROM genre;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs));
     }
@@ -36,7 +35,7 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public Map<Integer, Genre> getByIds(Collection<Integer> genreIds) {
+    public Map<Integer, Genre> getByIds(List<Integer> genreIds) {
         String sql = "SELECT id, name FROM genre WHERE id IN (" +
                 genreIds.stream().map(String::valueOf).collect(Collectors.joining(", ")) + ");";
         Map<Integer, Genre> genres = new HashMap<>();

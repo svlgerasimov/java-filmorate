@@ -11,7 +11,7 @@ import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.*;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -23,7 +23,7 @@ public class UserService {
     private final FriendsStorage friendsStorage;
     private final EventService eventService;
 
-    public Collection<User> getAll() {
+    public List<User> getAll() {
         return userStorage.getUsers();
     }
 
@@ -77,12 +77,12 @@ public class UserService {
         eventService.add(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
     }
 
-    public Collection<User> getFriends(long userId) {
+    public List<User> getFriends(long userId) {
         checkUserExists(userId);
         return friendsStorage.getFriends(userId);
     }
 
-    public Collection<User> getCommonFriends(long userId, long otherId) {
+    public List<User> getCommonFriends(long userId, long otherId) {
         checkUserExists(userId);
         checkUserExists(otherId);
         return friendsStorage.getCommonFriends(userId, otherId);

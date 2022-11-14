@@ -17,7 +17,6 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -28,7 +27,7 @@ public class FilmController {
     private final FilmService filmService;
 
     @GetMapping
-    public Collection<Film> getAll() {
+    public List<Film> getAll() {
         return filmService.getAll();
     }
 
@@ -58,7 +57,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getMostPopularFilms(
+    public List<Film> getMostPopularFilms(
             @RequestParam(required = false, defaultValue = "10") @Positive int count,
             @RequestParam(required = false) Long genreId,
             @RequestParam(required = false) Integer year) {
@@ -71,7 +70,7 @@ public class FilmController {
     }
 
     @GetMapping("/common")
-    public Collection<Film> getCommonFilms(@RequestParam(name = "userId") long userId,
+    public List<Film> getCommonFilms(@RequestParam(name = "userId") long userId,
                                            @RequestParam(name = "friendId") long friendId) {
         return filmService.getCommonFilms(userId, friendId);
     }
@@ -82,7 +81,7 @@ public class FilmController {
     }
 
     @GetMapping("/search")
-    public Collection<Film> search(@RequestParam String query, @RequestParam List<String> by) {
+    public List<Film> search(@RequestParam String query, @RequestParam List<String> by) {
         return filmService.search(query, by.contains("title"), by.contains("director"));
     }
 }

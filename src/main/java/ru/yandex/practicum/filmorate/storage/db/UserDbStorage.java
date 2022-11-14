@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,7 +24,7 @@ public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Collection<User> getUsers() {
+    public List<User> getUsers() {
         String sql = "SELECT id, email, login, name, birthday FROM users;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs));
     }

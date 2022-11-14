@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -25,7 +25,7 @@ public class UserController {
     private final RecommendationsService recommendationsService;
 
     @GetMapping
-    public Collection<User> getAll() {
+    public List<User> getAll() {
         return userService.getAll();
     }
 
@@ -55,17 +55,17 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public Collection<User> getFriends(@PathVariable long id) {
+    public List<User> getFriends(@PathVariable long id) {
         return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
+    public List<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
         return userService.getCommonFriends(id, otherId);
     }
 
     @GetMapping("/{id}/recommendations")
-    public Collection<Film> getRecommendations(@PathVariable(name = "id") long userId) {
+    public List<Film> getRecommendations(@PathVariable(name = "id") long userId) {
         return recommendationsService.formRecommendations(userId);
     }
 
@@ -75,7 +75,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/feed")
-    public Collection<Event> getEvents(@PathVariable long id) {
+    public List<Event> getEvents(@PathVariable long id) {
         return eventService.getAll(id);
     }
 }

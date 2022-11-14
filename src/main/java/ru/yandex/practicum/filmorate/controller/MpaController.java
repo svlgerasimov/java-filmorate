@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
-import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/mpa")
@@ -26,7 +26,7 @@ public class MpaController {
     }
 
     @GetMapping
-    public Collection<Mpa> getAll() {
+    public List<Mpa> getAll() {
         return mpaStorage.getAll();
     }
 }

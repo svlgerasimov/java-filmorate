@@ -6,14 +6,7 @@ import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.util.IdGenerator;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -25,8 +18,8 @@ public class InMemoryUserStorage implements UserStorage, FriendsStorage {
     private final IdGenerator idGenerator;
 
     @Override
-    public Collection<User> getUsers() {
-        return users.values();
+    public List<User> getUsers() {
+        return new ArrayList<>(users.values());
     }
 
     @Override
@@ -75,7 +68,7 @@ public class InMemoryUserStorage implements UserStorage, FriendsStorage {
     }
 
     @Override
-    public Collection<User> getFriends(long userId) {
+    public List<User> getFriends(long userId) {
         Set<Long> userFriends = friends.get(userId);
         return Objects.isNull(userFriends) ? List.of() :
                 userFriends.stream()
@@ -85,7 +78,7 @@ public class InMemoryUserStorage implements UserStorage, FriendsStorage {
     }
 
     @Override
-    public Collection<User> getCommonFriends(long userId, long otherId) {
+    public List<User> getCommonFriends(long userId, long otherId) {
         Set<Long> other = friends.get(otherId);
         return Objects.isNull(other) ? List.of() :
                 friends.get(userId).stream()

@@ -17,8 +17,8 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     private final IdGenerator idGenerator;
 
     @Override
-    public Collection<Film> getAll() {
-        return films.values();
+    public List<Film> getAll() {
+        return new ArrayList<>(films.values());
     }
 
     @Override
@@ -27,12 +27,12 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     }
 
     @Override
-    public Collection<Film> searchByName(String substring) {
+    public List<Film> searchByName(String substring) {
         return null;
     }
 
     @Override
-    public Collection<Film> searchByDirector(String substring) {
+    public List<Film> searchByDirector(String substring) {
         return null;
     }
 
@@ -56,7 +56,7 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     }
 
     @Override
-    public Collection<Film> getCommonFilms(long userId, long friendId) {
+    public List<Film> getCommonFilms(long userId, long friendId) {
         return null;
     }
 
@@ -94,7 +94,7 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     }
 
     @Override
-    public Collection<Film> getMostPopularFilms(int count, Long genreId, Integer year) {
+    public List<Film> getMostPopularFilms(int count, Long genreId, Integer year) {
         Comparator<Film> comparator = Comparator.comparingInt(film -> getLikesCount(film.getId()));
         return getAll().stream()
                 .sorted(comparator.reversed())
@@ -103,7 +103,7 @@ public class InMemoryFilmStorage implements FilmStorage, LikesStorage {
     }
 
     @Override
-    public Collection<Film> getFilmsLikedByUser(long userId) {
+    public List<Film> getFilmsLikedByUser(long userId) {
         return null;
     }
 

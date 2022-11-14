@@ -11,7 +11,7 @@ import ru.yandex.practicum.filmorate.storage.EventType;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -26,7 +26,7 @@ public class EventDbStorage implements EventStorage {
     }
 
     @Override
-    public Collection<Event> getAll(long userId) {
+    public List<Event> getAll(long userId) {
         String sql = "SELECT event_id, timestamp, user_id, event_type, operation, entity_id " +
                 "FROM events " +
                 "WHERE user_id = ?;";

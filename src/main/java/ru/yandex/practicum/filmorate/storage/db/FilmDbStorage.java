@@ -23,7 +23,7 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Collection<Film> getAll() {
+    public List<Film> getAll() {
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
                 "m.id AS mpa_id, m.name AS mpa_name, " +
                 "COUNT(DISTINCT l.user_id) AS rate " +
@@ -35,7 +35,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getMostPopularFilms(int count, Long genreId, Integer year) {
+    public List<Film> getMostPopularFilms(int count, Long genreId, Integer year) {
         if (genreId == null && year == null) {
             return getMostPopularFilmsByFilter(count);
         } else if (genreId == null) {
@@ -48,7 +48,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getFilmsLikedByUser(long userId) {
+    public List<Film> getFilmsLikedByUser(long userId) {
         //Фильмы, которым пользователь поставил лайк
         String sql = "WITH rates AS\n" +
                 "    (SELECT f.id AS film_id, COUNT(DISTINCT l.user_id) AS rate\n" +
@@ -80,7 +80,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> searchByName(String substring) {
+    public List<Film> searchByName(String substring) {
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
                 "m.id AS mpa_id, m.name AS mpa_name, " +
                 "COUNT(DISTINCT l.user_id) AS rate " +
@@ -94,7 +94,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> searchByDirector(String substring) {
+    public List<Film> searchByDirector(String substring) {
         String sql =
                 "WITH rates AS\n" +
                 "    (SELECT f.id AS film_id, COUNT(DISTINCT l.user_id) AS rate\n" +
@@ -165,7 +165,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), directorId);
     }
     @Override
-    public Collection<Film> getCommonFilms(long userId, long friendId) {
+    public List<Film> getCommonFilms(long userId, long friendId) {
         String sql =
                 "SELECT DISTINCT f.id, f.name, f.description, f.release_date, f.duration," +
                         " f.mpa_id, m.name AS mpa_name, f.rate FROM " +
@@ -190,7 +190,7 @@ public class FilmDbStorage implements FilmStorage {
             jdbcTemplate.update(sql, filmId);
         }
 
-        private Collection<Film> getMostPopularFilmsByFilter ( int count, Long genreId, Integer year){
+        private List<Film> getMostPopularFilmsByFilter ( int count, Long genreId, Integer year){
             return jdbcTemplate.query(
                     "SELECT  film.id, film.name, description, release_date, duration, mpa_id, " +
                             "COUNT(l.FILM_ID) as rate, m.NAME as mpa_name " +
@@ -205,7 +205,7 @@ public class FilmDbStorage implements FilmStorage {
                     (rs, rowNum) -> makeFilm(rs), year, genreId, count);
         }
 
-        private Collection<Film> getMostPopularFilmsByFilter ( int count, Long genreId){
+        private List<Film> getMostPopularFilmsByFilter ( int count, Long genreId){
             return jdbcTemplate.query(
                     "SELECT  film.id, film.name, description, release_date, duration, mpa_id, " +
                             "COUNT(l.FILM_ID) as rate, m.NAME as mpa_name " +
@@ -220,7 +220,7 @@ public class FilmDbStorage implements FilmStorage {
                     (rs, rowNum) -> makeFilm(rs), genreId, count);
         }
 
-        private Collection<Film> getMostPopularFilmsByFilter ( int count, Integer year){
+        private List<Film> getMostPopularFilmsByFilter ( int count, Integer year){
             return jdbcTemplate.query(
                     "SELECT  film.id, film.name, description, release_date, duration, mpa_id, " +
                             "COUNT(l.FILM_ID) as rate, m.NAME as mpa_name " +
@@ -235,7 +235,7 @@ public class FilmDbStorage implements FilmStorage {
                     (rs, rowNum) -> makeFilm(rs), year, count);
         }
 
-        private Collection<Film> getMostPopularFilmsByFilter ( int count){
+        private List<Film> getMostPopularFilmsByFilter ( int count){
             return jdbcTemplate.query(
                     "SELECT  film.id, film.name, description, release_date, duration, mpa_id, " +
                             "COUNT(l.FILM_ID) as rate, m.NAME as mpa_name " +

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 
-import java.util.Collection;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -36,7 +36,7 @@ public class FriendsDbStorage implements FriendsStorage {
     }
 
     @Override
-    public Collection<User> getFriends(long userId) {
+    public List<User> getFriends(long userId) {
         String sql = "SELECT u.id, u.email, u.login, u.name, u.birthday " +
                 "FROM users AS u " +
                 "JOIN friends AS f ON u.id=f.friend_id " +
@@ -45,7 +45,7 @@ public class FriendsDbStorage implements FriendsStorage {
     }
 
     @Override
-    public Collection<User> getCommonFriends(long userId, long otherId) {
+    public List<User> getCommonFriends(long userId, long otherId) {
         String sql = "SELECT u.id, u.email, u.login, u.name, u.birthday " +
                 "FROM users AS u " +
                 "JOIN friends AS f1 ON u.id=f1.friend_id " +

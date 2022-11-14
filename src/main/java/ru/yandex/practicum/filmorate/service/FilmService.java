@@ -28,7 +28,7 @@ public class FilmService {
     private final DirectorService directorService;
 
 
-    public Collection<Film> getAll() {
+    public List<Film> getAll() {
         Map<Long, List<Genre>> genres = filmGenreStorage.getAllFilmGenres();
         Map<Long, List<Director>> directors = filmDirectorsStorage.getAllFilmDirectors();
         return addFieldsToFilms(filmStorage.getAll(), genres, directors);
@@ -91,8 +91,8 @@ public class FilmService {
         eventService.add(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
     }
 
-    public Collection<Film> getMostPopularFilms(Integer count, Long genreId, Integer year) {
-        Collection<Film> films = filmStorage.getMostPopularFilms(count, genreId, year);
+    public List<Film> getMostPopularFilms(Integer count, Long genreId, Integer year) {
+        List<Film> films = filmStorage.getMostPopularFilms(count, genreId, year);
         return addFieldsToFilms(films);
     }
 
@@ -112,16 +112,16 @@ public class FilmService {
         return addFieldsToFilms(sortedFilms);
     }
 
-    public Collection<Film> getCommonFilms(long userId, long friendId) {
+    public List<Film> getCommonFilms(long userId, long friendId) {
         checkUserExists(userId);
         checkUserExists(friendId);
-        Collection<Film> commonFilms = filmStorage.getCommonFilms(userId, friendId);
+        List<Film> commonFilms = filmStorage.getCommonFilms(userId, friendId);
         return addFieldsToFilms(commonFilms);
     }
 
-    public Collection<Film> getFilmsLikedByUser(long userId) {
+    public List<Film> getFilmsLikedByUser(long userId) {
         checkUserExists(userId);
-        Collection<Film> films = filmStorage.getFilmsLikedByUser(userId);
+        List<Film> films = filmStorage.getFilmsLikedByUser(userId);
         return addFieldsToFilms(films);
     }
 
@@ -131,7 +131,7 @@ public class FilmService {
         log.debug("Film id = {} removed", filmId);
     }
 
-    public Collection<Film> search(String query, boolean searchByName, boolean searchByDirector) {
+    public List<Film> search(String query, boolean searchByName, boolean searchByDirector) {
         List<Film> films = new ArrayList<>();
         if (searchByName) {
             films.addAll(filmStorage.searchByName(query));
@@ -183,7 +183,7 @@ public class FilmService {
     }
 
     // Добавление к коллекции фильмов полей со списками жанров и режиссёров
-    private List<Film> addFieldsToFilms(Collection<Film> films) {
+    private List<Film> addFieldsToFilms(List<Film> films) {
         List<Long> filmIds = films.stream()
                 .map(Film::getId)
                 .collect(Collectors.toList());
@@ -192,7 +192,7 @@ public class FilmService {
         return addFieldsToFilms(films, genres, directors);
     }
 
-    private List<Film> addFieldsToFilms(Collection<Film> films,
+    private List<Film> addFieldsToFilms(List<Film> films,
                                         Map<Long, List<Genre>> genres, Map<Long, List<Director>> directors) {
         return films.stream()
                 .map(film -> addFieldsToFilm(film, genres, directors))

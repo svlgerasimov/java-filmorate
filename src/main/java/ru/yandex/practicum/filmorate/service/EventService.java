@@ -9,7 +9,7 @@ import ru.yandex.practicum.filmorate.storage.EventOperation;
 import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.EventType;
 
-import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -18,7 +18,7 @@ public class EventService {
 
     private final EventStorage eventStorage;
 
-    public Collection<Event> getAll(long userId) {
+    public List<Event> getAll(long userId) {
         return eventStorage.getAll(userId);
     }
 

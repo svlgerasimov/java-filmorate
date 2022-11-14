@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.storage.FilmGenreStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,7 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void addFilmGenres(long filmId, Collection<Genre> genres) {
+    public void addFilmGenres(long filmId, List<Genre> genres) {
         if (Objects.isNull(genres) || genres.size() < 1) {
             return;
         }
@@ -44,7 +43,7 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
     }
 
     @Override
-    public Collection<Genre> getGenresByFilmId(long filmId) {
+    public List<Genre> getGenresByFilmId(long filmId) {
         String sql = "SELECT g.id, g.name " +
                 "FROM film_genre AS fg " +
                 "JOIN genre AS g ON g.id=fg.genre_id " +
@@ -66,7 +65,7 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
     }
 
     @Override
-    public Map<Long, List<Genre>> getGenresByFilmIds(Collection<Long> filmIds) {
+    public Map<Long, List<Genre>> getGenresByFilmIds(List<Long> filmIds) {
         String sql = "SELECT f.id AS film_id, g.id, g.name " +
                 "FROM film AS f " +
                 "JOIN film_genre AS fg ON fg.film_id=f.id " +

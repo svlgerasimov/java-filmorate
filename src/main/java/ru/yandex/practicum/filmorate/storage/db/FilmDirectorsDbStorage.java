@@ -65,7 +65,7 @@ public class FilmDirectorsDbStorage implements FilmDirectorsStorage {
     }
 
     @Override
-    public Map<Long, List<Director>> getDirectorsByFilmIds(Collection<Long> filmIds) {
+    public Map<Long, List<Director>> getDirectorsByFilmIds(List<Long> filmIds) {
         String sql = "SELECT f.id AS film_id, d.director_id, d.name " +
                 "FROM film AS f " +
                 "JOIN film_directors AS fd ON fd.film_id = f.id " +
