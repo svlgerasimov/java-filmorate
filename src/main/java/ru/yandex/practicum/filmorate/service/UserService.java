@@ -56,7 +56,6 @@ public class UserService {
     }
 
     public User getById(long id) {
-        checkUserExists(id);
         return userStorage.getById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("User id=%s not found", id)));
     }
