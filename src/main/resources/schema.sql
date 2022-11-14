@@ -51,6 +51,8 @@ CREATE TABLE IF NOT EXISTS users
     name     VARCHAR(64) NOT NULL,
     birthday DATE
 );
+CREATE UNIQUE INDEX IF NOT EXISTS users_email_index ON users (email);
+CREATE UNIQUE INDEX IF NOT EXISTS users_login_index ON users (login);
 
 CREATE TABLE IF NOT EXISTS friends
 (
