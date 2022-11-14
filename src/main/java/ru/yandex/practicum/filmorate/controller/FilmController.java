@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
@@ -60,7 +61,8 @@ public class FilmController {
     public List<Film> getMostPopularFilms(
             @RequestParam(required = false, defaultValue = "10") @Positive int count,
             @RequestParam(required = false) Long genreId,
-            @RequestParam(required = false) Integer year) {
+            @RequestParam(required = false)
+            @Min(value = 1895, message = "The year must be greater than or equal to 1895") Integer year) {
         return filmService.getMostPopularFilms(count, genreId, year);
     }
 
