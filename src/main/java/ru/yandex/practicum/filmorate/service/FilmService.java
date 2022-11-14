@@ -53,8 +53,9 @@ public class FilmService {
         checkMpaExists(film);
         checkGenresExist(film);
         long id = film.getId();
-        checkFilmExists(id);
-        filmStorage.update(film);
+        if (!filmStorage.update(film)) {
+            throw new NotFoundException("Film not found. %s" +  film);
+        }
         filmGenreStorage.deleteFilmGenres(id);
         filmGenreStorage.addFilmGenres(id, film.getGenres());
         filmDirectorsStorage.deleteFilmDirectors(id);
@@ -126,9 +127,11 @@ public class FilmService {
     }
 
     public void remove(long filmId) {
-        checkFilmExists(filmId);
-        filmStorage.remove(filmId);
-        log.debug("Film id = {} removed", filmId);
+        if(filmStorage.remove(filmId)) {
+            log.debug("Film id = {} removed", filmId);
+        } else {
+            throw new NotFoundException(String.format("Film id = %s not found", filmId));
+        }
     }
 
     public List<Film> search(String query, boolean searchByName, boolean searchByDirector) {
