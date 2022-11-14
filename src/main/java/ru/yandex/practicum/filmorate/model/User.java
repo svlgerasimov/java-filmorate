@@ -17,7 +17,7 @@ public class User {
     @With
     long id;                       // идентификатор
 
-    @NotBlank(message = "User email is blank")
+    @NotNull(message = "User email is null")
     @Email(message = "Invalid user email format")
     String email;           // электронная почта
 

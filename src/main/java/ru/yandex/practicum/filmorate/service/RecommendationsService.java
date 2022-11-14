@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.LikesStorage;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,14 +20,14 @@ public class RecommendationsService {
 
     public List<Film> formRecommendations(long userId) {
         // Фильмы, которым пользователь уже поставил лайк, проверка наличия пользователя - в filmService
-        Collection<Film> filmsLikesByUser = filmService.getFilmsLikedByUser(userId);
+        List<Film> filmsLikesByUser = filmService.getFilmsLikedByUser(userId);
         // id пользователей, отсортированные по общим лайкам
         return likesStorage.findSimilarUsers(userId, SIMILAR_USERS_COUNT)
                 .stream()
                 // каждый id пользователя отображаем в коллекцию фильмов, которым он поставил лайк
                 .map(filmService::getFilmsLikedByUser)
                 // объединяем все фильмы в один стрим
-                .flatMap(Collection::stream)
+                .flatMap(List::stream)
                 // убираем повторы
                 .distinct()
                 // оставляем фильмы, которым пользователь ещё не поставил лайк

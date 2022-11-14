@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 
-import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/genres")
@@ -19,14 +19,14 @@ public class GenreController {
     private final GenreStorage genreStorage;
 
     @GetMapping("/{id}")
-    public Genre getGenreById(@PathVariable long id) {
-        return genreStorage.getGenreById(id)
+    public Genre getById(@PathVariable long id) {
+        return genreStorage.getById(id)
                 .orElseThrow(() ->
                         new NotFoundException(String.format("Genre with id=%s not found", id)));
     }
 
     @GetMapping
-    public Collection<Genre> getAllMpa() {
-        return genreStorage.getAllGenres();
+    public List<Genre> getAll() {
+        return genreStorage.getAll();
     }
 }

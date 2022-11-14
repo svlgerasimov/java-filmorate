@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.storage.db;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.storage.EventOperation;
 import ru.yandex.practicum.filmorate.storage.EventStorage;
@@ -11,22 +11,22 @@ import ru.yandex.practicum.filmorate.storage.EventType;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.List;
 
-@Component
+@Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class EventDbStorage implements EventStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void addEvent(long userId, EventType eventType, EventOperation operation, long entityId) {
+    public void add(long userId, EventType eventType, EventOperation operation, long entityId) {
         String sql = "INSERT INTO events (user_id, event_type, operation, entity_id) VALUES (?, ?, ?, ?);";
         jdbcTemplate.update(sql, userId, eventType.name(), operation.name(), entityId);
     }
 
     @Override
-    public Collection<Event> getAllEvents(long userId) {
+    public List<Event> getAll(long userId) {
         String sql = "SELECT event_id, timestamp, user_id, event_type, operation, entity_id " +
                 "FROM events " +
                 "WHERE user_id = ?;";

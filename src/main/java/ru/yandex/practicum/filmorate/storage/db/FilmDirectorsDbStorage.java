@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.FilmDirectorsStorage;
 
@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component
+@Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FilmDirectorsDbStorage implements FilmDirectorsStorage {
 
@@ -65,7 +65,7 @@ public class FilmDirectorsDbStorage implements FilmDirectorsStorage {
     }
 
     @Override
-    public Map<Long, List<Director>> getDirectorsByFilmIds(Collection<Long> filmIds) {
+    public Map<Long, List<Director>> getDirectorsByFilmIds(List<Long> filmIds) {
         String sql = "SELECT f.id AS film_id, d.director_id, d.name " +
                 "FROM film AS f " +
                 "JOIN film_directors AS fd ON fd.film_id = f.id " +

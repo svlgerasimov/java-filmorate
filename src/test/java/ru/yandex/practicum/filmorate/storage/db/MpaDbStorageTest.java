@@ -20,7 +20,7 @@ public class MpaDbStorageTest {
 
     @Test
     public void getMpaByCorrectIdTest() {
-        Optional<Mpa> mpaOptional = mpaStorage.getMpaById(1);
+        Optional<Mpa> mpaOptional = mpaStorage.getById(1);
         assertThat(mpaOptional)
                 .isPresent()
                 .hasValueSatisfying(mpa ->
@@ -29,13 +29,13 @@ public class MpaDbStorageTest {
 
     @Test
     public void getMpaByIncorrectIdTest() {
-        Optional<Mpa> mpaOptional = mpaStorage.getMpaById(-1);
+        Optional<Mpa> mpaOptional = mpaStorage.getById(-1);
         assertThat(mpaOptional).isEmpty();
     }
 
     @Test
     public void getAllMpaTest() {
-        Collection<Mpa> mpas = mpaStorage.getAllMpa();
+        Collection<Mpa> mpas = mpaStorage.getAll();
         assertThat(mpas)
                 .isNotEmpty()
                 .contains(new Mpa(1, "G"));

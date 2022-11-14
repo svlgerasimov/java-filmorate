@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Component
+@Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Qualifier("DirectorDbStorage")
 @Slf4j
@@ -28,13 +28,13 @@ public class DirectorDbStorage implements DirectorStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public List<Director> getAllDirectors() {
+    public List<Director> getAll() {
         String directorsSql = "select d.director_id, d.name from director AS d";
         return jdbcTemplate.query(directorsSql, (rs, rowNum) -> makeDirector(rs));
     }
 
     @Override
-    public Optional<Director> getDirectorById(long id) {
+    public Optional<Director> getById(long id) {
         SqlRowSet dirRows = jdbcTemplate.queryForRowSet("select d.director_id, d.name from director AS d" +
                 " where director_id = ?", id);
         if (dirRows.next()) {
@@ -47,7 +47,7 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public Optional<Director> addDirector(Director director) {
+    public Optional<Director> add(Director director) {
         String sqlQuery = "insert into director(name) " +
                 "values (?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -59,14 +59,14 @@ public class DirectorDbStorage implements DirectorStorage {
         }, keyHolder);
         director = director.withId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         log.info("director id {}", director.getId());
-        return getDirectorById(director.getId());
+        return getById(director.getId());
     }
 
     @Override
-    public Optional<Director> updateDirector(Director director) {
+    public Optional<Director> update(Director director) {
         String updateDirectorSql = "update director set name = ? WHERE director_id = ?";
         jdbcTemplate.update(updateDirectorSql, director.getName(), director.getId());
-        return getDirectorById(director.getId());
+        return getById(director.getId());
     }
 
     private static Director makeDirector(ResultSet resultSet) throws SQLException {
@@ -74,7 +74,7 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public void deleteDirector(long id) {
+    public void remove(long id) {
         String sql = "delete from director where director_id = ?";
         jdbcTemplate.update(sql, id);
     }

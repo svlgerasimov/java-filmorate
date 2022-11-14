@@ -17,32 +17,32 @@ public class DirectorService {
 
     private final DirectorStorage directorStorage;
 
-    public Director addDirector(Director director) {
-        return directorStorage.addDirector(director).get();
+    public Director add(Director director) {
+        return directorStorage.add(director).get();
     }
 
-    public Director getDirectorById(long id) {
-        return directorStorage.getDirectorById(id).orElseThrow(() ->
+    public Director getById(long id) {
+        return directorStorage.getById(id).orElseThrow(() ->
                 new NotFoundException("Director not found"));
     }
 
-    public List<Director> getAllDirectors() {
-        return directorStorage.getAllDirectors();
+    public List<Director> getAll() {
+        return directorStorage.getAll();
     }
 
-    public Director updateDirector(Director director) {
+    public Director update(Director director) {
         checkDirectorExists(director.getId());
-        return directorStorage.updateDirector(director).orElseThrow(() ->
+        return directorStorage.update(director).orElseThrow(() ->
                 new NotFoundException("Director not found"));
     }
 
-    public void deleteDirector(long id) {
+    public void remove(long id) {
         checkDirectorExists(id);
-        directorStorage.deleteDirector(id);
+        directorStorage.remove(id);
     }
 
     public void checkDirectorExists(long id) {
-        directorStorage.getDirectorById(id)
+        directorStorage.getById(id)
                 .orElseThrow(() ->
                         new NotFoundException(String.format("Director id=%s not found", id)));
     }

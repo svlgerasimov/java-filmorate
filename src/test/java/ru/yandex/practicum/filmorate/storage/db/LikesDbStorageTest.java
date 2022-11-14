@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -25,12 +24,17 @@ public class LikesDbStorageTest {
 
     @Test
     public void addLike() {
-        User user = TestUserBuilder.defaultBuilder().build();
-        long userId1 = userStorage.addUser(user);
-        long userId2 = userStorage.addUser(user);
+        TestUserBuilder userBuilder1 = TestUserBuilder.defaultBuilder()
+                .withEmail("email1")
+                .withLogin("login1");
+        TestUserBuilder userBuilder2 = TestUserBuilder.defaultBuilder()
+                .withEmail("email2")
+                .withLogin("login2");
+        long userId1 = userStorage.add(userBuilder1.build());
+        long userId2 = userStorage.add(userBuilder2.build());
         Film defaultFilm = TestFilmBuilder.defaultBuilder().build();
-        long filmId1 = filmStorage.addFilm(defaultFilm);
-        long filmId2 = filmStorage.addFilm(defaultFilm);
+        long filmId1 = filmStorage.add(defaultFilm);
+        long filmId2 = filmStorage.add(defaultFilm);
         assertThat(likesStorage.addLike(filmId1, userId1)).isEqualTo(true);
         assertThat(likesStorage.addLike(filmId1, userId2)).isEqualTo(true);
         assertThat(filmStorage.getById(filmId1))
@@ -43,22 +47,22 @@ public class LikesDbStorageTest {
 
     @Test
     public void addLikeWithAbsentFilmAndThenThrowException() {
-        long userId = userStorage.addUser(TestUserBuilder.defaultBuilder().build());
+        long userId = userStorage.add(TestUserBuilder.defaultBuilder().build());
         assertThatThrownBy(() -> likesStorage.addLike(-1, userId))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
     public void addLikeWithAbsentUserAndThenThrowException() {
-        long filmId = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
+        long filmId = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
         assertThatThrownBy(() -> likesStorage.addLike(filmId, -1))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
     public void addLikeTwice() {
-        long userId = userStorage.addUser(TestUserBuilder.defaultBuilder().build());
-        long filmId = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
+        long userId = userStorage.add(TestUserBuilder.defaultBuilder().build());
+        long filmId = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
         likesStorage.addLike(filmId, userId);
         assertThatNoException().isThrownBy(() ->
                 assertThat(likesStorage.addLike(filmId, userId)).isEqualTo(true));
@@ -68,16 +72,24 @@ public class LikesDbStorageTest {
 
     @Test
     public void getMostPopularFilms() {
-        User user = TestUserBuilder.defaultBuilder().build();
-        long userId1 = userStorage.addUser(user);
-        long userId2 = userStorage.addUser(user);
-        long userId3 = userStorage.addUser(user);
+        TestUserBuilder userBuilder1 = TestUserBuilder.defaultBuilder()
+                .withEmail("email1")
+                .withLogin("login1");
+        TestUserBuilder userBuilder2 = TestUserBuilder.defaultBuilder()
+                .withEmail("email2")
+                .withLogin("login2");
+        TestUserBuilder userBuilder3 = TestUserBuilder.defaultBuilder()
+                .withEmail("email3")
+                .withLogin("login3");
+        long userId1 = userStorage.add(userBuilder1.build());
+        long userId2 = userStorage.add(userBuilder2.build());
+        long userId3 = userStorage.add(userBuilder3.build());
         TestFilmBuilder filmBuilder1 = TestFilmBuilder.defaultBuilder().withName("name1");
         TestFilmBuilder filmBuilder2 = TestFilmBuilder.defaultBuilder().withName("name2");
         TestFilmBuilder filmBuilder3 = TestFilmBuilder.defaultBuilder().withName("name3");
-        long filmId1 = filmStorage.addFilm(filmBuilder1.build());
-        long filmId2 = filmStorage.addFilm(filmBuilder2.build());
-        long filmId3 = filmStorage.addFilm(filmBuilder3.build());
+        long filmId1 = filmStorage.add(filmBuilder1.build());
+        long filmId2 = filmStorage.add(filmBuilder2.build());
+        long filmId3 = filmStorage.add(filmBuilder3.build());
         likesStorage.addLike(filmId1, userId1);
         likesStorage.addLike(filmId1, userId2);
         likesStorage.addLike(filmId2, userId1);
@@ -105,12 +117,17 @@ public class LikesDbStorageTest {
 
     @Test
     public void removeLike() {
-        User user = TestUserBuilder.defaultBuilder().build();
-        long userId1 = userStorage.addUser(user);
-        long userId2 = userStorage.addUser(user);
+        TestUserBuilder userBuilder1 = TestUserBuilder.defaultBuilder()
+                .withEmail("email1")
+                .withLogin("login1");
+        TestUserBuilder userBuilder2 = TestUserBuilder.defaultBuilder()
+                .withEmail("email2")
+                .withLogin("login2");
+        long userId1 = userStorage.add(userBuilder1.build());
+        long userId2 = userStorage.add(userBuilder2.build());
         Film defaultFilm = TestFilmBuilder.defaultBuilder().build();
-        long filmId1 = filmStorage.addFilm(defaultFilm);
-        filmStorage.addFilm(defaultFilm);
+        long filmId1 = filmStorage.add(defaultFilm);
+        filmStorage.add(defaultFilm);
         likesStorage.addLike(filmId1, userId1);
         likesStorage.addLike(filmId1, userId2);
         assertThat(likesStorage.removeLike(filmId1, userId1)).isEqualTo(true);
@@ -121,12 +138,17 @@ public class LikesDbStorageTest {
 
     @Test
     public void removeLikeTwice() {
-        User user = TestUserBuilder.defaultBuilder().build();
-        long userId1 = userStorage.addUser(user);
-        long userId2 = userStorage.addUser(user);
+        TestUserBuilder userBuilder1 = TestUserBuilder.defaultBuilder()
+                .withEmail("email1")
+                .withLogin("login1");
+        TestUserBuilder userBuilder2 = TestUserBuilder.defaultBuilder()
+                .withEmail("email2")
+                .withLogin("login2");
+        long userId1 = userStorage.add(userBuilder1.build());
+        long userId2 = userStorage.add(userBuilder2.build());
         Film defaultFilm = TestFilmBuilder.defaultBuilder().build();
-        long filmId1 = filmStorage.addFilm(defaultFilm);
-        filmStorage.addFilm(defaultFilm);
+        long filmId1 = filmStorage.add(defaultFilm);
+        filmStorage.add(defaultFilm);
         likesStorage.addLike(filmId1, userId1);
         likesStorage.addLike(filmId1, userId2);
         likesStorage.removeLike(filmId1, userId1);
@@ -138,8 +160,8 @@ public class LikesDbStorageTest {
 
     @Test
     public void removeLikeAbsentFilm() {
-        long userId = userStorage.addUser(TestUserBuilder.defaultBuilder().build());
-        long filmId = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
+        long userId = userStorage.add(TestUserBuilder.defaultBuilder().build());
+        long filmId = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
         likesStorage.addLike(filmId, userId);
         assertThat(likesStorage.removeLike(filmId + 1, userId)).isEqualTo(false);
         assertThat(filmStorage.getById(filmId))
@@ -149,8 +171,8 @@ public class LikesDbStorageTest {
 
     @Test
     public void removeLikeAbsentUser() {
-        long userId = userStorage.addUser(TestUserBuilder.defaultBuilder().build());
-        long filmId = filmStorage.addFilm(TestFilmBuilder.defaultBuilder().build());
+        long userId = userStorage.add(TestUserBuilder.defaultBuilder().build());
+        long filmId = filmStorage.add(TestFilmBuilder.defaultBuilder().build());
         likesStorage.addLike(filmId, userId);
         assertThat(likesStorage.removeLike(filmId, userId + 1)).isEqualTo(false);
         assertThat(filmStorage.getById(filmId))
