@@ -37,9 +37,10 @@ public class UserService {
     }
 
     public User update(User user) {
-        checkUserExists(user.getId());
         user = preprocess(user);
-        userStorage.update(user);
+        if (!userStorage.update(user)) {
+            throw new NotFoundException("Film not found. %s" +  user);
+        }
         long id = user.getId();
         user = userStorage.getById(id).orElseThrow(() ->
                 new DbCreateEntityFaultException(String.format("User (id=%s) hasn't been updated in database", id)));
@@ -88,9 +89,11 @@ public class UserService {
     }
 
     public void remove(long userId) {
-        checkUserExists(userId);
-        userStorage.remove(userId);
-        log.debug("User id = {} removed", userId);
+        if (userStorage.remove(userId)) {
+            log.debug("User id = {} removed", userId);
+        } else {
+            throw new NotFoundException((String.format("Film id = %s not found", userId)));
+        }
     }
 
     private void checkUserExists(long id) {

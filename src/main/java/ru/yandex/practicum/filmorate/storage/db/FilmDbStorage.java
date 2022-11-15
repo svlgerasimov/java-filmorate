@@ -185,9 +185,9 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId, friendId);
     }
 
-        public void remove(long filmId){
+        public boolean remove(long filmId){
             String sql = "DELETE FROM film WHERE id = ?;";
-            jdbcTemplate.update(sql, filmId);
+            return jdbcTemplate.update(sql, filmId) > 0;
         }
 
         private List<Film> getMostPopularFilmsByFilter ( int count, Long genreId, Integer year){
