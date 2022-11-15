@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.NotImplementedException;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
@@ -161,13 +162,25 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getFilmsByDirectorId(long directorId) {
+    public List<Film> getFilmsByDirectorId(long directorId, FilmSortBy sortBy) {
+        String orderBy;
+        switch (sortBy) {
+            case LIKES:
+                orderBy = "ORDER BY rate";
+                break;
+            case YEAR:
+                orderBy = "ORDER BY YEAR(f.release_date)";
+                break;
+            default:
+                throw new NotImplementedException("Sort by " + sortBy + "not implemented");
+        }
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
                 "m.id AS mpa_id, m.name AS mpa_name, COUNT(DISTINCT l.user_id) AS rate, fd.director_id FROM film AS f " +
                 "LEFT JOIN mpa AS m ON m.id=f.mpa_id " +
                 "JOIN film_directors AS fd ON fd.film_id = f.id " +
                 "LEFT JOIN likes AS l ON l.film_id=f.id " +
-                "WHERE fd.director_id = ? GROUP BY f.id";
+                "WHERE fd.director_id = ? GROUP BY f.id " +
+                orderBy + ";";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), directorId);
     }
     @Override

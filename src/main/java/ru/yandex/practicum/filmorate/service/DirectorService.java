@@ -18,7 +18,7 @@ public class DirectorService {
     private final DirectorStorage directorStorage;
 
     public Director add(Director director) {
-        return directorStorage.add(director).get();
+        return directorStorage.add(director);
     }
 
     public Director getById(long id) {
@@ -31,14 +31,14 @@ public class DirectorService {
     }
 
     public Director update(Director director) {
-        checkDirectorExists(director.getId());
         return directorStorage.update(director).orElseThrow(() ->
                 new NotFoundException("Director not found"));
     }
 
     public void remove(long id) {
-        checkDirectorExists(id);
-        directorStorage.remove(id);
+        if(!directorStorage.remove(id)) {
+            throw new NotFoundException("Director not found");
+        }
     }
 
     public void checkDirectorExists(long id) {

@@ -11,9 +11,9 @@ public interface DirectorStorage {
 
     Optional<Director> getById(long id);
 
-    Optional<Director> add(Director director);
+    Director add(Director director);
 
     Optional<Director> update(Director director);
 
-    void remove(long id);
+    boolean remove(long id);
 }
