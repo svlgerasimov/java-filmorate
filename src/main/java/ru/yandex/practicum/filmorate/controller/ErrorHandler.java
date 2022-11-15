@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.DbCreateEntityFaultException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.NotImplementedException;
 
 import javax.validation.ConstraintViolationException;
 import java.util.Map;
@@ -27,6 +28,15 @@ public class ErrorHandler {
         log.warn(String.valueOf(result), exception);
         return result;
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
+    public Map<String, String> handleNotImplementedException(NotImplementedException exception) {
+        Map<String, String> result = Map.of("Function not implemented", exception.getMessage());
+        log.warn(String.valueOf(result), exception);
+        return result;
+    }
+
 
     // Ошибка валидации полей десериализируемого объекта
     @ExceptionHandler

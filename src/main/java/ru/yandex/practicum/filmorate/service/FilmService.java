@@ -99,23 +99,13 @@ public class FilmService {
 
     public List<Film> findByDirector(long directorId, String sortBy) {
         directorService.checkDirectorExists(directorId);
-        List<Film> directorFilms = filmStorage.getFilmsByDirectorId(directorId);
+        FilmSortBy filmSortBy;
         try {
-            switch (FilmSortBy.valueOf(sortBy.toUpperCase())) {
-                case YEAR:
-                    directorFilms = directorFilms.stream()
-                            .sorted(Comparator.comparingInt(o -> o.getReleaseDate().getYear()))
-                            .collect(Collectors.toList());
-                    break;
-                case LIKES:
-                    directorFilms = directorFilms.stream()
-                            .sorted(Comparator.comparingInt(Film::getRate))
-                            .collect(Collectors.toList());
-                    break;
-            }
+            filmSortBy = FilmSortBy.valueOf(sortBy.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new NotFoundException("Такого запроса нет");
+            throw new NotFoundException("Invalid sort parameter");
         }
+        List<Film> directorFilms = filmStorage.getFilmsByDirectorId(directorId, filmSortBy);
         return addFieldsToFilms(directorFilms);
     }
 
