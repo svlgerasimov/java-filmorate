@@ -135,17 +135,8 @@ public class FilmService {
     }
 
     public List<Film> search(String query, boolean searchByName, boolean searchByDirector) {
-        List<Film> films = new ArrayList<>();
-        if (searchByName) {
-            films.addAll(filmStorage.searchByName(query));
-        }
-        if (searchByDirector) {
-            films.addAll(filmStorage.searchByDirector(query));
-        }
-        films = addFieldsToFilms(films);
-        // Сортировка на случай, если найдены фильмы и по названию, и по режиссёру
-        films.sort(Comparator.comparingInt(Film::getRate).reversed());
-        return films;
+        List<Film> films = filmStorage.search(query, searchByName, searchByDirector);
+        return addFieldsToFilms(films);
     }
 
     private void checkFilmExists(long id) {
