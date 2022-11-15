@@ -99,18 +99,24 @@ public class FilmService {
 
     public List<Film> findByDirector(long directorId, String sortBy) {
         directorService.checkDirectorExists(directorId);
-        List<Film> sortedFilms;
         List<Film> directorFilms = filmStorage.getFilmsByDirectorId(directorId);
-        if (FilmSortBy.YEAR.equals(FilmSortBy.valueOf(sortBy.toUpperCase()))) {
-            sortedFilms = directorFilms.stream().sorted(Comparator.comparingInt(o -> o.getReleaseDate().getYear()))
-                    .collect(Collectors.toList());
-        } else if (FilmSortBy.LIKES.equals(FilmSortBy.valueOf(sortBy.toUpperCase()))) {
-            sortedFilms = directorFilms.stream().sorted(Comparator.comparingInt(Film::getRate))
-                    .collect(Collectors.toList());
-        } else {
+        try {
+            switch (FilmSortBy.valueOf(sortBy.toUpperCase())) {
+                case YEAR:
+                    directorFilms = directorFilms.stream()
+                            .sorted(Comparator.comparingInt(o -> o.getReleaseDate().getYear()))
+                            .collect(Collectors.toList());
+                    break;
+                case LIKES:
+                    directorFilms = directorFilms.stream()
+                            .sorted(Comparator.comparingInt(Film::getRate))
+                            .collect(Collectors.toList());
+                    break;
+            }
+        } catch (IllegalArgumentException e) {
             throw new NotFoundException("Такого запроса нет");
         }
-        return addFieldsToFilms(sortedFilms);
+        return addFieldsToFilms(directorFilms);
     }
 
     public List<Film> getCommonFilms(long userId, long friendId) {

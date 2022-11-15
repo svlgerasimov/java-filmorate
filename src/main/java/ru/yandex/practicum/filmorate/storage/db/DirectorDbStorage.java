@@ -47,7 +47,7 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public Optional<Director> add(Director director) {
+    public Director add(Director director) {
         String sqlQuery = "insert into director(name) " +
                 "values (?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -57,25 +57,23 @@ public class DirectorDbStorage implements DirectorStorage {
             stmt.setString(1, directorName);
             return stmt;
         }, keyHolder);
-        director = director.withId(Objects.requireNonNull(keyHolder.getKey()).intValue());
-        log.info("director id {}", director.getId());
-        return getById(director.getId());
+        return director.withId(Objects.requireNonNull(keyHolder.getKey()).intValue());
     }
 
     @Override
     public Optional<Director> update(Director director) {
         String updateDirectorSql = "update director set name = ? WHERE director_id = ?";
-        jdbcTemplate.update(updateDirectorSql, director.getName(), director.getId());
-        return getById(director.getId());
+        return jdbcTemplate.update(updateDirectorSql, director.getName(), director.getId()) > 0 ?
+                Optional.of(director) : Optional.empty();
+    }
+
+    @Override
+    public boolean remove(long id) {
+        String sql = "delete from director where director_id = ?";
+        return jdbcTemplate.update(sql, id) > 0;
     }
 
     private static Director makeDirector(ResultSet resultSet) throws SQLException {
         return new Director(resultSet.getInt("director_id"), resultSet.getString("name"));
-    }
-
-    @Override
-    public void remove(long id) {
-        String sql = "delete from director where director_id = ?";
-        jdbcTemplate.update(sql, id);
     }
 }
