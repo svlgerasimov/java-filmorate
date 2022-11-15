@@ -54,7 +54,7 @@ public class FilmService {
         checkGenresExist(film);
         long id = film.getId();
         if (!filmStorage.update(film)) {
-            throw new NotFoundException("Film not found. %s" +  film);
+            throw new NotFoundException(String.format("Film id = %s not found." ,film.getId()));
         }
         filmGenreStorage.deleteFilmGenres(id);
         filmGenreStorage.addFilmGenres(id, film.getGenres());

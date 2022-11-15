@@ -39,7 +39,7 @@ public class UserService {
     public User update(User user) {
         user = preprocess(user);
         if (!userStorage.update(user)) {
-            throw new NotFoundException("Film not found. %s" +  user);
+            throw new NotFoundException(String.format("User id = %s not found", user.getId()));
         }
         long id = user.getId();
         user = userStorage.getById(id).orElseThrow(() ->
@@ -92,7 +92,7 @@ public class UserService {
         if (userStorage.remove(userId)) {
             log.debug("User id = {} removed", userId);
         } else {
-            throw new NotFoundException((String.format("Film id = %s not found", userId)));
+            throw new NotFoundException((String.format("User id = %s not found", userId)));
         }
     }
 
