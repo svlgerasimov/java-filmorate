@@ -14,10 +14,8 @@ public class Event {
 
     long eventId;
 
-    @NotNull
     long timestamp;
 
-    @NotNull
     long userId;
 
     @NotBlank(message = "EventType is blank.")
