@@ -40,9 +40,9 @@ public class FriendsDbStorageTest {
         User user1 = userBuilder1.build();
         User user2 = userBuilder2.build();
         User user3 = userBuilder3.build();
-        user1 = user1.withId(userStorage.addUser(user1));
-        user2 = user2.withId(userStorage.addUser(user2));
-        user3 = user3.withId(userStorage.addUser(user3));
+        user1 = user1.withId(userStorage.add(user1));
+        user2 = user2.withId(userStorage.add(user2));
+        user3 = user3.withId(userStorage.add(user3));
 
         assertThat(friendsStorage.addFriend(user1.getId(), user2.getId())).isEqualTo(true);
         assertThat(friendsStorage.addFriend(user1.getId(), user3.getId())).isEqualTo(true);
@@ -63,7 +63,7 @@ public class FriendsDbStorageTest {
 
     @Test
     public void addFriendWithAbsentIdAndThenThrowException() {
-        long id = userStorage.addUser(TestUserBuilder.defaultBuilder().build());
+        long id = userStorage.add(TestUserBuilder.defaultBuilder().build());
 
         assertThatThrownBy(() -> friendsStorage.addFriend(id, id + 1))
                 .isInstanceOf(DataIntegrityViolationException.class);
@@ -73,8 +73,8 @@ public class FriendsDbStorageTest {
 
     @Test
     public void addFriendTwice() {
-        long id1 = userStorage.addUser(userBuilder1.build());
-        long id2 = userStorage.addUser(userBuilder2.build());
+        long id1 = userStorage.add(userBuilder1.build());
+        long id2 = userStorage.add(userBuilder2.build());
 
         friendsStorage.addFriend(id1, id2);
         assertThatNoException().isThrownBy(() ->
@@ -85,7 +85,7 @@ public class FriendsDbStorageTest {
 
     @Test
     public void addFriendWithSameIdAndThenThrowException() {
-        long id = userStorage.addUser(TestUserBuilder.defaultBuilder().build());
+        long id = userStorage.add(TestUserBuilder.defaultBuilder().build());
         assertThatThrownBy(() -> friendsStorage.addFriend(id, id))
                 .isInstanceOf(DataIntegrityViolationException.class);
 
@@ -93,12 +93,12 @@ public class FriendsDbStorageTest {
 
     @Test
     public void getCommonFriends() {
-        User user1 = userBuilder2.build();
-        user1 = user1.withId(userStorage.addUser(user1));
+        User user1 = userBuilder1.build();
+        user1 = user1.withId(userStorage.add(user1));
         User user2 = userBuilder2.build();
-        user2 = user2.withId(userStorage.addUser(user2));
+        user2 = user2.withId(userStorage.add(user2));
         User user3 = userBuilder3.build();
-        user3= user3.withId(userStorage.addUser(user3));
+        user3 = user3.withId(userStorage.add(user3));
 
         friendsStorage.addFriend(user1.getId(), user2.getId());
         friendsStorage.addFriend(user1.getId(), user3.getId());
@@ -114,8 +114,8 @@ public class FriendsDbStorageTest {
     @Test
     public void removeFriend() {
         User user1 = userBuilder1.build();
-        long id1 = userStorage.addUser(user1);
-        long id2 = userStorage.addUser(userBuilder2.build());
+        long id1 = userStorage.add(user1);
+        long id2 = userStorage.add(userBuilder2.build());
         friendsStorage.addFriend(id1, id2);
         friendsStorage.addFriend(id2, id1);
         assertThat(friendsStorage.removeFriend(id1, id2)).isEqualTo(true);

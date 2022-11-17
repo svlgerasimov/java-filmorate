@@ -6,23 +6,25 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
-@Component
+@Repository
 @Qualifier("UserDbStorage")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Collection<User> getAllUsers() {
+    public List<User> getUsers() {
         String sql = "SELECT id, email, login, name, birthday FROM users;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs));
     }
@@ -35,24 +37,30 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public long addUser(User user) {
+    public long add(User user) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
                 .usingGeneratedKeyColumns("id");
         return simpleJdbcInsert.executeAndReturnKey(
-                new MapSqlParameterSource()
-                        .addValue("email", user.getEmail())
-                        .addValue("login", user.getLogin())
-                        .addValue("name", user.getName())
-                        .addValue("birthday", Date.valueOf(user.getBirthday())))
+                        new MapSqlParameterSource()
+                                .addValue("email", user.getEmail())
+                                .addValue("login", user.getLogin())
+                                .addValue("name", user.getName())
+                                .addValue("birthday", Date.valueOf(user.getBirthday())))
                 .longValue();
     }
 
     @Override
-    public boolean updateUser(User user) {
+    public boolean update(User user) {
         String sql = "UPDATE users SET email=?, login=?, name=?, birthday=? WHERE id=?;";
         return jdbcTemplate.update(sql,
                 user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId()) > 0;
+    }
+
+    @Override
+    public boolean remove(long userId) {
+        String sql = "DELETE FROM users WHERE id = ?;";
+        return jdbcTemplate.update(sql, userId) > 0;
     }
 
     public static User makeUser(ResultSet resultSet) throws SQLException {

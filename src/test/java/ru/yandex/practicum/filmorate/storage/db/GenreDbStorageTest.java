@@ -22,7 +22,7 @@ class GenreDbStorageTest {
 
     @Test
     public void getGenreByCorrectIdTest() {
-        Optional<Genre> genreOptional = genreDbStorage.getGenreById(1);
+        Optional<Genre> genreOptional = genreDbStorage.getById(1);
         assertThat(genreOptional)
                 .isPresent()
                 .hasValueSatisfying(genre ->
@@ -32,13 +32,13 @@ class GenreDbStorageTest {
 
     @Test
     public void getGenreByIncorrectIdTest() {
-        Optional<Genre> genreOptional = genreDbStorage.getGenreById(-1);
+        Optional<Genre> genreOptional = genreDbStorage.getById(-1);
         assertThat(genreOptional).isEmpty();
     }
 
     @Test
     public void getAllGenresTest() {
-        Collection<Genre> genres = genreDbStorage.getAllGenres();
+        Collection<Genre> genres = genreDbStorage.getAll();
         assertThat(genres)
                 .isNotEmpty()
                 .contains(new Genre(1, "Комедия"));
@@ -46,7 +46,7 @@ class GenreDbStorageTest {
 
     @Test
     public void getGenresByIdsTest() {
-        Map<Integer, Genre> genres = genreDbStorage.getGenresByIds(List.of(1, 2));
+        Map<Integer, Genre> genres = genreDbStorage.getByIds(List.of(1, 2));
         assertThat(genres)
                 .isNotEmpty()
                 .contains(Map.entry(1, new Genre(1, "Комедия")))

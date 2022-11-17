@@ -3,36 +3,39 @@ package ru.yandex.practicum.filmorate.storage.db;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component
+@Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class GenreDbStorage implements GenreStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Collection<Genre> getAllGenres() {
+    public List<Genre> getAll() {
         String sql = "SELECT id, name FROM genre;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs));
     }
 
     @Override
-    public Optional<Genre> getGenreById(long id) {
+    public Optional<Genre> getById(long id) {
         String sql = "SELECT id, name FROM genre WHERE id=?;";
         List<Genre> genres = jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), id);
         return genres.isEmpty() ? Optional.empty() : Optional.of(genres.get(0));
     }
 
     @Override
-    public Map<Integer, Genre> getGenresByIds(Collection<Integer> genreIds) {
+    public Map<Integer, Genre> getByIds(List<Integer> genreIds) {
         String sql = "SELECT id, name FROM genre WHERE id IN (" +
                 genreIds.stream().map(String::valueOf).collect(Collectors.joining(", ")) + ");";
         Map<Integer, Genre> genres = new HashMap<>();
