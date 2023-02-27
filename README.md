@@ -10,7 +10,13 @@ Backend социальной сети для оценки и подбора фи
 ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=java&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/spring%20Boot-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)
 ![Apache Maven](https://img.shields.io/badge/Apache%20Maven-C71A36?style=for-the-badge&logo=Apache%20Maven&logoColor=white)
-![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+
+---
+### Функционал
+
+Приложение позволяет добавлять описание фильмов, оценивать, искать, оставлять отзывы, 
+получать рекомендации на основе оценок пользователей с похожими вкусами,
+добавлять в друзья других пользователей и просматривать ленту событий по активностям друзей.
 
 ---
 ### Хранение данных
